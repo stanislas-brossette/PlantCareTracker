@@ -3,18 +3,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Array of plant names
     const plants = [
-        { name: "ZZ", wateringFreq: 7, feedingFreq: 14 },
-        { name: "Suzie", wateringFreq: 7, feedingFreq: 14 },
-        { name: "Impatiens", wateringFreq: 7, feedingFreq: 14 },
-        { name: "Philo vert pomme", wateringFreq: 7, feedingFreq: 14 },
-        { name: "Philo velours", wateringFreq: 7, feedingFreq: 14 },
-        { name: "Philo vert jungle", wateringFreq: 7, feedingFreq: 14 },
-        { name: "Pothos Stan", wateringFreq: 7, feedingFreq: 14 },
-        { name: "Pothos Marjo", wateringFreq: 7, feedingFreq: 14 },
-        { name: "Dieffenbachia", wateringFreq: 7, feedingFreq: 14 },
-        { name: "Pachira", wateringFreq: 7, feedingFreq: 14 },
-        { name: "Citronnier", wateringFreq: 7, feedingFreq: 14 },
-        { name: "Succulente", wateringFreq: 7, feedingFreq: 14 },
+        { name: "ZZ",
+         wateringFreq: [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+         feedingFreq: [14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14] },
+        { name: "Suzie",
+         wateringFreq: [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+         feedingFreq: [14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14] },
+        { name: "Impatiens",
+         wateringFreq: [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+         feedingFreq: [14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14] },
+        { name: "Philo vert pomme",
+         wateringFreq: [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+         feedingFreq: [14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14] },
+        { name: "Philo velours",
+         wateringFreq: [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+         feedingFreq: [14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14] },
+        { name: "Philo vert jungle",
+         wateringFreq: [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+         feedingFreq: [14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14] },
+        { name: "Pothos Stan",
+         wateringFreq: [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+         feedingFreq: [14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14] },
+        { name: "Pothos Marjo",
+         wateringFreq: [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+         feedingFreq: [14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14] },
+        { name: "Dieffenbachia",
+         wateringFreq: [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+         feedingFreq: [14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14] },
+        { name: "Pachira",
+         wateringFreq: [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+         feedingFreq: [14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14] },
+        { name: "Citronnier",
+         wateringFreq: [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+         feedingFreq: [14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14] },
+        { name: "Succulente",
+         wateringFreq: [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+         feedingFreq: [14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14] },
     ];
 
     // Object to store button references
@@ -37,24 +61,12 @@ document.addEventListener('DOMContentLoaded', () => {
             row.insertCell().appendChild(button);
             buttonRefs[button.id] = button; // Store button reference
 
-            //button.className = needsAttention ? 'button-alert' : 'button-normal';
-            console.log(`Created ${type} button for ${plant.name}`);
             return button;
         };
 
-        //const lastWatered = new Date(getLastClickedTimes[`${plant.name}-Arrosage`] || new Date());
-        //const daysSinceWatered = Math.floor((new Date() - lastWatered) / (1000 * 60 * 60 * 24));
-        //const needsWatering = daysSinceWatered > plant.wateringFreq;
-
-        //const lastFed = new Date(getLastClickedTimes[`${plant.name}-Engrais`] || new Date());
-        //const daysSinceFed = Math.floor((new Date() - lastFed) / (1000 * 60 * 60 * 24));
-        //const needsFeeding = daysSinceFed > plant.feedingFreq;
-        //const needsWatering = true;
-        //const needsFeeding = false;
-
         // Create Arrosage and Engrais buttons for each plant
-        createButton('Arrosage');//, needsWatering);
-        createButton('Engrais');//, needsFeeding);
+        createButton('Arrosage');
+        createButton('Engrais');
     });
 
     const calculateTimeSince = (lastClickedTime) => {
@@ -78,26 +90,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Update button text based on last clicked time
     const updateButtonState = (buttonId, lastClickedTime) => {
-        console.log(`UpdateButtonState for ${buttonId}`);
         const timeDiff = lastClickedTime ? calculateTimeSince(lastClickedTime) : 'Never clicked';
         buttonRefs[buttonId].textContent = timeDiff;
-
-        const isWateringButton = buttonId.includes("Arrosage");
-        console.log(`isWateringButton ${isWateringButton}`);
-        limitDays = buttonRefs[buttonId].getAttribute('feedingFrequency');
-        if (isWateringButton == true)
-        {
-            limitDays = buttonRefs[buttonId].getAttribute('wateringFrequency');
-        }
-        console.log(`limitDays ${limitDays}`);
 
         const now = new Date();
         const lastClickedDate = new Date(lastClickedTime);
         const differenceInDays = Math.floor((now - lastClickedDate) / (1000* 60 * 60 * 24));
-        console.log(`differenceInDays ${differenceInDays}`);
+
+        const isWateringButton = buttonId.includes("Arrosage");
+        limitFrequencies = buttonRefs[buttonId].getAttribute('feedingFrequency').split(',');
+        if (isWateringButton == true)
+        {
+            limitFrequencies = buttonRefs[buttonId].getAttribute('wateringFrequency').split(',');
+        }
+        console.log(`limitFreq ${limitFrequencies}`);
+        limitDays = limitFrequencies[now.getMonth()];
+
+        console.log(`limitDays ${limitDays}`);
+
 
         const needsAttention = differenceInDays > limitDays;
-        console.log(`needsAttention ${needsAttention}`)
 
         buttonRefs[buttonId].className = needsAttention ? 'button-alert' : 'button-normal';
     };
