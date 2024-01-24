@@ -1,16 +1,28 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const buttonsContainer = document.getElementById('buttons');
+    const plantsTable = document.getElementById('plantsTable');
 
-    // Array of strings to create buttons
-    const buttonNames = ["ZZ", "Suzie", "Impatiens", "Philo vert pomme", "Philo velours", "Philo vert jungle", "Pothos Stan", "Pothos Marjo", "Dieffenbachia", "Pachira", "Citronnier", "Succulente"];
+    // Array of plant names
+    const plantNames = ["ZZ", "Suzie", "Impatiens", "Philo vert pomme", "Philo velours", "Philo vert jungle", "Pothos Stan", "Pothos Marjo", "Dieffenbachia", "Pachira", "Citronnier", "Succulente"];
 
-    // Create a button for each string in the array
-    buttonNames.forEach(name => {
-        const button = document.createElement('button');
-        button.textContent = name;
-        button.id = `button-${name}`;
-        button.onclick = () => buttonClicked(button.id);
-        buttonsContainer.appendChild(button);
+    // Create a row for each plant
+    plantNames.forEach(plantName => {
+        const row = plantsTable.insertRow();
+        const nameCell = row.insertCell();
+        nameCell.textContent = plantName;
+
+        const createButton = (type) => {
+            const button = document.createElement('button');
+            button.textContent = type;
+            button.id = `button-${plantName}-${type}`;
+            button.onclick = () => buttonClicked(button.id);
+            return button;
+        };
+
+        const arrosageCell = row.insertCell();
+        arrosageCell.appendChild(createButton('Arrosage'));
+
+        const engraisCell = row.insertCell();
+        engraisCell.appendChild(createButton('Engrais'));
     });
 
     getLastClickedTimes();

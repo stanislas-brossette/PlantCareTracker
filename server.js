@@ -3,7 +3,7 @@ const fs = require('fs');
 const app = express();
 const port = 3000;
 
-let lastClickedTimes = {}; // Stores last clicked times for each button
+let lastClickedTimes = {}; // Stores last clicked times for each action of each plant
 const dataFile = 'lastClickedTimes.json';
 
 // Function to read the last clicked times from a file
@@ -30,7 +30,7 @@ function writeLastClickedTimes() {
 readLastClickedTimes();
 
 app.use(express.static('public'));
-app.use(express.json());
+app.use(express.json()); // Middleware to parse JSON bodies
 
 app.post('/clicked', (req, res) => {
     const buttonId = req.body.buttonId;
