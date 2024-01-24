@@ -3,42 +3,48 @@ const fs = require('fs');
 const app = express();
 const port = 3000;
 
-let lastClickedTime = null;
-const dataFile = 'lastClickedTime.txt';
+let lastClickedTimes = {}; // Stores last clicked times for each button
+const dataFile = 'lastClickedTimes.json';
 
-// Function to read the last clicked time from a file
-function readLastClickedTime() {
+// Function to read the last clicked times from a file
+function readLastClickedTimes() {
     try {
         const data = fs.readFileSync(dataFile, 'utf8');
-        lastClickedTime = new Date(data);
+        lastClickedTimes = JSON.parse(data);
     } catch (err) {
-        console.log("No previous time found or error reading file:", err);
-        lastClickedTime = null;
+        console.log("No previous data found or error reading file:", err);
+        lastClickedTimes = {};
     }
 }
 
-// Function to write the last clicked time to a file
-function writeLastClickedTime(time) {
-    fs.writeFile(dataFile, time.toISOString(), err => {
+// Function to write the last clicked times to a file
+function writeLastClickedTimes() {
+    fs.writeFile(dataFile, JSON.stringify(lastClickedTimes, null, 4), err => {
         if (err) {
             console.error('Error writing to file', err);
         }
     });
 }
 
-// Read the last clicked time from the file on server start
-readLastClickedTime();
+// Read the last clicked times from the file on server start
+readLastClickedTimes();
 
 app.use(express.static('public'));
+app.use(express.json());
 
-app.get('/clicked', (req, res) => {
-    lastClickedTime = new Date();
-    writeLastClickedTime(lastClickedTime);
-    res.send({ lastClickedTime: lastClickedTime.toISOString() });
+app.post('/clicked', (req, res) => {
+    const buttonId = req.body.buttonId;
+    if (buttonId) {
+        lastClickedTimes[buttonId] = new Date().toISOString();
+        writeLastClickedTimes();
+        res.send({ lastClickedTime: lastClickedTimes[buttonId] });
+    } else {
+        res.status(400).send('Button ID is required');
+    }
 });
 
-app.get('/lastClickedTime', (req, res) => {
-    res.send({ lastClickedTime: lastClickedTime ? lastClickedTime.toISOString() : null });
+app.get('/lastClickedTimes', (req, res) => {
+    res.send(lastClickedTimes);
 });
 
 app.listen(port, '0.0.0.0', () => {
