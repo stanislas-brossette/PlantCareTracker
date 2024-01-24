@@ -31,6 +31,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const button = document.createElement('button');
             button.textContent = 'Never'; // Initial text
             button.id = `button-${plant.name}-${type}`;
+            button.setAttribute('feedingFrequency', plant.feedingFreq)
+            button.setAttribute('wateringFrequency', plant.wateringFreq)
             button.onclick = () => buttonClicked(button.id);
             row.insertCell().appendChild(button);
             buttonRefs[button.id] = button; // Store button reference
@@ -80,12 +82,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const timeDiff = lastClickedTime ? calculateTimeSince(lastClickedTime) : 'Never clicked';
         buttonRefs[buttonId].textContent = timeDiff;
 
+        const isWateringButton = buttonId.includes("Arrosage");
+        console.log(`isWateringButton ${isWateringButton}`);
+        limitDays = buttonRefs[buttonId].getAttribute('feedingFrequency');
+        if (isWateringButton == true)
+        {
+            limitDays = buttonRefs[buttonId].getAttribute('wateringFrequency');
+        }
+        console.log(`limitDays ${limitDays}`);
+
         const now = new Date();
         const lastClickedDate = new Date(lastClickedTime);
         const differenceInDays = Math.floor((now - lastClickedDate) / (1000* 60 * 60 * 24));
         console.log(`differenceInDays ${differenceInDays}`);
 
-        const needsAttention = differenceInDays > 1;
+        const needsAttention = differenceInDays > limitDays;
         console.log(`needsAttention ${needsAttention}`)
 
         buttonRefs[buttonId].className = needsAttention ? 'button-alert' : 'button-normal';
