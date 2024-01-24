@@ -4,41 +4,41 @@ document.addEventListener('DOMContentLoaded', () => {
     // Array of plant names
     const plants = [
         { name: "ZZ",
-         wateringFreq: [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         feedingFreq: [14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14] },
+         wateringFreq: [30, 30, 12, 12, 12, 12, 12, 12, 30, 30, 30, 30],
+         feedingFreq: [1000, 1000, 7, 7, 7, 7, 7, 7, 7, 7, 1000, 1000] },
         { name: "Suzie",
-         wateringFreq: [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         feedingFreq: [14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14] },
+         wateringFreq: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
+         feedingFreq: [20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20] },
         { name: "Impatiens",
-         wateringFreq: [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         feedingFreq: [14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14] },
+         wateringFreq: [12, 12, 2, 2, 2, 2, 2, 2, 12, 12, 12, 12],
+         feedingFreq: [1000, 1000, 15, 15, 15, 15, 15, 15, 15, 15, 1000, 1000] },
         { name: "Philo vert pomme",
-         wateringFreq: [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         feedingFreq: [14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14] },
+         wateringFreq: [12, 12, 5, 5, 5, 5, 5, 5, 12, 12, 12, 12],
+         feedingFreq: [1000, 1000, 1000, 30, 30, 30, 30, 30, 30, 30, 1000, 1000] },
         { name: "Philo velours",
-         wateringFreq: [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         feedingFreq: [14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14] },
+         wateringFreq: [12, 12, 5, 5, 5, 5, 5, 5, 12, 12, 12, 12],
+         feedingFreq: [1000, 1000, 1000, 30, 30, 30, 30, 30, 30, 30, 1000, 1000] },
         { name: "Philo vert jungle",
-         wateringFreq: [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         feedingFreq: [14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14] },
+         wateringFreq: [12, 12, 5, 5, 5, 5, 5, 5, 12, 12, 12, 12],
+         feedingFreq: [1000, 1000, 1000, 30, 30, 30, 30, 30, 30, 30, 1000, 1000] },
         { name: "Pothos Stan",
-         wateringFreq: [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         feedingFreq: [14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14] },
+         wateringFreq: [12, 12, 6, 6, 6, 6, 6, 6, 12, 12, 12, 12],
+         feedingFreq: [1000, 1000, 14, 14, 14, 14, 14, 14, 14, 14, 1000, 1000] },
         { name: "Pothos Marjo",
-         wateringFreq: [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         feedingFreq: [14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14] },
+         wateringFreq: [12, 12, 6, 6, 6, 6, 6, 6, 12, 12, 12, 12],
+         feedingFreq: [1000, 1000, 14, 14, 14, 14, 14, 14, 14, 14, 1000, 1000] },
         { name: "Dieffenbachia",
-         wateringFreq: [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         feedingFreq: [14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14] },
+         wateringFreq: [9, 9, 6, 6, 6, 6, 6, 6, 9, 9, 9, 9],
+         feedingFreq: [1000, 1000, 15, 15, 15, 15, 15, 15, 15, 15, 1000, 1000] },
         { name: "Pachira",
-         wateringFreq: [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         feedingFreq: [14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14] },
+         wateringFreq: [13, 13, 6, 6, 6, 6, 6, 6, 13, 13, 13, 13],
+         feedingFreq: [1000, 1000, 1000, 30, 30, 30, 30, 30, 30, 1000, 1000, 1000] },
         { name: "Citronnier",
-         wateringFreq: [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         feedingFreq: [14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14] },
+         wateringFreq: [14, 14, 7, 7, 3, 3, 3, 7, 7, 7, 14, 14],
+         feedingFreq: [1000, 1000, 1000, 30, 30, 30, 30, 30, 30, 1000, 1000, 1000] },
         { name: "Succulente",
-         wateringFreq: [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         feedingFreq: [14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14] },
+         wateringFreq: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
+         feedingFreq: [1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000] },
     ];
 
     // Object to store button references
@@ -103,11 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             limitFrequencies = buttonRefs[buttonId].getAttribute('wateringFrequency').split(',');
         }
-        console.log(`limitFreq ${limitFrequencies}`);
         limitDays = limitFrequencies[now.getMonth()];
-
-        console.log(`limitDays ${limitDays}`);
-
 
         const needsAttention = differenceInDays > limitDays;
 
