@@ -16,4 +16,22 @@ describe('Server endpoints', () => {
     expect(res.statusCode).toBe(200);
     expect(res.body).toHaveProperty('lastClickedTime');
   });
+
+  test('GET /plants returns array of plants', async () => {
+    const res = await request(app).get('/plants');
+    expect(res.statusCode).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+  });
+
+  test('PUT /plants/:name updates a plant', async () => {
+    const res = await request(app)
+      .put('/plants/ZZ')
+      .send({ description: 'test-desc' });
+    expect(res.statusCode).toBe(200);
+    expect(res.body.description).toBe('test-desc');
+
+    await request(app)
+      .put('/plants/ZZ')
+      .send({ description: '' });
+  });
 });

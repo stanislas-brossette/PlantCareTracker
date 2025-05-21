@@ -1,69 +1,22 @@
 document.addEventListener('DOMContentLoaded', () => {
     const plantsTable = document.getElementById('plantsTable');
 
-    // Array of plant data (name, watering frequency, feeding frequency)
-    const plants = [
-        { name: "ZZ",
-         wateringFreq: [30, 30, 12, 12, 12, 12, 12, 12, 30, 30, 30, 30],
-         feedingFreq: [1000, 1000, 7, 7, 7, 7, 7, 7, 7, 7, 1000, 1000] },
-        { name: "Suzie",
-         wateringFreq: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
-         feedingFreq: [20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20] },
-        { name: "Impatiens",
-         wateringFreq: [12, 12, 2, 2, 2, 2, 2, 2, 12, 12, 12, 12],
-         feedingFreq: [1000, 1000, 15, 15, 15, 15, 15, 15, 15, 15, 1000, 1000] },
-        { name: "Philo vert pomme",
-         wateringFreq: [12, 12, 5, 5, 5, 5, 5, 5, 12, 12, 12, 12],
-         feedingFreq: [1000, 1000, 1000, 30, 30, 30, 30, 30, 30, 30, 1000, 1000] },
-        { name: "Philo velours",
-         wateringFreq: [12, 12, 5, 5, 5, 5, 5, 5, 12, 12, 12, 12],
-         feedingFreq: [1000, 1000, 1000, 30, 30, 30, 30, 30, 30, 30, 1000, 1000] },
-        { name: "Philo vert jungle",
-         wateringFreq: [12, 12, 5, 5, 5, 5, 5, 5, 12, 12, 12, 12],
-         feedingFreq: [1000, 1000, 1000, 30, 30, 30, 30, 30, 30, 30, 1000, 1000] },
-        { name: "Pothos Stan",
-         wateringFreq: [12, 12, 6, 6, 6, 6, 6, 6, 12, 12, 12, 12],
-         feedingFreq: [1000, 1000, 14, 14, 14, 14, 14, 14, 14, 14, 1000, 1000] },
-        { name: "Pothos Marjo",
-         wateringFreq: [12, 12, 6, 6, 6, 6, 6, 6, 12, 12, 12, 12],
-         feedingFreq: [1000, 1000, 14, 14, 14, 14, 14, 14, 14, 14, 1000, 1000] },
-        { name: "Succulente",
-         wateringFreq: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
-         feedingFreq: [1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000] },
-        { name: "Kalanchoe",
-         wateringFreq: [15, 15, 15, 15, 7, 7, 7, 7, 15, 15, 15, 15],
-         feedingFreq: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30] },
-        { name: "Azalée",
-         wateringFreq: [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-         feedingFreq: [1000, 1000, 1000, 15, 15, 15, 15, 15, 15, 1000, 1000, 1000] },
-        { name: "Fougère",
-         wateringFreq: [15, 15, 15, 15, 7, 7, 7, 7, 15, 15, 15, 15],
-         feedingFreq: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30] },
-        { name: "Calathea",
-         wateringFreq: [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-         feedingFreq: [1000, 1000, 30, 30, 30, 30, 30, 30, 1000, 1000, 1000, 1000] },
-        { name: "Punto Grigio",
-         wateringFreq: [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-         feedingFreq: [1000, 1000, 30, 30, 30, 30, 30, 30, 1000, 1000, 1000, 1000] },
-        { name: "Calathea junior",
-         wateringFreq: [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-         feedingFreq: [1000, 1000, 30, 30, 30, 30, 30, 30, 1000, 1000, 1000, 1000] },
-        { name: "Laitue",
-         wateringFreq: [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-         feedingFreq: [1000, 1000, 30, 30, 30, 30, 30, 30, 1000, 1000, 1000, 1000] },
-        { name: "Succulente pointue",
-         wateringFreq: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
-         feedingFreq: [1000, 1000, 30, 30, 30, 30, 30, 30, 1000, 1000, 1000, 1000] },
-    ];
+    let plants = [];
 
     // Object to store button references
     const buttonRefs = {};
 
-    // Create a row for each plant
-    plants.forEach(plant => {
-        const row = plantsTable.insertRow();
-        const nameCell = row.insertCell();
-        nameCell.textContent = plant.name;
+    const loadPlants = async () => {
+        const response = await fetch('/plants');
+        plants = await response.json();
+
+        plants.forEach(plant => {
+            const row = plantsTable.insertRow();
+            const nameCell = row.insertCell();
+            const link = document.createElement('a');
+            link.href = `plant.html?name=${encodeURIComponent(plant.name)}`;
+            link.textContent = plant.name;
+            nameCell.appendChild(link);
 
         // Function to create a button
         const createButton = (type) => {
@@ -82,7 +35,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // Create Arrosage and Engrais buttons for each plant
         createButton('Arrosage');
         createButton('Engrais');
-    });
+        });
+
+        await getLastClickedTimes();
+        setInterval(refreshTimes, 60000);
+    };
 
     const calculateTimeSince = (lastClickedTime) => {
         const now = new Date();
@@ -160,6 +117,5 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    getLastClickedTimes();
-    setInterval(refreshTimes, 60000); // refresh every minute
+    loadPlants();
 });

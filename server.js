@@ -6,6 +6,9 @@ const port = 3000;
 let lastClickedTimes = {}; // Stores last clicked times for each action of each plant
 const dataFile = 'lastClickedTimes.json';
 
+let plants = [];
+const plantsFile = 'plants.json';
+
 // Function to read the last clicked times from a file
 function readLastClickedTimes() {
     try {
@@ -17,6 +20,23 @@ function readLastClickedTimes() {
     }
 }
 
+function readPlants() {
+    try {
+        const data = fs.readFileSync(plantsFile, 'utf8');
+        plants = JSON.parse(data);
+    } catch (err) {
+        console.log('No plants data found or error reading file:', err);
+        plants = [];
+    }
+}
+
+function writePlants() {
+    fs.writeFile(plantsFile, JSON.stringify(plants, null, 4), err => {
+        if (err) {
+            console.error('Error writing plants file', err);
+        }
+    });
+}
 // Function to write the last clicked times to a file
 function writeLastClickedTimes() {
     fs.writeFile(dataFile, JSON.stringify(lastClickedTimes, null, 4), err => {
@@ -28,6 +48,7 @@ function writeLastClickedTimes() {
 
 // Read the last clicked times from the file on server start
 readLastClickedTimes();
+readPlants();
 
 app.use(express.static('public'));
 app.use(express.json()); // Middleware to parse JSON bodies
@@ -45,6 +66,29 @@ app.post('/clicked', (req, res) => {
 
 app.get('/lastClickedTimes', (req, res) => {
     res.send(lastClickedTimes);
+});
+
+app.get('/plants', (req, res) => {
+    res.send(plants);
+});
+
+app.get('/plants/:name', (req, res) => {
+    const plant = plants.find(p => p.name === req.params.name);
+    if (plant) {
+        res.send(plant);
+    } else {
+        res.status(404).send('Plant not found');
+    }
+});
+
+app.put('/plants/:name', (req, res) => {
+    const index = plants.findIndex(p => p.name === req.params.name);
+    if (index === -1) {
+        return res.status(404).send('Plant not found');
+    }
+    plants[index] = { ...plants[index], ...req.body };
+    writePlants();
+    res.send(plants[index]);
 });
 
 if (require.main === module) {
