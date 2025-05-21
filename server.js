@@ -47,6 +47,10 @@ app.get('/lastClickedTimes', (req, res) => {
     res.send(lastClickedTimes);
 });
 
-app.listen(port, '0.0.0.0', () => {
-    console.log(`Server listening at http://localhost:${port}`);
-});
+if (require.main === module) {
+    app.listen(port, '0.0.0.0', () => {
+        console.log(`Server listening at http://localhost:${port}`);
+    });
+}
+
+module.exports = app;
