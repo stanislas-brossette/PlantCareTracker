@@ -69,7 +69,9 @@ app.get('/lastClickedTimes', (req, res) => {
 });
 
 app.get('/plants', (req, res) => {
-    res.send(plants);
+    // Only return non archived plants
+    const visiblePlants = plants.filter(p => !p.archived);
+    res.send(visiblePlants);
 });
 
 app.get('/plants/:name', (req, res) => {

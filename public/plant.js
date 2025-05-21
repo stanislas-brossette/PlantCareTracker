@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const wateringElem = document.getElementById('watering');
     const feedingElem = document.getElementById('feeding');
     const saveBtn = document.getElementById('save');
+    const archiveBtn = document.getElementById('archive');
 
     const load = async () => {
         const res = await fetch(`/plants/${encodeURIComponent(name)}`);
@@ -19,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
             descElem.value = plant.description || '';
             wateringElem.value = (plant.wateringFreq || []).join(',');
             feedingElem.value = (plant.feedingFreq || []).join(',');
+            archiveBtn.disabled = !!plant.archived;
         }
     };
 
@@ -36,6 +38,17 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('Saved');
     };
 
+    const archive = async () => {
+        await fetch(`/plants/${encodeURIComponent(name)}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ archived: true })
+        });
+        alert('Archived');
+        window.location.href = 'index.html';
+    };
+
     saveBtn.addEventListener('click', save);
+    archiveBtn.addEventListener('click', archive);
     load();
 });

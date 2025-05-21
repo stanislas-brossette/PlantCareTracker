@@ -35,6 +35,19 @@ describe('Server endpoints', () => {
       .send({ description: '' });
   });
 
+
+  test('PUT /plants/:name archives a plant', async () => {
+    const res = await request(app)
+      .put('/plants/ZZ')
+      .send({ archived: true });
+    expect(res.statusCode).toBe(200);
+    expect(res.body.archived).toBe(true);
+
+    await request(app)
+      .put('/plants/ZZ')
+      .send({ archived: false });
+  });
+
   test('POST /plants creates and DELETE removes a plant', async () => {
     const newPlant = {
       name: 'TestPlant',
