@@ -105,12 +105,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Update button text based on last clicked time
     const updateButtonState = (buttonId, lastClickedTime) => {
+        if (lastClickedTime !== undefined) {
+            buttonRefs[buttonId].dataset.lastClickedTime = lastClickedTime;
+        } else {
+            lastClickedTime = buttonRefs[buttonId].dataset.lastClickedTime;
+        }
+
         const timeDiff = lastClickedTime ? calculateTimeSince(lastClickedTime) : 'Never clicked';
         buttonRefs[buttonId].textContent = timeDiff;
 
         const now = new Date();
         const lastClickedDate = new Date(lastClickedTime);
-        const differenceInDays = Math.floor((now - lastClickedDate) / (1000* 60 * 60 * 24));
+        const differenceInDays = Math.floor((now - lastClickedDate) / (1000 * 60 * 60 * 24));
 
         const isWateringButton = buttonId.includes("Arrosage");
         limitFrequencies = buttonRefs[buttonId].getAttribute('feedingFrequency').split(',');
@@ -145,5 +151,12 @@ document.addEventListener('DOMContentLoaded', () => {
         updateButtonState(buttonId, data.lastClickedTime);
     };
 
+    const refreshTimes = () => {
+        Object.keys(buttonRefs).forEach(buttonId => {
+            updateButtonState(buttonId);
+        });
+    };
+
     getLastClickedTimes();
+    setInterval(refreshTimes, 60000); // refresh every minute
 });
