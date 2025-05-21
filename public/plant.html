@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Plant Details</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }
+        img { max-width: 300px; display: block; margin-bottom: 20px; }
+        input, textarea { width: 100%; margin-bottom: 10px; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <h1 id="plant-name"></h1>
+    <img id="plant-image" src="" alt="Plant image" />
+    <label>Description</label>
+    <textarea id="description" rows="4"></textarea>
+    <label>Watering frequency (12 numbers, comma separated)</label>
+    <input type="text" id="watering" />
+    <label>Feeding frequency (12 numbers, comma separated)</label>
+    <input type="text" id="feeding" />
+    <button id="save">Save</button>
+    <script src="plant.js"></script>
+</body>
+</html>
