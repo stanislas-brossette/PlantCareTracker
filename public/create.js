@@ -5,6 +5,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const feedingElem = document.getElementById('feeding');
     const imageElem = document.getElementById('image');
     const saveBtn = document.getElementById('save');
+    const messageElem = document.getElementById('message');
+
+    const showMessage = (msg, type = 'success') => {
+        messageElem.textContent = msg;
+        messageElem.className = `alert alert-${type}`;
+        messageElem.classList.remove('d-none');
+        setTimeout(() => messageElem.classList.add('d-none'), 3000);
+    };
 
     const save = async () => {
         const body = {
@@ -20,11 +28,13 @@ document.addEventListener('DOMContentLoaded', () => {
             body: JSON.stringify(body)
         });
         if (res.ok) {
-            alert('Created');
-            window.location.href = 'index.html';
+            showMessage('Created', 'success');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
         } else {
             const text = await res.text();
-            alert('Error: ' + text);
+            showMessage('Error: ' + text, 'danger');
         }
     };
 

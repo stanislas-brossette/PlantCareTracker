@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const button = document.createElement('button');
             button.textContent = 'Never'; // Initial text
             button.id = `button-${plant.name}-${type}`;
+            button.className = 'btn w-100 btn-success';
             button.setAttribute('feedingFrequency', plant.feedingFreq)
             button.setAttribute('wateringFrequency', plant.wateringFreq)
             button.onclick = () => buttonClicked(button.id);
@@ -88,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const needsAttention = differenceInDays > limitDays;
 
-        buttonRefs[buttonId].className = needsAttention ? 'button-alert' : 'button-normal';
+        buttonRefs[buttonId].className = `btn w-100 ${needsAttention ? 'btn-danger' : 'btn-success'}`;
     };
 
     const getLastClickedTimes = async () => {
