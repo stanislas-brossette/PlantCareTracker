@@ -89,6 +89,16 @@ app.put('/plants/:name', (req, res) => {
         return res.status(404).send('Plant not found');
     }
     plants[index] = { ...plants[index], ...req.body };
+
+    if (req.body.archived === true) {
+        Object.keys(lastClickedTimes).forEach(key => {
+            if (key.startsWith(`button-${req.params.name}-`)) {
+                delete lastClickedTimes[key];
+            }
+        });
+        writeLastClickedTimes();
+    }
+
     writePlants();
     res.send(plants[index]);
 });
@@ -119,6 +129,14 @@ app.delete('/plants/:name', (req, res) => {
         return res.status(404).send('Plant not found');
     }
     const removed = plants.splice(index, 1)[0];
+
+    Object.keys(lastClickedTimes).forEach(key => {
+        if (key.startsWith(`button-${req.params.name}-`)) {
+            delete lastClickedTimes[key];
+        }
+    });
+    writeLastClickedTimes();
+
     writePlants();
     res.send(removed);
 });

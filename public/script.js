@@ -95,7 +95,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const response = await fetch('/lastClickedTimes');
         const data = await response.json();
         Object.entries(data).forEach(([buttonId, time]) => {
-            updateButtonState(buttonId, time);
+            if (buttonRefs[buttonId]) {
+                updateButtonState(buttonId, time);
+            }
         });
     };
 

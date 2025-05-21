@@ -48,6 +48,28 @@ describe('Server endpoints', () => {
       .send({ archived: false });
   });
 
+  test('Archiving a plant removes its lastClickedTimes entries', async () => {
+    const name = 'Fougère';
+
+    await request(app).post('/clicked').send({ buttonId: `button-${name}-Arrosage` });
+    await request(app).post('/clicked').send({ buttonId: `button-${name}-Engrais` });
+
+    const archiveRes = await request(app)
+      .put('/plants/' + encodeURIComponent(name))
+      .send({ archived: true });
+    expect(archiveRes.statusCode).toBe(200);
+
+    const times = await request(app).get('/lastClickedTimes');
+    const hasEntry = Object.keys(times.body).some(k => k.includes(name));
+    expect(hasEntry).toBe(false);
+
+    await request(app)
+      .put('/plants/' + encodeURIComponent(name))
+      .send({ archived: false });
+    await request(app).post('/clicked').send({ buttonId: `button-${name}-Arrosage` });
+    await request(app).post('/clicked').send({ buttonId: `button-${name}-Engrais` });
+  });
+
   test('POST /plants creates and DELETE removes a plant', async () => {
     const newPlant = {
       name: 'TestPlant',
