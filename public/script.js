@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const plantsTable = document.getElementById('plantsTable');
+    const undoButton = document.getElementById('undoButton');
 
     // Array of plant data (name, watering frequency, feeding frequency)
     const plants = [
@@ -58,6 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Object to store button references
     const buttonRefs = {};
+    let lastClickedButtonId = null;
 
     // Create a row for each plant
     plants.forEach(plant => {
@@ -106,13 +108,22 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update button text based on last clicked time
     const updateButtonState = (buttonId, lastClickedTime) => {
         if (lastClickedTime !== undefined) {
-            buttonRefs[buttonId].dataset.lastClickedTime = lastClickedTime;
+            if (lastClickedTime === null) {
+                delete buttonRefs[buttonId].dataset.lastClickedTime;
+            } else {
+                buttonRefs[buttonId].dataset.lastClickedTime = lastClickedTime;
+            }
         } else {
             lastClickedTime = buttonRefs[buttonId].dataset.lastClickedTime;
         }
 
         const timeDiff = lastClickedTime ? calculateTimeSince(lastClickedTime) : 'Never clicked';
         buttonRefs[buttonId].textContent = timeDiff;
+
+        if (!lastClickedTime) {
+            buttonRefs[buttonId].className = 'button-normal';
+            return;
+        }
 
         const now = new Date();
         const lastClickedDate = new Date(lastClickedTime);
@@ -152,6 +163,26 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         const data = await response.json();
         updateButtonState(buttonId, data.lastClickedTime);
+        lastClickedButtonId = buttonId;
+    };
+
+    undoButton.onclick = async () => {
+        if (!lastClickedButtonId) return;
+
+        const response = await fetch('/undo', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ buttonId: lastClickedButtonId }),
+        });
+
+        if (!response.ok) return;
+        const data = await response.json();
+        updateButtonState(lastClickedButtonId, data.lastClickedTime);
+        if (data.lastClickedTime === null) {
+            lastClickedButtonId = null;
+        }
     };
 
     const refreshTimes = () => {
