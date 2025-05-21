@@ -132,3 +132,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     getLastClickedTimes();
 });
+
+document.getElementById('restoreBackupButton').addEventListener('click', () => {
+    fetch('/restoreBackup', { method: 'POST' })
+        .then(response => {
+            if (response.ok) {
+                console.log('Backup restored successfully');
+                // Additional actions on successful backup restoration
+            } else {
+                console.error('Error restoring backup');
+            }
+        })
+        .catch(error => console.error('Failed to send request:', error));
+});

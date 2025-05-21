@@ -1,18 +1,10 @@
 const express = require('express');
-const cron = require('node-cron');
 const fs = require('fs');
 const app = express();
 const port = 3000;
 
 let lastClickedTimes = {}; // Stores last clicked times for each action of each plant
 const dataFile = 'lastClickedTimes.json';
-const dataFileBackup = 'lastClickedTimes.json.bck';
-
-cron.schedule('0 2 * * *', () => {
-    fs.copyFile(dataFile, dataFileBackup, (err) => {
-        if (err) throw err;
-    });
-})
 
 // Function to read the last clicked times from a file
 function readLastClickedTimes() {

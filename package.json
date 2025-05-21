@@ -1,7 +1,8 @@
 {
-  "name": "plant_care_tracker",
+  "name": "plantcaretracker",
   "version": "1.0.0",
-  "main": "script.js",
+  "description": "",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
@@ -9,8 +10,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.18.2",
-    "node-cron": "^3.0.3"
-  },
-  "description": ""
+    "express": "^4.18.2"
+  }
 }
