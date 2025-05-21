@@ -34,4 +34,16 @@ describe('Server endpoints', () => {
       .put('/plants/ZZ')
       .send({ description: '' });
   });
+
+  test('PUT /plants/:name archives a plant', async () => {
+    const res = await request(app)
+      .put('/plants/ZZ')
+      .send({ archived: true });
+    expect(res.statusCode).toBe(200);
+    expect(res.body.archived).toBe(true);
+
+    await request(app)
+      .put('/plants/ZZ')
+      .send({ archived: false });
+  });
 });

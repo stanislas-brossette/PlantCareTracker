@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const response = await fetch('/plants');
         plants = await response.json();
 
-        plants.forEach(plant => {
+        plants.filter(p => !p.archived).forEach(plant => {
             const row = plantsTable.insertRow();
             const nameCell = row.insertCell();
             const link = document.createElement('a');
