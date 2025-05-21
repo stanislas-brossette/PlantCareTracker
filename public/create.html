@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Plant</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }
+        input, textarea { width: 100%; margin-bottom: 10px; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <h1>Create Plant</h1>
+    <label>Name</label>
+    <input type="text" id="name" />
+    <label>Description</label>
+    <textarea id="description" rows="4"></textarea>
+    <label>Watering frequency (12 numbers, comma separated)</label>
+    <input type="text" id="watering" />
+    <label>Feeding frequency (12 numbers, comma separated)</label>
+    <input type="text" id="feeding" />
+    <label>Image path</label>
+    <input type="text" id="image" value="images/placeholder.png" />
+    <button id="save">Save</button>
+    <script src="create.js"></script>
+</body>
+</html>

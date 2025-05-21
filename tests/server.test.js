@@ -34,4 +34,24 @@ describe('Server endpoints', () => {
       .put('/plants/ZZ')
       .send({ description: '' });
   });
+
+  test('POST /plants creates and DELETE removes a plant', async () => {
+    const newPlant = {
+      name: 'TestPlant',
+      description: 'temp',
+      wateringFreq: Array(12).fill(1),
+      feedingFreq: Array(12).fill(1),
+      image: 'images/placeholder.png'
+    };
+
+    const createRes = await request(app)
+      .post('/plants')
+      .send(newPlant);
+    expect(createRes.statusCode).toBe(201);
+    expect(createRes.body.name).toBe(newPlant.name);
+
+    const delRes = await request(app)
+      .delete('/plants/' + encodeURIComponent(newPlant.name));
+    expect(delRes.statusCode).toBe(200);
+  });
 });
