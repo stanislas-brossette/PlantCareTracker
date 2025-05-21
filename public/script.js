@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const plantsTable = document.getElementById('plantsTable');
 
-    // Array of plant names
+    // Array of plant data (name, watering frequency, feeding frequency)
     const plants = [
         { name: "ZZ",
          wateringFreq: [30, 30, 12, 12, 12, 12, 12, 12, 30, 30, 30, 30],
@@ -117,6 +117,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const now = new Date();
         const lastClickedDate = new Date(lastClickedTime);
         const differenceInDays = Math.floor((now - lastClickedDate) / (1000 * 60 * 60 * 24));
+
+        let limitFrequencies;
+        let limitDays;
 
         const isWateringButton = buttonId.includes("Arrosage");
         limitFrequencies = buttonRefs[buttonId].getAttribute('feedingFrequency').split(',');

@@ -17,7 +17,7 @@ A simple web app to track watering and fertilizing schedules for your plants. Bu
 ## **Installation**
 
 ### **1. Prerequisites**
-- **Node.js** and **npm** installed on your Raspberry Pi.  
+- **Node.js** and **npm** installed on your Raspberry Pi.
   To install:
   ```bash
   sudo apt update
@@ -50,8 +50,6 @@ The app will be available at:
 ---
 
 ## **Auto-Start on Boot**
-
-To ensure the app runs automatically when your Raspberry Pi restarts:
 
 To ensure your app runs automatically on Raspberry Pi startup, you can use **`cron`**. Here’s how to set it up:
 
