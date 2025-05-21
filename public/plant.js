@@ -10,6 +10,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const feedingElem = document.getElementById('feeding');
     const saveBtn = document.getElementById('save');
     const archiveBtn = document.getElementById('archive');
+    const messageElem = document.getElementById('message');
+
+    const showMessage = (msg, type = 'success') => {
+        messageElem.textContent = msg;
+        messageElem.className = `alert alert-${type}`;
+        messageElem.classList.remove('d-none');
+        setTimeout(() => messageElem.classList.add('d-none'), 3000);
+    };
 
     const load = async () => {
         const res = await fetch(`/plants/${encodeURIComponent(name)}`);
@@ -35,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
         });
-        alert('Saved');
+        showMessage('Saved', 'success');
     };
 
     const archive = async () => {
@@ -44,8 +52,10 @@ document.addEventListener('DOMContentLoaded', () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ archived: true })
         });
-        alert('Archived');
-        window.location.href = 'index.html';
+        showMessage('Archived', 'success');
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 1000);
     };
 
     saveBtn.addEventListener('click', save);
