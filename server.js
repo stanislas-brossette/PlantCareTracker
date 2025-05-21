@@ -93,6 +93,36 @@ app.put('/plants/:name', (req, res) => {
     res.send(plants[index]);
 });
 
+app.post('/plants', (req, res) => {
+    const newPlant = req.body;
+    if (!newPlant.name) {
+        return res.status(400).send('Name is required');
+    }
+    if (plants.find(p => p.name === newPlant.name)) {
+        return res.status(400).send('Plant already exists');
+    }
+    const plantToAdd = {
+        name: newPlant.name,
+        description: newPlant.description || '',
+        wateringFreq: newPlant.wateringFreq || Array(12).fill(0),
+        feedingFreq: newPlant.feedingFreq || Array(12).fill(0),
+        image: newPlant.image || 'images/placeholder.png'
+    };
+    plants.push(plantToAdd);
+    writePlants();
+    res.status(201).send(plantToAdd);
+});
+
+app.delete('/plants/:name', (req, res) => {
+    const index = plants.findIndex(p => p.name === req.params.name);
+    if (index === -1) {
+        return res.status(404).send('Plant not found');
+    }
+    const removed = plants.splice(index, 1)[0];
+    writePlants();
+    res.send(removed);
+});
+
 if (require.main === module) {
     app.listen(port, '0.0.0.0', () => {
         console.log(`Server listening at http://localhost:${port}`);
