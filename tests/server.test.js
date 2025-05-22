@@ -89,4 +89,22 @@ describe('Server endpoints', () => {
       .delete('/plants/' + encodeURIComponent(newPlant.name));
     expect(delRes.statusCode).toBe(200);
   });
+
+  test('Reject invalid frequency arrays on creation', async () => {
+    const res = await request(app)
+      .post('/plants')
+      .send({
+        name: 'InvalidPlant',
+        wateringFreq: [1],
+        feedingFreq: Array(12).fill(1)
+      });
+    expect(res.statusCode).toBe(400);
+  });
+
+  test('Reject invalid frequency arrays on update', async () => {
+    const res = await request(app)
+      .put('/plants/ZZ')
+      .send({ wateringFreq: [1] });
+    expect(res.statusCode).toBe(400);
+  });
 });

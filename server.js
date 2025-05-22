@@ -53,6 +53,10 @@ readPlants();
 app.use(express.static('public'));
 app.use(express.json()); // Middleware to parse JSON bodies
 
+function isValidFreqArray(arr) {
+    return Array.isArray(arr) && arr.length === 12 && arr.every(n => typeof n === 'number');
+}
+
 app.post('/clicked', (req, res) => {
     const buttonId = req.body.buttonId;
     if (buttonId) {
@@ -88,6 +92,12 @@ app.put('/plants/:name', (req, res) => {
     if (index === -1) {
         return res.status(404).send('Plant not found');
     }
+    if (req.body.wateringFreq && !isValidFreqArray(req.body.wateringFreq)) {
+        return res.status(400).send('wateringFreq must be an array of 12 numbers');
+    }
+    if (req.body.feedingFreq && !isValidFreqArray(req.body.feedingFreq)) {
+        return res.status(400).send('feedingFreq must be an array of 12 numbers');
+    }
     plants[index] = { ...plants[index], ...req.body };
 
     if (req.body.archived === true) {
@@ -110,6 +120,12 @@ app.post('/plants', (req, res) => {
     }
     if (plants.find(p => p.name === newPlant.name)) {
         return res.status(400).send('Plant already exists');
+    }
+    if (newPlant.wateringFreq && !isValidFreqArray(newPlant.wateringFreq)) {
+        return res.status(400).send('wateringFreq must be an array of 12 numbers');
+    }
+    if (newPlant.feedingFreq && !isValidFreqArray(newPlant.feedingFreq)) {
+        return res.status(400).send('feedingFreq must be an array of 12 numbers');
     }
     const plantToAdd = {
         name: newPlant.name,
