@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
             container.className = 'd-flex align-items-center justify-content-center';
 
             const img = document.createElement('img');
-            img.src = plant.image;
+            img.src = plant.thumb || plant.image;
             img.alt = `${plant.name} image`;
             img.className = 'plant-thumb';
 
