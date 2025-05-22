@@ -37,6 +37,20 @@ function writePlants() {
         }
     });
 }
+// Save base64 image data to disk and return relative path
+function saveBase64Image(data) {
+    const match = /^data:(image\/\w+);base64,(.+)$/.exec(data || '');
+    if (!match) return null;
+    const ext = match[1].split('/')[1];
+    const fileName = `img_${Date.now()}.${ext}`;
+    try {
+        fs.writeFileSync(`public/images/${fileName}`, match[2], 'base64');
+        return `images/${fileName}`;
+    } catch (err) {
+        console.error('Failed to save image', err);
+        return null;
+    }
+}
 // Function to write the last clicked times to a file
 function writeLastClickedTimes() {
     fs.writeFile(dataFile, JSON.stringify(lastClickedTimes, null, 4), err => {
@@ -51,7 +65,8 @@ readLastClickedTimes();
 readPlants();
 
 app.use(express.static('public'));
-app.use(express.json()); // Middleware to parse JSON bodies
+// Increase JSON body size limit to handle base64 images
+app.use(express.json({ limit: '10mb' }));
 
 function isValidFreqArray(arr) {
     return Array.isArray(arr) && arr.length === 12 && arr.every(n => typeof n === 'number');
@@ -108,6 +123,13 @@ app.put('/plants/:name', (req, res) => {
     if (index === -1) {
         return res.status(404).send('Plant not found');
     }
+    if (req.body.imageData) {
+        const saved = saveBase64Image(req.body.imageData);
+        if (saved) {
+            req.body.image = saved;
+        }
+        delete req.body.imageData;
+    }
     if (req.body.wateringFreq && !isValidFreqArray(req.body.wateringFreq)) {
         return res.status(400).send('wateringFreq must be an array of 12 numbers');
     }
@@ -136,6 +158,13 @@ app.post('/plants', (req, res) => {
     }
     if (plants.find(p => p.name === newPlant.name)) {
         return res.status(400).send('Plant already exists');
+    }
+    if (newPlant.imageData) {
+        const saved = saveBase64Image(newPlant.imageData);
+        if (saved) {
+            newPlant.image = saved;
+        }
+        delete newPlant.imageData;
     }
     if (newPlant.wateringFreq && !isValidFreqArray(newPlant.wateringFreq)) {
         return res.status(400).send('wateringFreq must be an array of 12 numbers');
