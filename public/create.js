@@ -1,8 +1,30 @@
 document.addEventListener('DOMContentLoaded', () => {
     const nameElem = document.getElementById('name');
     const descElem = document.getElementById('description');
-    const wateringElem = document.getElementById('watering');
-    const feedingElem = document.getElementById('feeding');
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const createMonthInputs = (containerId, prefix) => {
+        const container = document.getElementById(containerId);
+        const inputs = [];
+        months.forEach((m, i) => {
+            const div = document.createElement('div');
+            div.className = 'col';
+            const label = document.createElement('label');
+            label.className = 'form-label';
+            label.textContent = m;
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.className = 'form-control';
+            input.id = `${prefix}-${i}`;
+            div.appendChild(label);
+            div.appendChild(input);
+            container.appendChild(div);
+            inputs.push(input);
+        });
+        return inputs;
+    };
+
+    const wateringInputs = createMonthInputs('watering-inputs', 'watering');
+    const feedingInputs = createMonthInputs('feeding-inputs', 'feeding');
     const imageElem = document.getElementById('image');
     const saveBtn = document.getElementById('save');
     const messageElem = document.getElementById('message');
@@ -18,8 +40,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const body = {
             name: nameElem.value.trim(),
             description: descElem.value,
-            wateringFreq: wateringElem.value.split(',').map(n => parseInt(n.trim(), 10)),
-            feedingFreq: feedingElem.value.split(',').map(n => parseInt(n.trim(), 10)),
+            wateringFreq: wateringInputs.map(input => parseInt(input.value, 10) || 0),
+            feedingFreq: feedingInputs.map(input => parseInt(input.value, 10) || 0),
             image: imageElem.value
         };
         const res = await fetch('/plants', {
