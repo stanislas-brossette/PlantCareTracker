@@ -30,7 +30,7 @@
             1000
         ],
         "description": "",
-        "image": "images/zz.jpeg"
+        "image": "images/zz.jpg"
     },
     {
         "name": "Suzie",
@@ -63,7 +63,7 @@
             20
         ],
         "description": "",
-        "image": "images/placeholder.png"
+        "image": "images/suzie.jpg"
     },
     {
         "name": "Impatiens",
@@ -96,7 +96,7 @@
             1000
         ],
         "description": "",
-        "image": "images/placeholder.png"
+        "image": "images/impatience.jpg"
     },
     {
         "name": "Philo vert pomme",
@@ -228,7 +228,7 @@
             1000
         ],
         "description": "",
-        "image": "images/placeholder.png"
+        "image": "images/pothos_stan.jpg"
     },
     {
         "name": "Pothos Marjo",
@@ -459,7 +459,7 @@
             1000
         ],
         "description": "",
-        "image": "images/placeholder.png"
+        "image": "images/punto.JPEG"
     },
     {
         "name": "Calathea junior",
@@ -558,6 +558,6 @@
             1000
         ],
         "description": "",
-        "image": "images/placeholder.png"
+        "image": "images/succulente_pointue.jpg"
     }
 ]
