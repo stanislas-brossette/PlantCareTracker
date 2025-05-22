@@ -76,7 +76,7 @@ describe('Server endpoints', () => {
       description: 'temp',
       wateringFreq: Array(12).fill(1),
       feedingFreq: Array(12).fill(1),
-      image: 'images/placeholder.png'
+      image: 'images/placeholder.jpg'
     };
 
     const createRes = await request(app)
