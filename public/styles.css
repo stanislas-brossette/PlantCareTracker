@@ -32,6 +32,21 @@ img {
     max-width: 100%;
 }
 
+/* Ensure plant images on the details page have a fixed size */
+#plant-image {
+    width: 300px;
+    height: 300px;
+    object-fit: cover;
+}
+
+/* Small thumbnail for the plant list */
+.plant-thumb {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    margin-right: 8px;
+}
+
 #create-plant {
     margin-top: 20px;
 }

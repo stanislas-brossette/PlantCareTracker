@@ -13,10 +13,22 @@ document.addEventListener('DOMContentLoaded', () => {
         plants.filter(p => !p.archived).forEach(plant => {
             const row = plantsTable.insertRow();
             const nameCell = row.insertCell();
+
+            const container = document.createElement('div');
+            container.className = 'd-flex align-items-center justify-content-center';
+
+            const img = document.createElement('img');
+            img.src = plant.image;
+            img.alt = `${plant.name} image`;
+            img.className = 'plant-thumb';
+
             const link = document.createElement('a');
             link.href = `plant.html?name=${encodeURIComponent(plant.name)}`;
             link.textContent = plant.name;
-            nameCell.appendChild(link);
+
+            container.appendChild(img);
+            container.appendChild(link);
+            nameCell.appendChild(container);
 
         // Function to create a button
         const createButton = (type) => {
