@@ -50,3 +50,21 @@ img {
 #create-plant {
     margin-top: 20px;
 }
+
+/* Compact monthly frequency inputs */
+.month-container {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.month-container label {
+    font-size: 0.75rem;
+    margin-bottom: 2px;
+}
+
+.month-input {
+    width: 50px;
+    padding: 2px 4px;
+    text-align: center;
+}
