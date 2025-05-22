@@ -5,7 +5,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const plantNameElem = document.getElementById('plant-name');
     const imageElem = document.getElementById('plant-image');
+    const imageFileElem = document.getElementById('imageFile');
     const descElem = document.getElementById('description');
+    let imageData = null;
+
+    if (imageFileElem) {
+        imageFileElem.addEventListener('change', () => {
+            const file = imageFileElem.files[0];
+            if (!file) { imageData = null; return; }
+            const reader = new FileReader();
+            reader.onload = () => {
+                imageData = reader.result;
+                imageElem.src = imageData;
+            };
+            reader.readAsDataURL(file);
+        });
+    }
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const createMonthInputs = (containerId, prefix, defaultValue) => {
         const container = document.getElementById(containerId);
@@ -65,6 +80,9 @@ document.addEventListener('DOMContentLoaded', () => {
             wateringFreq: wateringInputs.map(input => parseInt(input.value, 10) || 0),
             feedingFreq: feedingInputs.map(input => parseInt(input.value, 10) || 0)
         };
+        if (imageData) {
+            body.imageData = imageData;
+        }
         await fetch(`/plants/${encodeURIComponent(name)}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },

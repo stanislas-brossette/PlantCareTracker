@@ -27,8 +27,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const wateringInputs = createMonthInputs('watering-inputs', 'watering', 7);
     const feedingInputs = createMonthInputs('feeding-inputs', 'feeding', 30);
     const imageElem = document.getElementById('image');
+    const imageFileElem = document.getElementById('imageFile');
     const saveBtn = document.getElementById('save');
     const messageElem = document.getElementById('message');
+    let imageData = null;
+
+    if (imageFileElem) {
+        imageFileElem.addEventListener('change', () => {
+            const file = imageFileElem.files[0];
+            if (!file) { imageData = null; return; }
+            const reader = new FileReader();
+            reader.onload = () => { imageData = reader.result; };
+            reader.readAsDataURL(file);
+        });
+    }
 
     const showMessage = (msg, type = 'success') => {
         messageElem.textContent = msg;
@@ -42,9 +54,13 @@ document.addEventListener('DOMContentLoaded', () => {
             name: nameElem.value.trim(),
             description: descElem.value,
             wateringFreq: wateringInputs.map(input => parseInt(input.value, 10) || 0),
-            feedingFreq: feedingInputs.map(input => parseInt(input.value, 10) || 0),
-            image: imageElem.value
+            feedingFreq: feedingInputs.map(input => parseInt(input.value, 10) || 0)
         };
+        if (imageData) {
+            body.imageData = imageData;
+        } else {
+            body.image = imageElem.value;
+        }
         const res = await fetch('/plants', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
