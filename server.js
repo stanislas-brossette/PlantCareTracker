@@ -68,6 +68,22 @@ app.post('/clicked', (req, res) => {
     }
 });
 
+app.post('/undo', (req, res) => {
+    const { buttonId, previousTime } = req.body;
+    if (!buttonId) {
+        return res.status(400).send('Button ID is required');
+    }
+
+    if (previousTime) {
+        lastClickedTimes[buttonId] = previousTime;
+    } else {
+        delete lastClickedTimes[buttonId];
+    }
+
+    writeLastClickedTimes();
+    res.send({ lastClickedTime: previousTime || null });
+});
+
 app.get('/lastClickedTimes', (req, res) => {
     res.send(lastClickedTimes);
 });

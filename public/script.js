@@ -1,5 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
     const plantsTable = document.getElementById('plantsTable');
+    const undoBtn = document.getElementById('undo');
+
+    const undoStack = [];
+
+    const updateUndoBtn = () => {
+        undoBtn.disabled = undoStack.length === 0;
+    };
 
     let plants = [];
 
@@ -115,6 +122,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const buttonClicked = async (buttonId) => {
+        const prevTime = buttonRefs[buttonId].dataset.lastClickedTime || null;
+        undoStack.push({ buttonId, prevTime });
+        updateUndoBtn();
+
         const response = await fetch('/clicked', {
             method: 'POST',
             headers: {
@@ -126,11 +137,28 @@ document.addEventListener('DOMContentLoaded', () => {
         updateButtonState(buttonId, data.lastClickedTime);
     };
 
+    const undoLast = async () => {
+        if (undoStack.length === 0) return;
+        const { buttonId, prevTime } = undoStack.pop();
+        const response = await fetch('/undo', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ buttonId, previousTime: prevTime })
+        });
+        const data = await response.json();
+        updateButtonState(buttonId, data.lastClickedTime);
+        updateUndoBtn();
+    };
+
     const refreshTimes = () => {
         Object.keys(buttonRefs).forEach(buttonId => {
             updateButtonState(buttonId);
         });
     };
 
+    undoBtn.addEventListener('click', undoLast);
+    updateUndoBtn();
     loadPlants();
 });

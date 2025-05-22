@@ -17,6 +17,23 @@ describe('Server endpoints', () => {
     expect(res.body).toHaveProperty('lastClickedTime');
   });
 
+  test('POST /undo restores previous timestamp', async () => {
+    const buttonId = 'sample-button-undo';
+    await request(app).post('/clicked').send({ buttonId });
+
+    const ts = new Date('2000-01-01T00:00:00.000Z').toISOString();
+    const res = await request(app)
+      .post('/undo')
+      .send({ buttonId, previousTime: ts });
+    expect(res.statusCode).toBe(200);
+    expect(res.body.lastClickedTime).toBe(ts);
+
+    const times = await request(app).get('/lastClickedTimes');
+    expect(times.body[buttonId]).toBe(ts);
+
+    await request(app).post('/undo').send({ buttonId, previousTime: null });
+  });
+
   test('GET /plants returns array of plants', async () => {
     const res = await request(app).get('/plants');
     expect(res.statusCode).toBe(200);
