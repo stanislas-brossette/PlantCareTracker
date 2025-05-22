@@ -71,6 +71,9 @@ document.addEventListener('DOMContentLoaded', () => {
             body: JSON.stringify(body)
         });
         showMessage('Saved', 'success');
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 1000);
     };
 
     const archive = async () => {
