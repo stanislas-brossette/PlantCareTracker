@@ -1,7 +1,15 @@
 const express = require('express');
 const fs = require('fs');
+const path = require('path');
+const sharp = require('sharp');
 const app = express();
 const port = 3000;
+
+const imagesDir = path.join(__dirname, 'public', 'images');
+const thumbsDir = path.join(__dirname, 'public', 'thumbs');
+if (!fs.existsSync(thumbsDir)) {
+    fs.mkdirSync(thumbsDir, { recursive: true });
+}
 
 let lastClickedTimes = {}; // Stores last clicked times for each action of each plant
 const dataFile = 'lastClickedTimes.json';
@@ -24,6 +32,11 @@ function readPlants() {
     try {
         const data = fs.readFileSync(plantsFile, 'utf8');
         plants = JSON.parse(data);
+        plants.forEach(p => {
+            if (p.image) {
+                generateThumbnail(p.image);
+            }
+        });
     } catch (err) {
         console.log('No plants data found or error reading file:', err);
         plants = [];
@@ -37,6 +50,23 @@ function writePlants() {
         }
     });
 }
+
+function getThumbPath(imageRel) {
+    const base = path.basename(imageRel || '');
+    return `thumbs/${base}`;
+}
+
+function generateThumbnail(imageRel) {
+    const src = path.join(imagesDir, path.basename(imageRel));
+    const dest = path.join(thumbsDir, path.basename(imageRel));
+    if (fs.existsSync(dest)) {
+        return;
+    }
+    sharp(src)
+        .resize(40, 40, { fit: 'cover' })
+        .toFile(dest)
+        .catch(err => console.error('Failed to create thumbnail', err));
+}
 // Save base64 image data to disk and return relative path
 function saveBase64Image(data) {
     const match = /^data:(image\/\w+);base64,(.+)$/.exec(data || '');
@@ -44,7 +74,8 @@ function saveBase64Image(data) {
     const ext = match[1].split('/')[1];
     const fileName = `img_${Date.now()}.${ext}`;
     try {
-        fs.writeFileSync(`public/images/${fileName}`, match[2], 'base64');
+        fs.writeFileSync(path.join(imagesDir, fileName), match[2], 'base64');
+        generateThumbnail(`images/${fileName}`);
         return `images/${fileName}`;
     } catch (err) {
         console.error('Failed to save image', err);
@@ -105,14 +136,16 @@ app.get('/lastClickedTimes', (req, res) => {
 
 app.get('/plants', (req, res) => {
     // Only return non archived plants
-    const visiblePlants = plants.filter(p => !p.archived);
+    const visiblePlants = plants.filter(p => !p.archived).map(p => {
+        return { ...p, thumb: getThumbPath(p.image) };
+    });
     res.send(visiblePlants);
 });
 
 app.get('/plants/:name', (req, res) => {
     const plant = plants.find(p => p.name === req.params.name);
     if (plant) {
-        res.send(plant);
+        res.send({ ...plant, thumb: getThumbPath(plant.image) });
     } else {
         res.status(404).send('Plant not found');
     }
@@ -129,6 +162,8 @@ app.put('/plants/:name', (req, res) => {
             req.body.image = saved;
         }
         delete req.body.imageData;
+    } else if (req.body.image) {
+        generateThumbnail(req.body.image);
     }
     if (req.body.wateringFreq && !isValidFreqArray(req.body.wateringFreq)) {
         return res.status(400).send('wateringFreq must be an array of 12 numbers');
@@ -165,6 +200,8 @@ app.post('/plants', (req, res) => {
             newPlant.image = saved;
         }
         delete newPlant.imageData;
+    } else if (newPlant.image) {
+        generateThumbnail(newPlant.image);
     }
     if (newPlant.wateringFreq && !isValidFreqArray(newPlant.wateringFreq)) {
         return res.status(400).send('wateringFreq must be an array of 12 numbers');
@@ -179,6 +216,7 @@ app.post('/plants', (req, res) => {
         feedingFreq: newPlant.feedingFreq || Array(12).fill(0),
         image: newPlant.image || 'images/placeholder.jpg'
     };
+    generateThumbnail(plantToAdd.image);
     plants.push(plantToAdd);
     writePlants();
     res.status(201).send(plantToAdd);
