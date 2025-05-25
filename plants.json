@@ -30,7 +30,8 @@
             1000
         ],
         "description": "",
-        "image": "images/zz.jpg"
+        "image": "images/zz.jpg",
+        "archived": false
     },
     {
         "name": "Suzie",
@@ -393,7 +394,8 @@
             30
         ],
         "description": "",
-        "image": "images/placeholder.jpg"
+        "image": "images/placeholder.jpg",
+        "archived": false
     },
     {
         "name": "Calathea",
@@ -559,5 +561,203 @@
         ],
         "description": "",
         "image": "images/succulente_pointue.jpg"
+    },
+    {
+        "name": "Jardinière Pélargoniums/Géraniums",
+        "wateringFreq": [
+            7,
+            7,
+            5,
+            4,
+            3,
+            3,
+            3,
+            3,
+            4,
+            5,
+            7,
+            7
+        ],
+        "feedingFreq": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+        ],
+        "description": "Attendre que le sol soit proche du sec; environ deux fois par semaine en été.",
+        "image": "images/placeholder.jpg"
+    },
+    {
+        "name": "Jardinière Fraisiers/Capucines/Ciboulette",
+        "wateringFreq": [
+            4,
+            4,
+            3,
+            3,
+            2,
+            2,
+            2,
+            2,
+            3,
+            3,
+            4,
+            4
+        ],
+        "feedingFreq": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+        ],
+        "description": "Sol légèrement humide en permanence; arroser dès que la surface sèche.",
+        "image": "images/placeholder.jpg"
+    },
+    {
+        "name": "Bac Ipomées",
+        "wateringFreq": [
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7
+        ],
+        "feedingFreq": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+        ],
+        "description": "Attendre que le sol soit modérément sec; environ une fois par semaine.",
+        "image": "images/placeholder.jpg"
+    },
+    {
+        "name": "Bac Ipomées/Capucines",
+        "wateringFreq": [
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7
+        ],
+        "feedingFreq": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+        ],
+        "description": "Comme le bac Ipomées; ajuster selon l'humidité du sol.",
+        "image": "images/placeholder.jpg"
+    },
+    {
+        "name": "Jardinière Méditerranéenne",
+        "wateringFreq": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+        ],
+        "feedingFreq": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+        ],
+        "description": "Sol bien sec entre arrosages; arroser modérément.",
+        "image": "images/placeholder.jpg"
+    },
+    {
+        "name": "Bac Fleurs des champs",
+        "wateringFreq": [
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5
+        ],
+        "feedingFreq": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+        ],
+        "description": "Arrosage léger; laisser sécher légèrement entre deux arrosages.",
+        "image": "images/placeholder.jpg"
     }
 ]
