@@ -47,6 +47,16 @@ The app will be available at:
 - **Local**: `http://localhost:3000`
 - **Network**: `http://<your-pi-ip>:3000` (e.g., `http://192.168.1.72:3000`)
 
+## **Running Tests**
+Install dev dependencies first:
+```bash
+npm install
+```
+Then execute:
+```bash
+npm test
+```
+
 ---
 
 ## **Auto-Start on Boot**

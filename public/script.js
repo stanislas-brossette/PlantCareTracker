@@ -22,19 +22,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const nameCell = row.insertCell();
 
             const container = document.createElement('div');
-            container.className = 'd-flex align-items-center justify-content-center';
+            container.className = 'plant-photo-container';
 
             const img = document.createElement('img');
             img.src = plant.image;
             img.alt = `${plant.name} image`;
-            img.className = 'plant-thumb';
+            img.className = 'plant-photo';
 
-            const link = document.createElement('a');
-            link.href = `plant.html?name=${encodeURIComponent(plant.name)}`;
-            link.textContent = plant.name;
+            const overlay = document.createElement('a');
+            overlay.href = `plant.html?name=${encodeURIComponent(plant.name)}`;
+            overlay.textContent = plant.name;
+            overlay.className = 'plant-name-overlay text-decoration-none';
 
             container.appendChild(img);
-            container.appendChild(link);
+            container.appendChild(overlay);
             nameCell.appendChild(container);
 
         // Function to create a button
