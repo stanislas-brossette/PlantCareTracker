@@ -41,8 +41,8 @@ img {
 
 /* Small thumbnail for the plant list */
 .plant-thumb {
-    width: 40px;
-    height: 40px;
+    width: 60px;
+    height: 60px;
     object-fit: cover;
     margin-right: 8px;
 }
@@ -67,4 +67,30 @@ img {
     width: 50px;
     padding: 2px 4px;
     text-align: center;
+}
+
+#watering-inputs,
+#feeding-inputs {
+    flex-wrap: wrap;
+}
+
+@media (max-width: 576px) {
+    body {
+        padding: 10px;
+    }
+
+    #plant-image {
+        width: 100%;
+        max-width: 300px;
+        height: auto;
+    }
+
+    .plant-thumb {
+        width: 50px;
+        height: 50px;
+    }
+
+    .month-input {
+        width: 40px;
+    }
 }
