@@ -7,6 +7,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const imageElem = document.getElementById('plant-image');
     const imageFileElem = document.getElementById('imageFile');
     const descElem = document.getElementById('description');
+    const descViewElem = document.getElementById('description-view');
+    const imageUploadElem = document.getElementById('image-upload');
+    const toggleBtn = document.getElementById('toggle-edit');
+    const quickInfoElem = document.getElementById('quick-info');
+    let editing = false;
     let imageData = null;
 
     if (imageFileElem) {
@@ -22,30 +27,30 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const createMonthInputs = (containerId, prefix, defaultValue) => {
-        const container = document.getElementById(containerId);
-        const inputs = [];
-        months.forEach((m, i) => {
-            const div = document.createElement('div');
-            div.className = 'month-container';
-            const label = document.createElement('label');
-            label.className = 'form-label mb-1';
-            label.textContent = m;
-            const input = document.createElement('input');
-            input.type = 'number';
-            input.className = 'form-control form-control-sm month-input';
-            input.id = `${prefix}-${i}`;
-            input.value = defaultValue;
-            div.appendChild(label);
-            div.appendChild(input);
-            container.appendChild(div);
-            inputs.push(input);
-        });
-        return inputs;
-    };
-
-    const wateringInputs = createMonthInputs('watering-inputs', 'watering', 7);
-    const feedingInputs = createMonthInputs('feeding-inputs', 'feeding', 30);
+    const scheduleBody = document.querySelector('#schedule-table tbody');
+    const wateringInputs = [];
+    const feedingInputs = [];
+    months.forEach((m, i) => {
+        const tr = document.createElement('tr');
+        const tdMonth = document.createElement('td');
+        tdMonth.textContent = m;
+        const tdWater = document.createElement('td');
+        const waterInput = document.createElement('input');
+        waterInput.type = 'number';
+        waterInput.className = 'form-control form-control-sm';
+        waterInput.id = `watering-${i}`;
+        tdWater.appendChild(waterInput);
+        const tdFeed = document.createElement('td');
+        const feedInput = document.createElement('input');
+        feedInput.type = 'number';
+        feedInput.className = 'form-control form-control-sm';
+        feedInput.id = `feeding-${i}`;
+        tdFeed.appendChild(feedInput);
+        tr.append(tdMonth, tdWater, tdFeed);
+        scheduleBody.appendChild(tr);
+        wateringInputs.push(waterInput);
+        feedingInputs.push(feedInput);
+    });
     const saveBtn = document.getElementById('save');
     const archiveBtn = document.getElementById('archive');
     const messageElem = document.getElementById('message');
@@ -57,6 +62,17 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => messageElem.classList.add('d-none'), 3000);
     };
 
+    const setEditingMode = (enabled) => {
+        editing = enabled;
+        descElem.parentElement.classList.toggle('d-none', !enabled);
+        imageUploadElem.classList.toggle('d-none', !enabled);
+        saveBtn.classList.toggle('d-none', !enabled);
+        descViewElem.classList.toggle('d-none', enabled);
+        wateringInputs.forEach(i => i.disabled = !enabled);
+        feedingInputs.forEach(i => i.disabled = !enabled);
+        toggleBtn.textContent = enabled ? 'View' : 'Edit';
+    };
+
     const load = async () => {
         const res = await fetch(`/plants/${encodeURIComponent(name)}`);
         if (res.ok) {
@@ -64,6 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
             plantNameElem.textContent = plant.name;
             imageElem.src = plant.image;
             descElem.value = plant.description || '';
+            descViewElem.textContent = plant.description || '';
             (plant.wateringFreq || []).forEach((val, i) => {
                 if (wateringInputs[i]) wateringInputs[i].value = val;
             });
@@ -71,6 +88,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (feedingInputs[i]) feedingInputs[i].value = val;
             });
             archiveBtn.disabled = !!plant.archived;
+            quickInfoElem.innerHTML =
+                '<span class="badge bg-success">\uD83C\uDF3F Safe for cats</span>' +
+                ' <span class="badge bg-warning text-dark">\u2600\uFE0F Bright light</span>' +
+                ' <span class="badge bg-info text-dark">\uD83D\uDCA7 Water weekly</span>';
         }
     };
 
@@ -108,5 +129,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     saveBtn.addEventListener('click', save);
     archiveBtn.addEventListener('click', archive);
-    load();
+    toggleBtn.addEventListener('click', () => setEditingMode(!editing));
+    load().then(() => setEditingMode(false));
 });

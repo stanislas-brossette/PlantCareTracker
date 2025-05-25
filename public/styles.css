@@ -34,8 +34,9 @@ img {
 
 /* Ensure plant images on the details page have a fixed size */
 #plant-image {
-    width: 300px;
-    height: 300px;
+    width: 100%;
+    max-width: 300px;
+    height: auto;
     object-fit: cover;
 }
 
@@ -123,4 +124,15 @@ img {
     .month-input {
         width: 40px;
     }
+}
+
+.quick-info .badge {
+    margin-right: 0.25rem;
+}
+
+.sticky-actions {
+    position: sticky;
+    bottom: 0;
+    background: #f8f9fa;
+    padding: 0.5rem 0;
 }
