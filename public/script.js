@@ -22,10 +22,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const nameCell = row.insertCell();
 
             const container = document.createElement('div');
-            container.className = 'd-flex align-items-center justify-content-center';
+            container.className = 'd-flex align-items-center gap-2';
 
             const img = document.createElement('img');
-            img.src = plant.image;
+            img.src = plant.thumb || plant.image;
             img.alt = `${plant.name} image`;
             img.className = 'plant-thumb';
 
