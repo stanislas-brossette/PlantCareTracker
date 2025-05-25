@@ -68,3 +68,29 @@ img {
     padding: 2px 4px;
     text-align: center;
 }
+
+#watering-inputs,
+#feeding-inputs {
+    flex-wrap: wrap;
+}
+
+@media (max-width: 576px) {
+    body {
+        padding: 10px;
+    }
+
+    #plant-image {
+        width: 100%;
+        max-width: 300px;
+        height: auto;
+    }
+
+    .plant-thumb {
+        width: 30px;
+        height: 30px;
+    }
+
+    .month-input {
+        width: 40px;
+    }
+}
