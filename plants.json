@@ -30,7 +30,7 @@
             1000
         ],
         "description": "",
-        "image": "images/zz.jpg"
+        "image": "images/img_1748190767897.jpeg"
     },
     {
         "name": "Suzie",
@@ -129,7 +129,7 @@
             1000
         ],
         "description": "Grandes lianes",
-        "image": "images/placeholder.jpg"
+        "image": "images/img_1748190799993.jpeg"
     },
     {
         "name": "Philo velours",
@@ -162,7 +162,7 @@
             1000
         ],
         "description": "",
-        "image": "images/placeholder.jpg"
+        "image": "images/img_1748190826701.jpeg"
     },
     {
         "name": "Philo vert jungle",
@@ -195,7 +195,7 @@
             1000
         ],
         "description": "",
-        "image": "images/placeholder.jpg"
+        "image": "images/img_1748190860989.jpeg"
     },
     {
         "name": "Pothos Stan",
@@ -261,7 +261,7 @@
             1000
         ],
         "description": "",
-        "image": "images/placeholder.jpg"
+        "image": "images/img_1748190894990.jpeg"
     },
     {
         "name": "Succulente",
@@ -294,7 +294,7 @@
             1000
         ],
         "description": "",
-        "image": "images/placeholder.jpg"
+        "image": "images/img_1748190916525.jpeg"
     },
     {
         "name": "Kalanchoe",
@@ -327,7 +327,7 @@
             30
         ],
         "description": "",
-        "image": "images/placeholder.jpg"
+        "image": "images/img_1748190930116.jpeg"
     },
     {
         "name": "Azalée",
@@ -360,7 +360,7 @@
             1000
         ],
         "description": "",
-        "image": "images/placeholder.jpg"
+        "image": "images/img_1748190948877.jpeg"
     },
     {
         "name": "Fougère",
@@ -393,7 +393,8 @@
             30
         ],
         "description": "",
-        "image": "images/placeholder.jpg"
+        "image": "images/placeholder.jpg",
+        "archived": true
     },
     {
         "name": "Calathea",
@@ -426,7 +427,7 @@
             1000
         ],
         "description": "",
-        "image": "images/placeholder.jpg"
+        "image": "images/img_1748190964448.jpeg"
     },
     {
         "name": "Punto Grigio",
@@ -492,7 +493,7 @@
             1000
         ],
         "description": "",
-        "image": "images/placeholder.jpg"
+        "image": "images/img_1748190992502.jpeg"
     },
     {
         "name": "Laitue",
@@ -525,7 +526,7 @@
             1000
         ],
         "description": "Penser à couper ses fleurs pour maximiser feuilles",
-        "image": "images/placeholder.jpg"
+        "image": "images/img_1748191010843.jpeg"
     },
     {
         "name": "Succulente pointue",
@@ -558,6 +559,6 @@
             1000
         ],
         "description": "",
-        "image": "images/succulente_pointue.jpg"
+        "image": "images/img_1748191031978.jpeg"
     }
 ]
