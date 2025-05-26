@@ -4,7 +4,7 @@ const app = express();
 const port = 3000;
 const path = require('path');
 
-const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4-turbo";
+const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
 let lastClickedTimes = {}; // Stores last clicked times for each action of each plant
 const dataFile = 'lastClickedTimes.json';
 
@@ -226,7 +226,7 @@ app.post('/identify', async (req, res) => {
                 messages: [{
                     role: 'user',
                     content: [
-                        { type: 'text', text: 'What plant species is this and what are its characteristics as bullet points?' },
+                        { type: 'text', text: 'Quel est cette plante? Donnes moi le nom de l’espèce (scientifique et commun si possible), quelques particularités et des conseils d’entretien (lumière, arrosage, engrais, etc.). Ta réponse doit être concise, sous forme de bullet points et sans ligne vide' },
                         { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${base64}` } }
                     ]
                 }],
