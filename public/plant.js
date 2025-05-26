@@ -7,48 +7,73 @@ document.addEventListener('DOMContentLoaded', () => {
     const imageElem = document.getElementById('plant-image');
     const imageFileElem = document.getElementById('imageFile');
     const descElem = document.getElementById('description');
+    const scheduleBody = document.querySelector('#schedule-table tbody');
+    const toggleBtn = document.getElementById('toggle-edit');
+    const saveBtn = document.getElementById('save');
+    const archiveBtn = document.getElementById('archive');
+    const messageElem = document.getElementById('message');
+
     let imageData = null;
+    let editing = false;
 
     if (imageFileElem) {
         imageFileElem.addEventListener('change', () => {
             const file = imageFileElem.files[0];
             if (!file) { imageData = null; return; }
             const reader = new FileReader();
-            reader.onload = () => {
-                imageData = reader.result;
-                imageElem.src = imageData;
-            };
+            reader.onload = () => { imageData = reader.result; imageElem.src = imageData; };
             reader.readAsDataURL(file);
         });
     }
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const createMonthInputs = (containerId, prefix, defaultValue) => {
-        const container = document.getElementById(containerId);
-        const inputs = [];
-        months.forEach((m, i) => {
-            const div = document.createElement('div');
-            div.className = 'month-container';
-            const label = document.createElement('label');
-            label.className = 'form-label mb-1';
-            label.textContent = m;
-            const input = document.createElement('input');
-            input.type = 'number';
-            input.className = 'form-control form-control-sm month-input';
-            input.id = `${prefix}-${i}`;
-            input.value = defaultValue;
-            div.appendChild(label);
-            div.appendChild(input);
-            container.appendChild(div);
-            inputs.push(input);
-        });
-        return inputs;
+
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const wateringInputs = [];
+    const feedingInputs = [];
+
+    const createCell = (arr) => {
+        const td = document.createElement('td');
+        td.className = 'text-center schedule-cell';
+        const minus = document.createElement('button');
+        minus.type = 'button';
+        minus.className = 'btn btn-sm btn-outline-secondary minus';
+        minus.textContent = '-';
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.className = 'form-control d-inline-block value mx-1 text-center';
+        input.style.width = '60px';
+        const plus = document.createElement('button');
+        plus.type = 'button';
+        plus.className = 'btn btn-sm btn-outline-secondary plus';
+        plus.textContent = '+';
+        minus.addEventListener('click', () => { if(editing){ input.value = Math.max(0, parseInt(input.value || 0) - 1); } });
+        plus.addEventListener('click', () => { if(editing){ input.value = parseInt(input.value || 0) + 1; } });
+        td.appendChild(minus);
+        td.appendChild(input);
+        td.appendChild(plus);
+        arr.push(input);
+        return td;
     };
 
-    const wateringInputs = createMonthInputs('watering-inputs', 'watering', 7);
-    const feedingInputs = createMonthInputs('feeding-inputs', 'feeding', 30);
-    const saveBtn = document.getElementById('save');
-    const archiveBtn = document.getElementById('archive');
-    const messageElem = document.getElementById('message');
+    months.forEach((m) => {
+        const tr = document.createElement('tr');
+        const monthTd = document.createElement('td');
+        monthTd.textContent = m;
+        tr.appendChild(monthTd);
+        tr.appendChild(createCell(wateringInputs));
+        tr.appendChild(createCell(feedingInputs));
+        scheduleBody.appendChild(tr);
+    });
+
+    const setEditing = (state) => {
+        editing = state;
+        descElem.readOnly = !state;
+        imageFileElem.classList.toggle('d-none', !state);
+        saveBtn.classList.toggle('d-none', !state);
+        archiveBtn.classList.toggle('d-none', !state);
+        document.querySelectorAll('#schedule-table input').forEach(i => i.disabled = !state);
+        document.querySelectorAll('#schedule-table .minus, #schedule-table .plus').forEach(btn => btn.disabled = !state);
+        toggleBtn.textContent = state ? 'View' : 'Edit';
+    };
 
     const showMessage = (msg, type = 'success') => {
         messageElem.textContent = msg;
@@ -64,14 +89,11 @@ document.addEventListener('DOMContentLoaded', () => {
             plantNameElem.textContent = plant.name;
             imageElem.src = plant.image;
             descElem.value = plant.description || '';
-            (plant.wateringFreq || []).forEach((val, i) => {
-                if (wateringInputs[i]) wateringInputs[i].value = val;
-            });
-            (plant.feedingFreq || []).forEach((val, i) => {
-                if (feedingInputs[i]) feedingInputs[i].value = val;
-            });
+            (plant.wateringFreq || []).forEach((val, i) => { if (wateringInputs[i]) wateringInputs[i].value = val; });
+            (plant.feedingFreq || []).forEach((val, i) => { if (feedingInputs[i]) feedingInputs[i].value = val; });
             archiveBtn.disabled = !!plant.archived;
         }
+        setEditing(false);
     };
 
     const save = async () => {
@@ -80,18 +102,14 @@ document.addEventListener('DOMContentLoaded', () => {
             wateringFreq: wateringInputs.map(input => parseInt(input.value, 10) || 0),
             feedingFreq: feedingInputs.map(input => parseInt(input.value, 10) || 0)
         };
-        if (imageData) {
-            body.imageData = imageData;
-        }
+        if (imageData) { body.imageData = imageData; }
         await fetch(`/plants/${encodeURIComponent(name)}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
         });
         showMessage('Saved', 'success');
-        setTimeout(() => {
-            window.location.href = 'index.html';
-        }, 1000);
+        setTimeout(() => { window.location.href = 'index.html'; }, 1000);
     };
 
     const archive = async () => {
@@ -101,11 +119,10 @@ document.addEventListener('DOMContentLoaded', () => {
             body: JSON.stringify({ archived: true })
         });
         showMessage('Archived', 'success');
-        setTimeout(() => {
-            window.location.href = 'index.html';
-        }, 1000);
+        setTimeout(() => { window.location.href = 'index.html'; }, 1000);
     };
 
+    toggleBtn.addEventListener('click', () => setEditing(!editing));
     saveBtn.addEventListener('click', save);
     archiveBtn.addEventListener('click', archive);
     load();
