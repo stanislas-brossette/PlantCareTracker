@@ -228,7 +228,7 @@ app.post('/identify', async (req, res) => {
                     content: [
                         {
                             type: 'text',
-                            text: 'Quel est cette plante? Donnes moi le nom de l\u2019esp\u00e8ce (scientifique et commun si possible), quelques particularit\u00e9s et des conseils d\u2019entretien (lumi\u00e8re, arrosage, engrais, etc.). R\u00e9ponds en fran\u00e7ais en 6 lignes maximum, chaque ligne commen\u00e7ant par \u201c- \u201d et sans ligne vide.'
+                            text: 'Quel est cette plante? Donnes moi le nom de l\u2019esp\u00e8ce (scientifique et commun si possible), quelques particularit\u00e9s et des conseils d\u2019entretien (lumi\u00e8re, arrosage, engrais, etc.). R\u00e9ponds en fran\u00e7ais en 6 lignes maximum, la première ligne contient seulement le nom de l\u2019éspèce, chaque ligne suivante commen\u00e7ant par \u201c- \u201d et sans ligne vide.'
                         },
                         { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${base64}` } }
                     ]
