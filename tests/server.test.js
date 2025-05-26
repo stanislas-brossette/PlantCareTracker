@@ -124,4 +124,12 @@ describe('Server endpoints', () => {
       .send({ wateringFreq: [1] });
     expect(res.statusCode).toBe(400);
   });
+
+  test('Reject non-finite frequency values', async () => {
+    const invalid = Array(12).fill(1e309); // Infinity when parsed
+    const res = await request(app)
+      .post('/plants')
+      .send({ name: 'BadNum', wateringFreq: invalid, feedingFreq: invalid });
+    expect(res.statusCode).toBe(400);
+  });
 });
