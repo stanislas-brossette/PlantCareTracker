@@ -124,3 +124,20 @@ img {
         width: 40px;
     }
 }
+
+/* Inline controls for schedule table */
+.schedule-cell button {
+    width: 30px;
+    padding: 2px 0;
+}
+.schedule-cell input {
+    width: 60px;
+    text-align: center;
+    display: inline-block;
+    -moz-appearance: textfield;
+}
+.schedule-cell input::-webkit-outer-spin-button,
+.schedule-cell input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
