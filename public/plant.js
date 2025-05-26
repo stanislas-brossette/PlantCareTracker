@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const archiveBtn = document.getElementById('archive');
     const identifyBtn = document.getElementById('identify');
     const messageElem = document.getElementById('message');
+    const loadingElem = document.getElementById('loading');
 
     const autoResize = () => {
         descElem.style.height = 'auto';
@@ -161,6 +162,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         setTimeout(() => { window.location.href = 'index.html'; }, 1000);
     };
 
+    const updateDescription = async (text) => {
+        await fetch(`/plants/${encodeURIComponent(name)}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ description: text })
+        });
+        showMessage('Description updated', 'success');
+    };
+
     const archive = async () => {
         await fetch(`/plants/${encodeURIComponent(name)}`, {
             method: 'PUT',
@@ -172,15 +182,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const identify = async () => {
+        loadingElem.classList.remove('d-none');
+        identifyBtn.disabled = true;
         const res = await fetch('/identify', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ image: imageElem.getAttribute('src') })
         });
+        loadingElem.classList.add('d-none');
+        identifyBtn.disabled = false;
         if (res.ok) {
             const data = await res.json();
             try { await navigator.clipboard.writeText(data.answer); } catch(e) {}
-            alert(data.answer);
+            if (confirm(`${data.answer}\n\nMettre à jour la description ?`)) {
+                descElem.value = data.answer;
+                autoResize();
+                await updateDescription(data.answer);
+            }
         } else {
             alert('Error identifying plant');
         }

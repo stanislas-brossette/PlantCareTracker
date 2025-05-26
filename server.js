@@ -226,7 +226,10 @@ app.post('/identify', async (req, res) => {
                 messages: [{
                     role: 'user',
                     content: [
-                        { type: 'text', text: 'Quel est cette plante? Donnes moi le nom de l’espèce (scientifique et commun si possible), quelques particularités et des conseils d’entretien (lumière, arrosage, engrais, etc.). Ta réponse doit être concise, sous forme de bullet points et sans ligne vide' },
+                        {
+                            type: 'text',
+                            text: 'Quel est cette plante? Donnes moi le nom de l\u2019esp\u00e8ce (scientifique et commun si possible), quelques particularit\u00e9s et des conseils d\u2019entretien (lumi\u00e8re, arrosage, engrais, etc.). R\u00e9ponds en fran\u00e7ais en 6 lignes maximum, la première ligne contient uniquement le nom de la plante, chaque ligne suivante commen\u00e7ant par \u201c- \u201d et sans ligne vide.'
+                        },
                         { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${base64}` } }
                     ]
                 }],
