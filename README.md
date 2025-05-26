@@ -47,6 +47,15 @@ The app will be available at:
 - **Local**: `http://localhost:3000`
 - **Network**: `http://<your-pi-ip>:3000` (e.g., `http://192.168.1.72:3000`)
 
+## Plant Identification
+To use the optional Identify Plant feature, set your OpenAI API key before starting the server:
+```bash
+export OPENAI_API_KEY=sk-your-key
+export OPENAI_MODEL=gpt-4-turbo   # optional
+```
+The "Identify Plant" button on each detail page sends the plant photo to ChatGPT and shows the response in a popup. The answer is also copied to your clipboard.
+
+
 ## **Running Tests**
 Install dev dependencies first:
 ```bash

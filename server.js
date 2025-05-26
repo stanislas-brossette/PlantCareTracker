@@ -2,7 +2,9 @@ const express = require('express');
 const fs = require('fs');
 const app = express();
 const port = 3000;
+const path = require('path');
 
+const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4-turbo";
 let lastClickedTimes = {}; // Stores last clicked times for each action of each plant
 const dataFile = 'lastClickedTimes.json';
 
@@ -202,6 +204,46 @@ app.delete('/plants/:name', (req, res) => {
 
     writePlants();
     res.send(removed);
+});
+
+app.post('/identify', async (req, res) => {
+    const { image } = req.body;
+    if (!image) {
+        return res.status(400).send('Image is required');
+    }
+    try {
+        const filePath = path.join(__dirname, 'public', image);
+        const buffer = fs.readFileSync(filePath);
+        const base64 = buffer.toString('base64');
+        const apiRes = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+            },
+            body: JSON.stringify({
+                model: OPENAI_MODEL,
+                messages: [{
+                    role: 'user',
+                    content: [
+                        { type: 'text', text: 'What plant species is this and what are its characteristics as bullet points?' },
+                        { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${base64}` } }
+                    ]
+                }],
+                max_tokens: 200
+            })
+        });
+        if (!apiRes.ok) {
+            console.error('OpenAI error', await apiRes.text());
+            return res.status(500).send('OpenAI request failed');
+        }
+        const data = await apiRes.json();
+        const answer = data.choices?.[0]?.message?.content || '';
+        res.send({ answer });
+    } catch (err) {
+        console.error('Identify error', err);
+        res.status(500).send('Error identifying plant');
+    }
 });
 
 if (require.main === module) {

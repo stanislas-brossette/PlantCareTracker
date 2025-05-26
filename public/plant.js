@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const toggleBtn = document.getElementById('toggle-edit');
     const saveBtn = document.getElementById('save');
     const archiveBtn = document.getElementById('archive');
+    const identifyBtn = document.getElementById('identify');
     const messageElem = document.getElementById('message');
 
     const autoResize = () => {
@@ -170,9 +171,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         setTimeout(() => { window.location.href = 'index.html'; }, 1000);
     };
 
+    const identify = async () => {
+        const res = await fetch('/identify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: imageElem.getAttribute('src') })
+        });
+        if (res.ok) {
+            const data = await res.json();
+            try { await navigator.clipboard.writeText(data.answer); } catch(e) {}
+            alert(data.answer);
+        } else {
+            alert('Error identifying plant');
+        }
+    };
+
     toggleBtn.addEventListener('click', () => setEditing(!editing));
     saveBtn.addEventListener('click', save);
     archiveBtn.addEventListener('click', archive);
+    if (identifyBtn) identifyBtn.addEventListener('click', identify);
 
     await loadPlantNames();
     updateNavLinks();
