@@ -124,3 +124,23 @@ img {
         width: 40px;
     }
 }
+
+/* Inline controls for schedule table */
+.schedule-cell button {
+    width: 30px;
+    padding: 2px 0;
+}
+.schedule-cell input {
+    width: 60px;
+    text-align: center;
+    display: inline-block;
+}
+
+/* Read-only appearance for description */
+.view-mode textarea {
+    border: none;
+    background-color: transparent;
+    box-shadow: none;
+    resize: none;
+    padding-left: 0;
+}
