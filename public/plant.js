@@ -161,6 +161,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         setTimeout(() => { window.location.href = 'index.html'; }, 1000);
     };
 
+    const updateDescription = async (text, showMsg = true) => {
+        await fetch(`/plants/${encodeURIComponent(name)}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ description: text })
+        });
+        if (showMsg) showMessage('Description updated', 'success');
+    };
+
     const archive = async () => {
         await fetch(`/plants/${encodeURIComponent(name)}`, {
             method: 'PUT',
@@ -180,6 +189,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (res.ok) {
             const data = await res.json();
             try { await navigator.clipboard.writeText(data.answer); } catch(e) {}
+            descElem.value = data.answer;
+            autoResize();
+            await updateDescription(data.answer, false);
             alert(data.answer);
         } else {
             alert('Error identifying plant');
