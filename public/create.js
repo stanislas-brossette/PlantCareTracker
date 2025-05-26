@@ -28,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const feedingInputs = createMonthInputs('feeding-inputs', 'feeding', 30);
     const imageElem = document.getElementById('image');
     const imageFileElem = document.getElementById('imageFile');
+    const previewElem = document.getElementById('imagePreview');
     const saveBtn = document.getElementById('save');
     const messageElem = document.getElementById('message');
     let imageData = null;
@@ -35,9 +36,22 @@ document.addEventListener('DOMContentLoaded', () => {
     if (imageFileElem) {
         imageFileElem.addEventListener('change', () => {
             const file = imageFileElem.files[0];
-            if (!file) { imageData = null; return; }
+            if (!file) {
+                imageData = null;
+                if (previewElem) {
+                    previewElem.classList.add('d-none');
+                    previewElem.src = '';
+                }
+                return;
+            }
             const reader = new FileReader();
-            reader.onload = () => { imageData = reader.result; };
+            reader.onload = () => {
+                imageData = reader.result;
+                if (previewElem) {
+                    previewElem.src = imageData;
+                    previewElem.classList.remove('d-none');
+                }
+            };
             reader.readAsDataURL(file);
         });
     }

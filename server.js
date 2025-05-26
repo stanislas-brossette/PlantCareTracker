@@ -69,7 +69,9 @@ app.use(express.static('public'));
 app.use(express.json({ limit: '10mb' }));
 
 function isValidFreqArray(arr) {
-    return Array.isArray(arr) && arr.length === 12 && arr.every(n => typeof n === 'number');
+    return Array.isArray(arr) &&
+        arr.length === 12 &&
+        arr.every(n => typeof n === 'number' && Number.isFinite(n));
 }
 
 app.post('/clicked', (req, res) => {
