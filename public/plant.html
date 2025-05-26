@@ -12,8 +12,10 @@
     <h1 id="plant-name" class="mb-4"></h1>
     <div id="message" class="alert d-none" role="alert"></div>
     <div class="row gy-3">
-        <div class="col-md-4 text-center">
+        <div class="col-md-4 text-center position-relative">
+            <button id="prev-plant" class="nav-arrow left" type="button">&laquo;</button>
             <img id="plant-image" src="" alt="Plant image" class="img-fluid mb-2" />
+            <button id="next-plant" class="nav-arrow right" type="button">&raquo;</button>
             <input type="file" id="imageFile" class="form-control d-none" accept="image/*" capture="environment" />
         </div>
         <div class="col-md-8">

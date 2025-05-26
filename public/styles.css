@@ -39,6 +39,21 @@ img {
     object-fit: cover;
 }
 
+/* Navigation arrows on detail page */
+.nav-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.7);
+    border: none;
+    font-size: 2rem;
+    padding: 0 8px;
+    line-height: 1;
+}
+.nav-arrow.left { left: 0; }
+.nav-arrow.right { right: 0; }
+
 /* Small thumbnail for the plant list */
 .plant-thumb {
     width: 60px;

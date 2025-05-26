@@ -1,10 +1,12 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const params = new URLSearchParams(window.location.search);
     const name = params.get('name');
     if (!name) return;
 
     const plantNameElem = document.getElementById('plant-name');
     const imageElem = document.getElementById('plant-image');
+    const prevBtn = document.getElementById('prev-plant');
+    const nextBtn = document.getElementById('next-plant');
     const imageFileElem = document.getElementById('imageFile');
     const descElem = document.getElementById('description');
     const scheduleBody = document.querySelector('#schedule-table tbody');
@@ -20,6 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let imageData = null;
     let editing = false;
+    let plantNames = [];
+    let plantNames = [];
 
     if (imageFileElem) {
         imageFileElem.addEventListener('change', () => {
@@ -90,6 +94,23 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => messageElem.classList.add('d-none'), 3000);
     };
 
+    const loadPlantNames = async () => {
+        const res = await fetch('/plants');
+        if (res.ok) {
+            const list = await res.json();
+            plantNames = list.map(p => p.name);
+        }
+    };
+
+    const updateNavLinks = () => {
+        if (plantNames.length === 0) return;
+        const idx = plantNames.indexOf(name);
+        const prevName = plantNames[(idx - 1 + plantNames.length) % plantNames.length];
+        const nextName = plantNames[(idx + 1) % plantNames.length];
+        prevBtn.onclick = () => { window.location.href = `plant.html?name=${encodeURIComponent(prevName)}`; };
+        nextBtn.onclick = () => { window.location.href = `plant.html?name=${encodeURIComponent(nextName)}`; };
+    };
+
     const load = async () => {
         const res = await fetch(`/plants/${encodeURIComponent(name)}`);
         if (res.ok) {
@@ -134,6 +155,9 @@ document.addEventListener('DOMContentLoaded', () => {
     toggleBtn.addEventListener('click', () => setEditing(!editing));
     saveBtn.addEventListener('click', save);
     archiveBtn.addEventListener('click', archive);
+
+    await loadPlantNames();
+    updateNavLinks();
     setEditing(false);
-    load();
+    await load();
 });
