@@ -141,3 +141,9 @@ img {
     -webkit-appearance: none;
     margin: 0;
 }
+
+/* Auto-resizing description textarea */
+#description {
+    overflow: hidden;
+    resize: none;
+}

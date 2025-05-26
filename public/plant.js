@@ -13,6 +13,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const archiveBtn = document.getElementById('archive');
     const messageElem = document.getElementById('message');
 
+    const autoResize = () => {
+        descElem.style.height = 'auto';
+        descElem.style.height = descElem.scrollHeight + 'px';
+    };
+
     let imageData = null;
     let editing = false;
 
@@ -25,6 +30,8 @@ document.addEventListener('DOMContentLoaded', () => {
             reader.readAsDataURL(file);
         });
     }
+
+    descElem.addEventListener('input', autoResize);
 
     const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const wateringInputs = [];
@@ -73,6 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('#schedule-table input').forEach(i => i.readOnly = !state);
         document.querySelectorAll('#schedule-table .minus, #schedule-table .plus').forEach(btn => btn.classList.toggle('d-none', !state));
         toggleBtn.textContent = state ? 'View' : 'Edit';
+        autoResize();
     };
 
     const showMessage = (msg, type = 'success') => {
@@ -89,6 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
             plantNameElem.textContent = plant.name;
             imageElem.src = plant.image;
             descElem.value = plant.description || '';
+            autoResize();
             (plant.wateringFreq || []).forEach((val, i) => { if (wateringInputs[i]) wateringInputs[i].value = val; });
             (plant.feedingFreq || []).forEach((val, i) => { if (feedingInputs[i]) feedingInputs[i].value = val; });
             archiveBtn.disabled = !!plant.archived;
