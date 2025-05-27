@@ -23,8 +23,8 @@ describe('Server endpoints', () => {
       .post('/plants')
       .send({
         name: 'TempPlant',
-        wateringFreq: Array(12).fill(1),
-        feedingFreq: Array(12).fill(1),
+        wateringFreq: Array.from({length:12}, () => ({min:1,max:1})),
+        feedingFreq: Array.from({length:12}, () => ({min:1,max:1})),
         image: 'images/placeholder.png',
         location: 'TempLoc'
       });
@@ -125,8 +125,8 @@ describe('Server endpoints', () => {
     const newPlant = {
       name: 'TestPlant',
       description: 'temp',
-      wateringFreq: Array(12).fill(1),
-      feedingFreq: Array(12).fill(1),
+      wateringFreq: Array.from({length:12}, () => ({min:1,max:1})),
+      feedingFreq: Array.from({length:12}, () => ({min:1,max:1})),
       image: 'images/placeholder.png',
       location: 'TestArea'
     };
@@ -148,7 +148,7 @@ describe('Server endpoints', () => {
       .send({
         name: 'InvalidPlant',
         wateringFreq: [1],
-        feedingFreq: Array(12).fill(1),
+        feedingFreq: Array.from({length:12}, () => ({min:1,max:1})),
         location: 'TestArea'
       });
     expect(res.statusCode).toBe(400);
@@ -162,7 +162,7 @@ describe('Server endpoints', () => {
   });
 
   test('Reject non-finite frequency values', async () => {
-    const invalid = Array(12).fill(1e309); // Infinity when parsed
+    const invalid = Array.from({length:12}, () => ({min:1e309, max:1e309}));
     const res = await request(app)
       .post('/plants')
       .send({ name: 'BadNum', wateringFreq: invalid, feedingFreq: invalid, location: 'TestArea' });

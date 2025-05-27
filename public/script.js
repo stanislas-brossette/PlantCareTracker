@@ -65,8 +65,8 @@ document.addEventListener('DOMContentLoaded', () => {
             button.textContent = 'Never'; // Initial text
             button.id = `button-${plant.name}-${type}`;
             button.className = 'btn w-100 btn-success';
-            button.setAttribute('feedingFrequency', plant.feedingFreq)
-            button.setAttribute('wateringFrequency', plant.wateringFreq)
+            button.dataset.feedingFrequency = JSON.stringify(plant.feedingFreq || []);
+            button.dataset.wateringFrequency = JSON.stringify(plant.wateringFreq || []);
             button.onclick = () => buttonClicked(button.id);
             row.insertCell().appendChild(button);
             buttonRefs[button.id] = button; // Store button reference
@@ -120,22 +120,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const now = new Date();
         const lastClickedDate = new Date(lastClickedTime);
-        const differenceInDays = Math.floor((now - lastClickedDate) / (1000 * 60 * 60 * 24));
-
-        let limitFrequencies;
-        let limitDays;
+        let differenceInDays = Math.floor((now - lastClickedDate) / (1000 * 60 * 60 * 24));
+        if (isNaN(differenceInDays)) differenceInDays = 0;
 
         const isWateringButton = buttonId.includes("Arrosage");
-        limitFrequencies = buttonRefs[buttonId].getAttribute('feedingFrequency').split(',');
-        if (isWateringButton == true)
-        {
-            limitFrequencies = buttonRefs[buttonId].getAttribute('wateringFrequency').split(',');
+        const freqs = JSON.parse(buttonRefs[buttonId].dataset[isWateringButton ? 'wateringFrequency' : 'feedingFrequency'] || '[]');
+        const cur = freqs[now.getMonth()] || {min:0,max:0};
+
+        let cls = 'btn-success';
+        if (differenceInDays < cur.min) {
+            cls = 'btn-success';
+        } else if (differenceInDays <= cur.max) {
+            cls = 'btn-warning';
+        } else {
+            cls = 'btn-danger';
         }
-        limitDays = limitFrequencies[now.getMonth()];
 
-        const needsAttention = differenceInDays > limitDays;
-
-        buttonRefs[buttonId].className = `btn w-100 ${needsAttention ? 'btn-danger' : 'btn-success'}`;
+        buttonRefs[buttonId].className = `btn w-100 ${cls}`;
     };
 
     const getLastClickedTimes = async () => {

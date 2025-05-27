@@ -118,8 +118,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const body = {
             name: nameElem.value.trim(),
             description: descElem.value,
-            wateringFreq: wateringInputs.map(input => parseInt(input.value, 10) || 0),
-            feedingFreq: feedingInputs.map(input => parseInt(input.value, 10) || 0),
+            wateringFreq: wateringInputs.map(input => {
+                const v = parseInt(input.value, 10) || 0;
+                return { min: v, max: v };
+            }),
+            feedingFreq: feedingInputs.map(input => {
+                const v = parseInt(input.value, 10) || 0;
+                return { min: v, max: v };
+            }),
             location: locationSelect.value
         };
         if (imageData) {
