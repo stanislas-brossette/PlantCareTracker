@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     const plantNameElem = document.getElementById('plant-name');
+    const plantNameInput = document.getElementById('plant-name-input');
     const imageElem = document.getElementById('plant-image');
     const prevBtn = document.getElementById('prev-plant');
     const nextBtn = document.getElementById('next-plant');
@@ -213,6 +214,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         descElem.readOnly = !state;
         descElem.classList.toggle('d-none', !state);
         descDisplay.classList.toggle('d-none', state);
+        plantNameElem.classList.toggle('d-none', state);
+        plantNameInput.classList.toggle('d-none', !state);
         imageFileElem.classList.toggle('d-none', !state);
         saveBtn.classList.toggle('d-none', !state);
         archiveBtn.classList.toggle('d-none', !state);
@@ -234,6 +237,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const displayPlant = (plant) => {
         plantNameElem.textContent = plant.name;
+        plantNameInput.value = plant.name;
         imageElem.src = plant.image;
         descElem.value = plant.description || '';
         updateDescDisplay();
@@ -314,6 +318,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const save = async () => {
         const body = {
+            name: plantNameInput.value.trim(),
             description: descElem.value,
             wateringFreq: wateringInputs.map(input => parseInt(input.value, 10) || 0),
             feedingFreq: feedingInputs.map(input => parseInt(input.value, 10) || 0),

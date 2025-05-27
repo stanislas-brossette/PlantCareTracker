@@ -194,6 +194,22 @@ app.put('/plants/:name', (req, res) => {
     if (index === -1) {
         return res.status(404).send('Plant not found');
     }
+    const oldName = plants[index].name;
+    const newName = req.body.name && req.body.name !== oldName ? req.body.name : null;
+    if (newName) {
+        if (plants.find(p => p.name === newName)) {
+            return res.status(400).send('Plant already exists');
+        }
+        plants[index].name = newName;
+        Object.keys(lastClickedTimes).forEach(key => {
+            if (key.startsWith(`button-${oldName}-`)) {
+                const suffix = key.substring(`button-${oldName}-`.length);
+                lastClickedTimes[`button-${newName}-${suffix}`] = lastClickedTimes[key];
+                delete lastClickedTimes[key];
+            }
+        });
+        writeLastClickedTimes();
+    }
     if (req.body.imageData) {
         const saved = saveBase64Image(req.body.imageData);
         if (saved) {
