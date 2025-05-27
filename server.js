@@ -308,7 +308,7 @@ app.post('/identify', async (req, res) => {
                     content: [
                         {
                             type: 'text',
-                            text: 'Peux-tu identifier cette plante à partir de la photo ci-jointe et me donner une fiche synthétique ?  Je veux : – Le nom scientifique et le nom commun – 3 ou 4 caractéristiques clés de la plante – Des conseils d’entretien (lumière, arrosage, substrat, engrais, toxicité éventuelle) – Le tout présenté de manière claire et concise, en bullet points, sans ligne vide entre les sections. Fais attention à la toxicité pour les chats. Format répondant à un usage d’application mobile / carnet de plantes. Si l’identification est incertaine, donne-moi les deux ou trois options possibles'
+                            text: 'Peux-tu identifier cette plante à partir de la photo ci-jointe et me donner une fiche synthétique ?  Je veux : – Le nom scientifique et le nom commun – 3 ou 4 caractéristiques clés de la plante – Des conseils d’entretien (lumière, arrosage, substrat, engrais, toxicité éventuelle) – Le tout présenté de manière claire et concise, en bullet points, sans ligne vide entre les sections et au format markdown pour plus de clarté. Fais attention à la toxicité pour les chats. Format répondant à un usage d’application mobile / carnet de plantes. Si l’identification est incertaine, donne-moi les deux ou trois options possibles'
                         },
                         { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${base64}` } }
                     ]
