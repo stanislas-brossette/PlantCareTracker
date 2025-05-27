@@ -4,7 +4,7 @@ const app = express();
 const port = 3000;
 const path = require('path');
 
-const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
+const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4-turbo";
 let lastClickedTimes = {}; // Stores last clicked times for each action of each plant
 const dataFile = 'lastClickedTimes.json';
 
@@ -308,12 +308,12 @@ app.post('/identify', async (req, res) => {
                     content: [
                         {
                             type: 'text',
-                            text: 'Quel est cette plante? Donnes moi le nom de l\u2019esp\u00e8ce (scientifique et commun si possible), quelques particularit\u00e9s et des conseils d\u2019entretien (lumi\u00e8re, arrosage, engrais, etc.). R\u00e9ponds en fran\u00e7ais en 6 lignes maximum, la première ligne contient uniquement le nom de la plante, chaque ligne suivante commen\u00e7ant par \u201c- \u201d et sans ligne vide.'
+                            text: 'Peux-tu identifier cette plante à partir de la photo ci-jointe et me donner une fiche synthétique ?  Je veux : – Le nom scientifique et le nom commun – 3 ou 4 caractéristiques clés de la plante – Des conseils d’entretien (lumière, arrosage, substrat, engrais, toxicité éventuelle) – Le tout présenté de manière claire et concise, en bullet points, sans ligne vide entre les sections. Fais attention à la toxicité pour les chats. Format répondant à un usage d’application mobile / carnet de plantes. Si l’identification est incertaine, donne-moi les deux ou trois options possibles'
                         },
                         { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${base64}` } }
                     ]
                 }],
-                max_tokens: 200
+                max_tokens: 500
             })
         });
         if (!apiRes.ok) {

@@ -29,7 +29,7 @@
             1000,
             1000
         ],
-        "description": "Nom : Zamioculcas zamiifolia — ZZ plant\nParticularités :\n    Originaire d’Afrique de l’Est\n    Très résistante, parfaite pour débutants\n    Rhizomes souterrains qui stockent l’eau\n    Croissance lente, feuillage brillant et épais\nEntretien :\n    Lumière : indirecte à mi-ombre, évite soleil direct\n    Arrosage : espacé (toutes les 2–3 semaines), sol bien sec entre deux\n    Substrat : drainant, type terreau plantes grasses\n    Engrais : 1×/2 mois au printemps-été\n    Température : 18–25 °C, pas de froid en dessous de 15 °C\n    Toxicité : toxique pour animaux (sève irritante)",
+        "description": "**Nom scientifique :** Zamioculcas zamiifolia  \n**Nom commun :** ZZ Plant, Plante ZZ\n\n**Caractéristiques clés :**  \n- **Feuillage :** Lustré, dense, vert foncé.  \n- **Croissance :** Modérée, adaptée à un environnement intérieur.  \n- **Structure :** Feuilles épaisses attachées à des tiges robustes qui peuvent stocker de l'eau.  \n- **Résilience :** Très tolérante à diverses conditions d'éclairage et pousse bien en intérieur.\n\n**Conseils d’entretien :**  \n- **Lumière :** Tolère faible à moyenne lumière, mais idéal avec lumière indirecte lumineuse.  \n- **Arrosage :** Laisser le sol sécher complètement entre les arrosages. Sensible à la pourriture des racines si trop arrosé.  \n- **Substrat :** Bien drainé, utilisation d'un mélange pour cactus ou plantes succulentes recommandé.  \n- **Engrais :** Appliquer un engrais dilué une fois tous les trois mois pendant la saison de croissance.  \n- **Toxicité :** La plante est toxique pour les chats et les chiens si ingérée, peut causer irritation et vomissements.\n\nVeillez à placer la plante hors de portée des animaux de compagnie, surtout si vous avez un chat.",
         "image": "images/img_1748190767897.jpeg",
         "location": "Apartment"
     },
@@ -614,7 +614,7 @@
     },
     {
         "name": "Rose trémière",
-        "description": "",
+        "description": "- **Nom scientifique et commun :** Verbascum thapsus, également connu sous le nom de Bouillon-blanc ou Molène bouillon-blanc.\n  \n- **Caractéristiques clés :**\n  - Feuilles : Grandes, duveteuses, légèrement argentées et disposées en rosette à la base durant la première année; la deuxième année, elles forment une hampe florale érigée.\n  - Fleurs : Petites, jaune vif et disposées en grappes denses sur une tige centrale qui peut atteindre jusqu'à 2 mètres de haut.\n  - Habitat : Fréquent dans les lieux incultes, les bords de route et les terrains vagues. La plante est bisannuelle, complétant son cycle de vie en deux ans.\n  - Utilisation : Traditionnellement utilisée en phytothérapie pour ses propriétés émollientes et adoucissantes, particulièrement en cas de toux ou d’irritations de la gorge.\n\n- **Conseils d’entretien :**\n  - Lumière : Préfère une exposition ensoleillée.\n  - Arrosage : Tolère la sécheresse, mais nécessite un arrosage modéré durant les périodes de croissance si plantée dans un jardin.\n  - Substrat : Pousse dans une grande variété de sols, mais préfère les sols bien drainés et légèrement sablonneux.\n  - Engrais : Nécessite peu de fertilisation si le sol est de qualité raisonnable.\n  - Toxicité : Non toxique pour les humains et les animaux domestiques, mais toujours prudent d'éviter l'ingestion de plantes par les animaux.\n\nCette plante est intéressante à la fois pour son aspect visuel et ses propriétés médicinales, faisant d'elle une belle addition aux jardins de plantes indigènes ou de style sauvage.",
         "wateringFreq": [
             7,
             7,
@@ -750,7 +750,7 @@
     },
     {
         "name": "Palmier",
-        "description": "Cycus revoluta (Sago Palm)  \n- Cette plante est un cycadé, souvent confondue avec un palmier.  \n- Elle nécessite une lumière vive mais peut tolérer un peu d'ombre.  \n- L'arrosage doit être modéré, laissant sécher le sol entre les arrosages.  \n- Appliquez un engrais équilibré pendant la saison de croissance (printemps et été).  \n- Elle est résistante aux maladies mais sensible à l'humidité excessive.  \n- Protégez-la des températures inférieures à 10°C.",
+        "description": "**Nom Scientifique :** Phoenix canariensis  \n**Nom Commun :** Palmier des Canaries  \n\n**Caractéristiques Clés :**  \n- Origine : îles Canaries  \n- Type : palmier  \n- Taille : peut atteindre jusqu'à 20 mètres de haut  \n- Feuillage : Feuilles pennées pouvant mesurer jusqu’à 5 à 6 mètres de long  \n\n**Conseils d'entretien :**  \n- **Lumière :** Préfère un plein soleil  \n- **Arrosage :** Modéré, laisser sécher le substrat entre les arrosages  \n- **Substrat :** Bien drainé, sablonneux  \n- **Engrais :** Apport en engrais palmier pendant la saison de croissance  \n- **Toxicité :** Non toxique pour les chats  \n\nCe palmier est résistant et adapté à un climat tempéré chaud, et nécessite peu d'entretien une fois bien établi.",
         "wateringFreq": [
             7,
             7,
