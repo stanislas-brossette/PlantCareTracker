@@ -16,6 +16,37 @@ document.addEventListener('DOMContentLoaded', async () => {
     const identifyBtn = document.getElementById('identify');
     const messageElem = document.getElementById('message');
     const loadingElem = document.getElementById('loading');
+    const loadingLeaf = document.getElementById('loading-leaf');
+    let leafInterval;
+    let leafX = 0;
+    let leafY = 0;
+
+    const moveLeaf = () => {
+        const maxX = window.innerWidth - 40;
+        const maxY = window.innerHeight - 40;
+        const newX = Math.random() * maxX;
+        const newY = Math.random() * maxY;
+
+        const trail = document.createElement('img');
+        trail.src = loadingLeaf.src;
+        trail.className = 'leaf-trail';
+        trail.style.transform = `translate(${leafX}px, ${leafY}px)`;
+        loadingElem.appendChild(trail);
+        setTimeout(() => trail.remove(), 1000);
+
+        leafX = newX;
+        leafY = newY;
+        loadingLeaf.style.transform = `translate(${newX}px, ${newY}px) rotate(${Math.random()*360}deg)`;
+    };
+
+    const startLeafAnimation = () => {
+        moveLeaf();
+        leafInterval = setInterval(moveLeaf, 800);
+    };
+
+    const stopLeafAnimation = () => {
+        clearInterval(leafInterval);
+    };
 
     const autoResize = () => {
         descElem.style.height = 'auto';
@@ -183,12 +214,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const identify = async () => {
         loadingElem.classList.remove('d-none');
+        startLeafAnimation();
         identifyBtn.disabled = true;
         const res = await fetch('/identify', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ image: imageElem.getAttribute('src') })
         });
+        stopLeafAnimation();
         loadingElem.classList.add('d-none');
         identifyBtn.disabled = false;
         if (res.ok) {
