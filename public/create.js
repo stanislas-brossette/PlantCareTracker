@@ -30,8 +30,39 @@ document.addEventListener('DOMContentLoaded', () => {
     const imageFileElem = document.getElementById('imageFile');
     const previewElem = document.getElementById('imagePreview');
     const saveBtn = document.getElementById('save');
+    const locationSelect = document.getElementById('location-select');
+    const addLocationBtn = document.getElementById('add-location');
     const messageElem = document.getElementById('message');
     let imageData = null;
+
+    const loadLocations = async () => {
+        const res = await fetch('/locations');
+        const list = await res.json();
+        locationSelect.innerHTML = '';
+        list.forEach(loc => {
+            const opt = document.createElement('option');
+            opt.value = loc;
+            opt.textContent = loc;
+            locationSelect.appendChild(opt);
+        });
+        const stored = localStorage.getItem('currentLocation');
+        if (stored && list.includes(stored)) locationSelect.value = stored;
+    };
+
+    const addLocation = async () => {
+        const name = prompt('New location name');
+        if (!name) return;
+        await fetch('/locations', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name })
+        });
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        locationSelect.appendChild(opt);
+        locationSelect.value = name;
+    };
 
     const resizeImage = (file) => {
         return new Promise((resolve, reject) => {
@@ -88,7 +119,8 @@ document.addEventListener('DOMContentLoaded', () => {
             name: nameElem.value.trim(),
             description: descElem.value,
             wateringFreq: wateringInputs.map(input => parseInt(input.value, 10) || 0),
-            feedingFreq: feedingInputs.map(input => parseInt(input.value, 10) || 0)
+            feedingFreq: feedingInputs.map(input => parseInt(input.value, 10) || 0),
+            location: locationSelect.value
         };
         if (imageData) {
             body.imageData = imageData;
@@ -111,5 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    addLocationBtn.addEventListener('click', addLocation);
     saveBtn.addEventListener('click', save);
+    loadLocations();
 });

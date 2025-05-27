@@ -11,6 +11,9 @@ const dataFile = 'lastClickedTimes.json';
 let plants = [];
 const plantsFile = 'plants.json';
 
+let locations = [];
+const locationsFile = 'locations.json';
+
 // Function to read the last clicked times from a file
 function readLastClickedTimes() {
     try {
@@ -30,12 +33,37 @@ function readPlants() {
         console.log('No plants data found or error reading file:', err);
         plants = [];
     }
+
+    // Ensure every plant has a location
+    const defaultLoc = locations[0] || 'Default';
+    let changed = false;
+    plants.forEach(p => {
+        if (!p.location) { p.location = defaultLoc; changed = true; }
+    });
+    if (changed) writePlants();
 }
 
 function writePlants() {
     fs.writeFile(plantsFile, JSON.stringify(plants, null, 4), err => {
         if (err) {
             console.error('Error writing plants file', err);
+        }
+    });
+}
+
+function readLocations() {
+    try {
+        const data = fs.readFileSync(locationsFile, 'utf8');
+        locations = JSON.parse(data);
+    } catch (err) {
+        locations = ['Default'];
+    }
+}
+
+function writeLocations() {
+    fs.writeFile(locationsFile, JSON.stringify(locations, null, 4), err => {
+        if (err) {
+            console.error('Error writing locations file', err);
         }
     });
 }
@@ -62,8 +90,9 @@ function writeLastClickedTimes() {
     });
 }
 
-// Read the last clicked times from the file on server start
+// Read stored data on server start
 readLastClickedTimes();
+readLocations();
 readPlants();
 
 app.use(express.static('public'));
@@ -107,6 +136,44 @@ app.get('/lastClickedTimes', (req, res) => {
     res.send(lastClickedTimes);
 });
 
+app.get('/locations', (req, res) => {
+    res.send(locations);
+});
+
+app.post('/locations', (req, res) => {
+    const { name } = req.body;
+    if (!name) {
+        return res.status(400).send('Name is required');
+    }
+    if (!locations.includes(name)) {
+        locations.push(name);
+        writeLocations();
+    }
+    res.status(201).send({ name });
+});
+
+app.delete('/locations/:name', (req, res) => {
+    const idx = locations.indexOf(req.params.name);
+    if (idx === -1) {
+        return res.status(404).send('Location not found');
+    }
+    if (locations.length === 1) {
+        return res.status(400).send('Cannot delete last location');
+    }
+    const removed = locations.splice(idx, 1)[0];
+    const fallback = locations[0] || 'Default';
+    let changed = false;
+    plants.forEach(p => {
+        if (p.location === removed) {
+            p.location = fallback;
+            changed = true;
+        }
+    });
+    writeLocations();
+    if (changed) writePlants();
+    res.send({ name: removed });
+});
+
 app.get('/plants', (req, res) => {
     // Only return non archived plants
     const visiblePlants = plants.filter(p => !p.archived);
@@ -140,6 +207,11 @@ app.put('/plants/:name', (req, res) => {
     if (req.body.feedingFreq && !isValidFreqArray(req.body.feedingFreq)) {
         return res.status(400).send('feedingFreq must be an array of 12 numbers');
     }
+
+    if (req.body.location && !locations.includes(req.body.location)) {
+        locations.push(req.body.location);
+        writeLocations();
+    }
     plants[index] = { ...plants[index], ...req.body };
 
     if (req.body.archived === true) {
@@ -170,6 +242,9 @@ app.post('/plants', (req, res) => {
         }
         delete newPlant.imageData;
     }
+    if (!newPlant.location) {
+        return res.status(400).send('Location is required');
+    }
     if (newPlant.wateringFreq && !isValidFreqArray(newPlant.wateringFreq)) {
         return res.status(400).send('wateringFreq must be an array of 12 numbers');
     }
@@ -181,8 +256,13 @@ app.post('/plants', (req, res) => {
         description: newPlant.description || '',
         wateringFreq: newPlant.wateringFreq || Array(12).fill(0),
         feedingFreq: newPlant.feedingFreq || Array(12).fill(0),
-        image: newPlant.image || 'images/placeholder.png'
+        image: newPlant.image || 'images/placeholder.png',
+        location: newPlant.location
     };
+    if (!locations.includes(plantToAdd.location)) {
+        locations.push(plantToAdd.location);
+        writeLocations();
+    }
     plants.push(plantToAdd);
     writePlants();
     res.status(201).send(plantToAdd);

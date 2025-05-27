@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const plantsTable = document.getElementById('plantsTable');
     const undoBtn = document.getElementById('undo');
+    const locationSelect = document.getElementById('location-select');
 
     const undoStack = [];
 
@@ -13,11 +14,31 @@ document.addEventListener('DOMContentLoaded', () => {
     // Object to store button references
     const buttonRefs = {};
 
-    const loadPlants = async () => {
-        const response = await fetch('/plants');
-        plants = await response.json();
+    const loadLocations = async () => {
+        const res = await fetch('/locations');
+        const list = await res.json();
+        locationSelect.innerHTML = '';
+        const optAll = document.createElement('option');
+        optAll.value = 'All';
+        optAll.textContent = 'All';
+        locationSelect.appendChild(optAll);
+        list.forEach(loc => {
+            const o = document.createElement('option');
+            o.value = loc;
+            o.textContent = loc;
+            locationSelect.appendChild(o);
+        });
+        const stored = localStorage.getItem('currentLocation') || 'All';
+        locationSelect.value = stored;
+    };
 
-        plants.filter(p => !p.archived).forEach(plant => {
+    const renderPlants = () => {
+        while (plantsTable.rows.length > 1) {
+            plantsTable.deleteRow(1);
+        }
+        Object.keys(buttonRefs).forEach(k => delete buttonRefs[k]);
+        const current = locationSelect.value;
+        plants.filter(p => !p.archived && (current === 'All' || p.location === current)).forEach(plant => {
             const row = plantsTable.insertRow();
             const nameCell = row.insertCell();
 
@@ -57,8 +78,13 @@ document.addEventListener('DOMContentLoaded', () => {
         createButton('Arrosage');
         createButton('Engrais');
         });
+        getLastClickedTimes();
+    };
 
-        await getLastClickedTimes();
+    const loadPlants = async () => {
+        const response = await fetch('/plants');
+        plants = await response.json();
+        renderPlants();
         setInterval(refreshTimes, 60000);
     };
 
@@ -159,7 +185,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    locationSelect.addEventListener('change', () => {
+        localStorage.setItem('currentLocation', locationSelect.value);
+        renderPlants();
+    });
+
     undoBtn.addEventListener('click', undoLast);
     updateUndoBtn();
-    loadPlants();
+    loadLocations().then(loadPlants);
 });

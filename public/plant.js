@@ -15,6 +15,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const nextBtn = document.getElementById('next-plant');
     const imageFileElem = document.getElementById('imageFile');
     const descElem = document.getElementById('description');
+    const locationSelect = document.getElementById('location-select');
+    const addLocationBtn = document.getElementById('add-location');
     const scheduleBody = document.querySelector('#schedule-table tbody');
     const toggleBtn = document.getElementById('toggle-edit');
     const saveBtn = document.getElementById('save');
@@ -62,6 +64,34 @@ document.addEventListener('DOMContentLoaded', async () => {
     let imageData = null;
     let editing = false;
     let plantNames = [];
+    const currentLocation = localStorage.getItem('currentLocation') || 'All';
+
+    const loadLocations = async () => {
+        const res = await fetch('/locations');
+        const list = await res.json();
+        locationSelect.innerHTML = '';
+        list.forEach(loc => {
+            const opt = document.createElement('option');
+            opt.value = loc;
+            opt.textContent = loc;
+            locationSelect.appendChild(opt);
+        });
+    };
+
+    const addLocation = async () => {
+        const name = prompt('New location name');
+        if (!name) return;
+        await fetch('/locations', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name })
+        });
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        locationSelect.appendChild(opt);
+        locationSelect.value = name;
+    };
 
     const resizeImage = (file) => {
         return new Promise((resolve, reject) => {
@@ -172,6 +202,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         imageFileElem.classList.toggle('d-none', !state);
         saveBtn.classList.toggle('d-none', !state);
         archiveBtn.classList.toggle('d-none', !state);
+        locationSelect.disabled = !state;
+        addLocationBtn.classList.toggle('d-none', !state);
         document.querySelectorAll('#schedule-table input').forEach(i => i.readOnly = !state);
         document.querySelectorAll('#schedule-table .minus, #schedule-table .plus').forEach(btn => btn.classList.toggle('d-none', !state));
         toggleBtn.textContent = state ? 'View' : 'Edit';
@@ -193,13 +225,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         (plant.wateringFreq || []).forEach((val, i) => { if (wateringInputs[i]) wateringInputs[i].value = val; });
         (plant.feedingFreq || []).forEach((val, i) => { if (feedingInputs[i]) feedingInputs[i].value = val; });
         archiveBtn.disabled = !!plant.archived;
+        locationSelect.value = plant.location;
     };
 
     const loadPlantNames = async () => {
         const res = await fetch('/plants');
         if (res.ok) {
             const list = await res.json();
-            plantNames = list.map(p => p.name);
+            const filtered = list.filter(p => !p.archived && (currentLocation === 'All' || p.location === currentLocation));
+            plantNames = filtered.map(p => p.name);
         }
     };
 
@@ -266,7 +300,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const body = {
             description: descElem.value,
             wateringFreq: wateringInputs.map(input => parseInt(input.value, 10) || 0),
-            feedingFreq: feedingInputs.map(input => parseInt(input.value, 10) || 0)
+            feedingFreq: feedingInputs.map(input => parseInt(input.value, 10) || 0),
+            location: locationSelect.value
         };
         if (imageData) { body.imageData = imageData; }
         await fetch(`/plants/${encodeURIComponent(name)}`, {
@@ -325,8 +360,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     toggleBtn.addEventListener('click', () => setEditing(!editing));
     saveBtn.addEventListener('click', save);
     archiveBtn.addEventListener('click', archive);
+    addLocationBtn.addEventListener('click', addLocation);
     if (identifyBtn) identifyBtn.addEventListener('click', identify);
 
+    await loadLocations();
     await loadPlantNames();
     initSwipe();
     await load(name);

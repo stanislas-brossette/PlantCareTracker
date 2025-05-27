@@ -2,6 +2,40 @@ const request = require('supertest');
 const app = require('../server');
 
 describe('Server endpoints', () => {
+  test('GET /locations returns status 200 and array', async () => {
+    const res = await request(app).get('/locations');
+    expect(res.statusCode).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+  });
+
+  test('POST /locations creates a location', async () => {
+    const res = await request(app)
+      .post('/locations')
+      .send({ name: 'TestArea' });
+    expect(res.statusCode).toBe(201);
+    const list = await request(app).get('/locations');
+    expect(list.body).toContain('TestArea');
+  });
+
+  test('DELETE /locations removes location and updates plants', async () => {
+    await request(app).post('/locations').send({ name: 'TempLoc' });
+    await request(app)
+      .post('/plants')
+      .send({
+        name: 'TempPlant',
+        wateringFreq: Array(12).fill(1),
+        feedingFreq: Array(12).fill(1),
+        image: 'images/placeholder.png',
+        location: 'TempLoc'
+      });
+    const delRes = await request(app).delete('/locations/TempLoc');
+    expect(delRes.statusCode).toBe(200);
+    const list = await request(app).get('/locations');
+    expect(list.body).not.toContain('TempLoc');
+    const plant = await request(app).get('/plants/TempPlant');
+    expect(plant.body.location).not.toBe('TempLoc');
+    await request(app).delete('/plants/TempPlant');
+  });
   test('GET /lastClickedTimes returns status 200 and JSON', async () => {
     const res = await request(app).get('/lastClickedTimes');
     expect(res.statusCode).toBe(200);
@@ -93,7 +127,8 @@ describe('Server endpoints', () => {
       description: 'temp',
       wateringFreq: Array(12).fill(1),
       feedingFreq: Array(12).fill(1),
-      image: 'images/placeholder.png'
+      image: 'images/placeholder.png',
+      location: 'TestArea'
     };
 
     const createRes = await request(app)
@@ -113,7 +148,8 @@ describe('Server endpoints', () => {
       .send({
         name: 'InvalidPlant',
         wateringFreq: [1],
-        feedingFreq: Array(12).fill(1)
+        feedingFreq: Array(12).fill(1),
+        location: 'TestArea'
       });
     expect(res.statusCode).toBe(400);
   });
@@ -129,7 +165,7 @@ describe('Server endpoints', () => {
     const invalid = Array(12).fill(1e309); // Infinity when parsed
     const res = await request(app)
       .post('/plants')
-      .send({ name: 'BadNum', wateringFreq: invalid, feedingFreq: invalid });
+      .send({ name: 'BadNum', wateringFreq: invalid, feedingFreq: invalid, location: 'TestArea' });
     expect(res.statusCode).toBe(400);
   });
 });
