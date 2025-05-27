@@ -181,7 +181,7 @@ app.post('/plants', (req, res) => {
         description: newPlant.description || '',
         wateringFreq: newPlant.wateringFreq || Array(12).fill(0),
         feedingFreq: newPlant.feedingFreq || Array(12).fill(0),
-        image: newPlant.image || 'images/placeholder.jpg'
+        image: newPlant.image || 'images/placeholder.png'
     };
     plants.push(plantToAdd);
     writePlants();
