@@ -242,8 +242,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         descElem.value = plant.description || '';
         updateDescDisplay();
         autoResize();
-        (plant.wateringFreq || []).forEach((val, i) => { if (wateringInputs[i]) wateringInputs[i].value = val; });
-        (plant.feedingFreq || []).forEach((val, i) => { if (feedingInputs[i]) feedingInputs[i].value = val; });
+        (plant.wateringFreq || []).forEach((val, i) => {
+            if (wateringInputs[i]) wateringInputs[i].value = (val && val.min) || 0;
+        });
+        (plant.feedingFreq || []).forEach((val, i) => {
+            if (feedingInputs[i]) feedingInputs[i].value = (val && val.min) || 0;
+        });
         archiveBtn.disabled = !!plant.archived;
         locationSelect.value = plant.location;
     };
@@ -320,8 +324,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         const body = {
             name: plantNameInput.value.trim(),
             description: descElem.value,
-            wateringFreq: wateringInputs.map(input => parseInt(input.value, 10) || 0),
-            feedingFreq: feedingInputs.map(input => parseInt(input.value, 10) || 0),
+            wateringFreq: wateringInputs.map(input => {
+                const v = parseInt(input.value, 10) || 0;
+                return { min: v, max: v };
+            }),
+            feedingFreq: feedingInputs.map(input => {
+                const v = parseInt(input.value, 10) || 0;
+                return { min: v, max: v };
+            }),
             location: locationSelect.value
         };
         if (imageData) { body.imageData = imageData; }
@@ -368,11 +378,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (res.ok) {
             const data = await res.json();
             try { await navigator.clipboard.writeText(data.answer); } catch(e) {}
-            if (confirm(`${data.answer}\n\nMettre à jour la description ?`)) {
+            const msg = `${data.answer}\n\nMettre \u00e0 jour la description et les fréquences ?`;
+            if (confirm(msg)) {
                 descElem.value = data.answer;
                 updateDescDisplay();
                 autoResize();
-                await updateDescription(data.answer);
+                if (data.wateringFreq && data.feedingFreq) {
+                    data.wateringFreq.forEach((v,i)=>{ if(wateringInputs[i]) wateringInputs[i].value = v.min; });
+                    data.feedingFreq.forEach((v,i)=>{ if(feedingInputs[i]) feedingInputs[i].value = v.min; });
+                }
+                await fetch(`/plants/${encodeURIComponent(name)}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        description: data.answer,
+                        wateringFreq: data.wateringFreq,
+                        feedingFreq: data.feedingFreq
+                    })
+                });
+                showMessage('Description updated', 'success');
             }
         } else {
             alert('Error identifying plant');

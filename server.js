@@ -99,10 +99,14 @@ app.use(express.static('public'));
 // Increase JSON body size limit to handle base64 images
 app.use(express.json({ limit: '10mb' }));
 
+const MONTHS = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+
 function isValidFreqArray(arr) {
     return Array.isArray(arr) &&
         arr.length === 12 &&
-        arr.every(n => typeof n === 'number' && Number.isFinite(n));
+        arr.every(o => o && typeof o === 'object' &&
+            typeof o.min === 'number' && Number.isFinite(o.min) &&
+            typeof o.max === 'number' && Number.isFinite(o.max));
 }
 
 app.post('/clicked', (req, res) => {
@@ -324,12 +328,12 @@ app.post('/identify', async (req, res) => {
                     content: [
                         {
                             type: 'text',
-                            text: 'Peux-tu identifier cette plante à partir de la photo ci-jointe et me donner une fiche synthétique ?  Je veux : – Le nom scientifique et le nom commun – 3 ou 4 caractéristiques clés de la plante – Des conseils d’entretien (lumière, arrosage, substrat, engrais, toxicité éventuelle) – Le tout présenté de manière claire et concise, en bullet points, sans ligne vide entre les sections et au format markdown pour plus de clarté. Fais attention à la toxicité pour les chats. Format répondant à un usage d’application mobile / carnet de plantes. Si l’identification est incertaine, donne-moi les deux ou trois options possibles'
+                            text: 'Peux-tu identifier cette plante à partir de la photo ci-jointe et me donner une fiche synthétique ?  Je veux : – Le nom scientifique et le nom commun – 3 ou 4 caractéristiques clés de la plante – Des conseils d’entretien (lumière, arrosage, substrat, engrais, toxicité éventuelle) – Le tout présenté de manière claire et concise, en bullet points, sans ligne vide entre les sections et au format markdown pour plus de clarté. Fais attention à la toxicité pour les chats. Format répondant à un usage d’application mobile / carnet de plantes. Termine ta réponse par un bloc markdown JSON nommé watering_frequency_days et fertilizer_frequency_days avec pour chaque mois des valeurs min et max en jours.'
                         },
                         { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${base64}` } }
                     ]
                 }],
-                max_tokens: 500
+                max_tokens: 700
             })
         });
         if (!apiRes.ok) {
@@ -337,8 +341,30 @@ app.post('/identify', async (req, res) => {
             return res.status(500).send('OpenAI request failed');
         }
         const data = await apiRes.json();
-        const answer = data.choices?.[0]?.message?.content || '';
-        res.send({ answer });
+        let answer = data.choices?.[0]?.message?.content || '';
+        let wateringFreq = null;
+        let feedingFreq = null;
+        const m = answer.match(/```json\s*([\s\S]*?)\s*```/);
+        if (m) {
+            try {
+                const obj = JSON.parse(m[1]);
+                const convert = (src) => MONTHS.map(mon => {
+                    const v = src?.[mon];
+                    if (!v) return { min: 0, max: 0 };
+                    return { min: v.min ?? 0, max: v.max ?? 0 };
+                });
+                if (obj.watering_frequency_days) {
+                    wateringFreq = convert(obj.watering_frequency_days);
+                }
+                if (obj.fertilizer_frequency_days) {
+                    feedingFreq = convert(obj.fertilizer_frequency_days);
+                }
+                answer = answer.replace(m[0], '').trim();
+            } catch(e) {
+                console.error('Failed to parse frequency JSON', e);
+            }
+        }
+        res.send({ answer, wateringFreq, feedingFreq });
     } catch (err) {
         console.error('Identify error', err);
         res.status(500).send('Error identifying plant');
