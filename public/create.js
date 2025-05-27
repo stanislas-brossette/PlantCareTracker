@@ -33,8 +33,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const messageElem = document.getElementById('message');
     let imageData = null;
 
+    const resizeImage = (file) => {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => {
+                const size = 600;
+                const canvas = document.createElement('canvas');
+                canvas.width = size;
+                canvas.height = size;
+                const ctx = canvas.getContext('2d');
+                const min = Math.min(img.width, img.height);
+                const sx = (img.width - min) / 2;
+                const sy = (img.height - min) / 2;
+                ctx.drawImage(img, sx, sy, min, min, 0, 0, size, size);
+                resolve(canvas.toDataURL('image/jpeg', 0.8));
+            };
+            img.onerror = reject;
+            img.src = URL.createObjectURL(file);
+        });
+    };
+
     if (imageFileElem) {
-        imageFileElem.addEventListener('change', () => {
+        imageFileElem.addEventListener('change', async () => {
             const file = imageFileElem.files[0];
             if (!file) {
                 imageData = null;
@@ -44,15 +64,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 return;
             }
-            const reader = new FileReader();
-            reader.onload = () => {
-                imageData = reader.result;
+            try {
+                imageData = await resizeImage(file);
                 if (previewElem) {
                     previewElem.src = imageData;
                     previewElem.classList.remove('d-none');
                 }
-            };
-            reader.readAsDataURL(file);
+            } catch (e) {
+                console.error('Image resize failed', e);
+            }
         });
     }
 

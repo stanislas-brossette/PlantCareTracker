@@ -139,6 +139,10 @@ If you make changes to the app or need to restart it:
 └── server.js                   # Backend server code
 ```
 
+## Image Handling
+
+Photos taken with modern phones are often around 4000&times;3000 pixels and over 1&nbsp;MB. To keep the app lightweight on mobile devices, new images are automatically cropped to a square and scaled down to **600&times;600** pixels before being sent to the server. This happens directly in the browser when selecting a photo on the create or edit pages.
+
 ---
 
 ## **Troubleshooting**
