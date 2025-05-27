@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const nextBtn = document.getElementById('next-plant');
     const imageFileElem = document.getElementById('imageFile');
     const descElem = document.getElementById('description');
+    const descDisplay = document.getElementById('description-display');
     const locationSelect = document.getElementById('location-select');
     const addLocationBtn = document.getElementById('add-location');
     const scheduleBody = document.querySelector('#schedule-table tbody');
@@ -59,6 +60,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     const autoResize = () => {
         descElem.style.height = 'auto';
         descElem.style.height = descElem.scrollHeight + 'px';
+    };
+
+    const updateDescDisplay = () => {
+        if (window.marked) {
+            descDisplay.innerHTML = marked.parse(descElem.value || '');
+        } else {
+            descDisplay.textContent = descElem.value || '';
+        }
     };
 
     let imageData = null;
@@ -157,6 +166,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     descElem.addEventListener('input', autoResize);
+    descElem.addEventListener('input', () => {
+        if (!editing) updateDescDisplay();
+    });
 
     const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const wateringInputs = [];
@@ -199,6 +211,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const setEditing = (state) => {
         editing = state;
         descElem.readOnly = !state;
+        descElem.classList.toggle('d-none', !state);
+        descDisplay.classList.toggle('d-none', state);
         imageFileElem.classList.toggle('d-none', !state);
         saveBtn.classList.toggle('d-none', !state);
         archiveBtn.classList.toggle('d-none', !state);
@@ -207,6 +221,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.querySelectorAll('#schedule-table input').forEach(i => i.readOnly = !state);
         document.querySelectorAll('#schedule-table .minus, #schedule-table .plus').forEach(btn => btn.classList.toggle('d-none', !state));
         toggleBtn.textContent = state ? 'View' : 'Edit';
+        if (!state) updateDescDisplay();
         autoResize();
     };
 
@@ -221,6 +236,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         plantNameElem.textContent = plant.name;
         imageElem.src = plant.image;
         descElem.value = plant.description || '';
+        updateDescDisplay();
         autoResize();
         (plant.wateringFreq || []).forEach((val, i) => { if (wateringInputs[i]) wateringInputs[i].value = val; });
         (plant.feedingFreq || []).forEach((val, i) => { if (feedingInputs[i]) feedingInputs[i].value = val; });
@@ -349,6 +365,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             try { await navigator.clipboard.writeText(data.answer); } catch(e) {}
             if (confirm(`${data.answer}\n\nMettre à jour la description ?`)) {
                 descElem.value = data.answer;
+                updateDescDisplay();
                 autoResize();
                 await updateDescription(data.answer);
             }

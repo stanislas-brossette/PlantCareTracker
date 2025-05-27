@@ -163,6 +163,10 @@ img {
     resize: none;
 }
 
+#description-display {
+    white-space: normal;
+}
+
 /* Leaf loading animation */
 #loading {
     position: fixed;
