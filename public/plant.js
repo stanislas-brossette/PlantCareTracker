@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
     const params = new URLSearchParams(window.location.search);
-    const name = params.get('name');
+    let name = params.get('name');
     if (!name) return;
 
     const incomingDir = localStorage.getItem('transitionDirection');
@@ -82,11 +82,35 @@ document.addEventListener('DOMContentLoaded', async () => {
             img.src = URL.createObjectURL(file);
         });
     };
-    const navigateWithTransition = (url, dir) => {
+    const plantCache = {};
+
+    const fetchPlant = async (plantName) => {
+        if (plantCache[plantName]) return plantCache[plantName];
+        const res = await fetch(`/plants/${encodeURIComponent(plantName)}`);
+        if (res.ok) {
+            const plant = await res.json();
+            plantCache[plantName] = plant;
+            return plant;
+        }
+        return null;
+    };
+
+    const transitionToPlant = async (targetName, dir) => {
+        if (targetName === name) return;
         const incoming = dir === 'left' ? 'right' : 'left';
-        localStorage.setItem('transitionDirection', incoming);
         document.body.classList.add(`slide-out-${dir}`);
-        setTimeout(() => { window.location.href = url; }, 400);
+        const plantPromise = fetchPlant(targetName);
+        setTimeout(async () => {
+            const plant = await plantPromise;
+            if (!plant) return;
+            history.pushState({}, '', `plant.html?name=${encodeURIComponent(targetName)}`);
+            name = targetName;
+            displayPlant(plant);
+            updateNavLinks();
+            document.body.classList.remove(`slide-out-${dir}`);
+            document.body.classList.add(`slide-in-${incoming}`);
+            setTimeout(() => document.body.classList.remove(`slide-in-${incoming}`), 200);
+        }, 200);
     };
 
     if (imageFileElem) {
@@ -161,11 +185,37 @@ document.addEventListener('DOMContentLoaded', async () => {
         setTimeout(() => messageElem.classList.add('d-none'), 3000);
     };
 
+    const displayPlant = (plant) => {
+        plantNameElem.textContent = plant.name;
+        imageElem.src = plant.image;
+        descElem.value = plant.description || '';
+        autoResize();
+        (plant.wateringFreq || []).forEach((val, i) => { if (wateringInputs[i]) wateringInputs[i].value = val; });
+        (plant.feedingFreq || []).forEach((val, i) => { if (feedingInputs[i]) feedingInputs[i].value = val; });
+        archiveBtn.disabled = !!plant.archived;
+    };
+
     const loadPlantNames = async () => {
         const res = await fetch('/plants');
         if (res.ok) {
             const list = await res.json();
             plantNames = list.map(p => p.name);
+        }
+    };
+
+    const preloaded = new Set();
+
+    const preloadImage = async (plantName) => {
+        if (preloaded.has(plantName)) return;
+        try {
+            const plant = await fetchPlant(plantName);
+            if (plant) {
+                const img = new Image();
+                img.src = plant.image;
+                preloaded.add(plantName);
+            }
+        } catch (err) {
+            console.error('Preload failed', err);
         }
     };
 
@@ -175,11 +225,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         const prevName = plantNames[(idx - 1 + plantNames.length) % plantNames.length];
         const nextName = plantNames[(idx + 1) % plantNames.length];
         prevBtn.onclick = () => {
-            navigateWithTransition(`plant.html?name=${encodeURIComponent(prevName)}`, 'right');
+            transitionToPlant(prevName, 'right');
         };
         nextBtn.onclick = () => {
-            navigateWithTransition(`plant.html?name=${encodeURIComponent(nextName)}`, 'left');
+            transitionToPlant(nextName, 'left');
         };
+        preloadImage(prevName);
+        preloadImage(nextName);
     };
 
     const initSwipe = () => {
@@ -201,17 +253,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     };
 
-    const load = async () => {
-        const res = await fetch(`/plants/${encodeURIComponent(name)}`);
-        if (res.ok) {
-            const plant = await res.json();
-            plantNameElem.textContent = plant.name;
-            imageElem.src = plant.image;
-            descElem.value = plant.description || '';
-            autoResize();
-            (plant.wateringFreq || []).forEach((val, i) => { if (wateringInputs[i]) wateringInputs[i].value = val; });
-            (plant.feedingFreq || []).forEach((val, i) => { if (feedingInputs[i]) feedingInputs[i].value = val; });
-            archiveBtn.disabled = !!plant.archived;
+    const load = async (plantName) => {
+        const plant = await fetchPlant(plantName);
+        if (plant) {
+            name = plantName;
+            displayPlant(plant);
         }
         setEditing(false);
     };
@@ -282,8 +328,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (identifyBtn) identifyBtn.addEventListener('click', identify);
 
     await loadPlantNames();
-    updateNavLinks();
     initSwipe();
-    setEditing(false);
-    await load();
+    await load(name);
+    updateNavLinks();
 });
