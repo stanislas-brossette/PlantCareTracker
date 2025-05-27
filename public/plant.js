@@ -3,6 +3,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     const name = params.get('name');
     if (!name) return;
 
+    const incomingDir = localStorage.getItem('transitionDirection');
+    if (incomingDir) {
+        document.body.classList.add(`slide-in-${incomingDir}`);
+        localStorage.removeItem('transitionDirection');
+    }
+
     const plantNameElem = document.getElementById('plant-name');
     const imageElem = document.getElementById('plant-image');
     const prevBtn = document.getElementById('prev-plant');
@@ -75,6 +81,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             img.onerror = reject;
             img.src = URL.createObjectURL(file);
         });
+    };
+    const navigateWithTransition = (url, dir) => {
+        const incoming = dir === 'left' ? 'right' : 'left';
+        localStorage.setItem('transitionDirection', incoming);
+        document.body.classList.add(`slide-out-${dir}`);
+        setTimeout(() => { window.location.href = url; }, 400);
     };
 
     if (imageFileElem) {
@@ -162,8 +174,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         const idx = plantNames.indexOf(name);
         const prevName = plantNames[(idx - 1 + plantNames.length) % plantNames.length];
         const nextName = plantNames[(idx + 1) % plantNames.length];
-        prevBtn.onclick = () => { window.location.href = `plant.html?name=${encodeURIComponent(prevName)}`; };
-        nextBtn.onclick = () => { window.location.href = `plant.html?name=${encodeURIComponent(nextName)}`; };
+        prevBtn.onclick = () => {
+            navigateWithTransition(`plant.html?name=${encodeURIComponent(prevName)}`, 'right');
+        };
+        nextBtn.onclick = () => {
+            navigateWithTransition(`plant.html?name=${encodeURIComponent(nextName)}`, 'left');
+        };
     };
 
     const initSwipe = () => {
