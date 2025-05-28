@@ -184,10 +184,45 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const createInputCell = (arr) => {
         const td = document.createElement('td');
+        const group = document.createElement('div');
+        group.className = 'input-group input-group-sm';
+
+        const minus = document.createElement('button');
+        minus.type = 'button';
+        minus.textContent = '-';
+        minus.className = 'btn btn-outline-secondary btn-sm adjust-btn d-none';
+
         const input = document.createElement('input');
         input.type = 'number';
-        input.className = 'form-control';
-        td.appendChild(input);
+        input.className = 'form-control text-center';
+
+        const plus = document.createElement('button');
+        plus.type = 'button';
+        plus.textContent = '+';
+        plus.className = 'btn btn-outline-secondary btn-sm adjust-btn d-none';
+
+        group.appendChild(minus);
+        group.appendChild(input);
+        group.appendChild(plus);
+        td.appendChild(group);
+
+        minus.addEventListener('click', () => {
+            if (input.readOnly) return;
+            let val = parseFreqValue(input.value);
+            val = (val === null ? 0 : val) - 1;
+            if (val < 0) val = 0;
+            input.value = val;
+            input.dispatchEvent(new Event('input'));
+        });
+
+        plus.addEventListener('click', () => {
+            if (input.readOnly) return;
+            let val = parseFreqValue(input.value);
+            val = (val === null ? 0 : val) + 1;
+            input.value = val;
+            input.dispatchEvent(new Event('input'));
+        });
+
         arr.push(input);
         return td;
     };
@@ -240,7 +275,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         locationSelect.disabled = !state;
         addLocationBtn.classList.toggle('d-none', !state);
         document.querySelectorAll('#schedule-table input').forEach(i => i.readOnly = !state);
-        toggleBtn.textContent = state ? 'View' : 'Edit';
+        document.querySelectorAll('.adjust-btn').forEach(btn => btn.classList.toggle('d-none', !state));
+        toggleBtn.checked = state;
         if (!state) updateDescDisplay();
         autoResize();
     };
@@ -440,7 +476,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
-    toggleBtn.addEventListener('click', () => setEditing(!editing));
+    toggleBtn.addEventListener('change', () => setEditing(toggleBtn.checked));
     saveBtn.addEventListener('click', save);
     archiveBtn.addEventListener('click', archive);
     addLocationBtn.addEventListener('click', addLocation);

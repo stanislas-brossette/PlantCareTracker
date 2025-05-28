@@ -141,6 +141,12 @@ img {
     padding: 4px;
     -moz-appearance: textfield;
 }
+.schedule-table .input-group {
+    width: 90px;
+}
+.schedule-table .adjust-btn {
+    width: 26px;
+}
 .schedule-table input::-webkit-outer-spin-button,
 .schedule-table input::-webkit-inner-spin-button {
     -webkit-appearance: none;
