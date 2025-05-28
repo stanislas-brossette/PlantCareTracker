@@ -1,6 +1,6 @@
 body {
     font-family: 'Roboto', sans-serif;
-    background-color: #f8f9fa;
+    background-color: #F8F9FA;
     padding: 20px;
 }
 
@@ -20,13 +20,6 @@ body {
     font-size: 1rem;
 }
 
-.button-normal {
-    background-color: #28a745;
-}
-
-.button-alert {
-    background-color: #dc3545;
-}
 
 img {
     max-width: 100%;
@@ -231,4 +224,29 @@ img {
 @keyframes slideOutRight {
     from { transform: translateX(0); }
     to { transform: translateX(100%); }
+}
+
+/* Custom button styles */
+.btn {
+    border-radius: 6px !important;
+    font-weight: 700;
+    color: #000;
+}
+
+.btn-success, .button-normal {
+    background-color: #B6E2D3 !important;
+    border-color: #A8D5BA !important;
+    color: #2F4F4F !important;
+}
+
+.btn-warning {
+    background-color: #FFF3B0 !important;
+    border-color: #FFE29A !important;
+    color: #665C00 !important;
+}
+
+.btn-danger, .button-alert {
+    background-color: #F4A6A6 !important;
+    border-color: #F4A6A6 !important;
+    color: #5A1A1A !important;
 }
