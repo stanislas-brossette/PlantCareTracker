@@ -1,7 +1,10 @@
 [
     {
         "name": "ZZ",
-        "wateringFreq": [
+        "description": "",
+        "image": "images/img_1748190767897.jpeg",
+        "location": "Apartment",
+        "wateringMin": [
             30,
             30,
             12,
@@ -15,7 +18,21 @@
             30,
             30
         ],
-        "feedingFreq": [
+        "wateringMax": [
+            30,
+            30,
+            12,
+            12,
+            12,
+            12,
+            12,
+            12,
+            30,
+            30,
+            30,
+            30
+        ],
+        "feedingMin": [
             1000,
             1000,
             7,
@@ -29,13 +46,28 @@
             1000,
             1000
         ],
-        "description": "**Nom scientifique :** Zamioculcas zamiifolia  \n**Nom commun :** ZZ Plant, Plante ZZ\n\n**Caractéristiques clés :**  \n- **Feuillage :** Lustré, dense, vert foncé.  \n- **Croissance :** Modérée, adaptée à un environnement intérieur.  \n- **Structure :** Feuilles épaisses attachées à des tiges robustes qui peuvent stocker de l'eau.  \n- **Résilience :** Très tolérante à diverses conditions d'éclairage et pousse bien en intérieur.\n\n**Conseils d’entretien :**  \n- **Lumière :** Tolère faible à moyenne lumière, mais idéal avec lumière indirecte lumineuse.  \n- **Arrosage :** Laisser le sol sécher complètement entre les arrosages. Sensible à la pourriture des racines si trop arrosé.  \n- **Substrat :** Bien drainé, utilisation d'un mélange pour cactus ou plantes succulentes recommandé.  \n- **Engrais :** Appliquer un engrais dilué une fois tous les trois mois pendant la saison de croissance.  \n- **Toxicité :** La plante est toxique pour les chats et les chiens si ingérée, peut causer irritation et vomissements.\n\nVeillez à placer la plante hors de portée des animaux de compagnie, surtout si vous avez un chat.",
-        "image": "images/img_1748190767897.jpeg",
-        "location": "Apartment"
+        "feedingMax": [
+            1000,
+            1000,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            1000,
+            1000
+        ],
+        "archived": false
     },
     {
         "name": "Suzie",
-        "wateringFreq": [
+        "description": "### Fiche de la plante\n\n- **Nom scientifique :** Phalaenopsis \n- **Nom commun :** Orchidée papillon\n\n#### Caractéristiques clés\n- **Feuillage :** Persistant, feuilles épaisses et charnues, vert foncé.\n- **Fleurs :** Floraison durable, fleurs semblables à des papillons, souvent de couleur pâle avec un centre coloré.\n- **Croissance :** Croissance lente et floraison potentiellement récurrente tout au long de l'année.\n- **Origine :** Originaire des régions tropicales d'Asie, Australie et autres îles du Pacifique.\n\n#### Conseils d'entretien\n- **Lumière :** Lumière vive mais indirecte ; éviter l'exposition directe au soleil qui peut brûler les feuilles.\n- **Arrosage :** Arroser une fois par semaine en laissant sécher le substrat entre deux arrosages. La fréquence peut être ajustée en fonction de l'humidité ambiante.\n- **Substrat :** Préférer un substrat spécifique pour orchidées, bien drainant, comme l'écorce de pin.\n- **Engrais :** Utiliser un engrais faible en concentration spécifique pour orchidées, une fois par mois durant la période de croissance.\n- **Toxicité :** Cette plante est généralement considérée comme non toxique pour les chiens et les chats.\n\nCette orchidée se caractérise par sa facilité de soin et sa longue période de floraison, ce qui en fait un choix populaire pour les jardiniers d'intérieur. Veillez à ne pas trop arroser ni exposer l'orchidée à des températures extrêmes.",
+        "image": "images/suzie.jpg",
+        "location": "Apartment",
+        "wateringMin": [
             10,
             10,
             10,
@@ -49,7 +81,21 @@
             10,
             10
         ],
-        "feedingFreq": [
+        "wateringMax": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+        ],
+        "feedingMin": [
             20,
             20,
             20,
@@ -63,13 +109,27 @@
             20,
             20
         ],
-        "description": "### Fiche de la plante\n\n- **Nom scientifique :** Phalaenopsis \n- **Nom commun :** Orchidée papillon\n\n#### Caractéristiques clés\n- **Feuillage :** Persistant, feuilles épaisses et charnues, vert foncé.\n- **Fleurs :** Floraison durable, fleurs semblables à des papillons, souvent de couleur pâle avec un centre coloré.\n- **Croissance :** Croissance lente et floraison potentiellement récurrente tout au long de l'année.\n- **Origine :** Originaire des régions tropicales d'Asie, Australie et autres îles du Pacifique.\n\n#### Conseils d'entretien\n- **Lumière :** Lumière vive mais indirecte ; éviter l'exposition directe au soleil qui peut brûler les feuilles.\n- **Arrosage :** Arroser une fois par semaine en laissant sécher le substrat entre deux arrosages. La fréquence peut être ajustée en fonction de l'humidité ambiante.\n- **Substrat :** Préférer un substrat spécifique pour orchidées, bien drainant, comme l'écorce de pin.\n- **Engrais :** Utiliser un engrais faible en concentration spécifique pour orchidées, une fois par mois durant la période de croissance.\n- **Toxicité :** Cette plante est généralement considérée comme non toxique pour les chiens et les chats.\n\nCette orchidée se caractérise par sa facilité de soin et sa longue période de floraison, ce qui en fait un choix populaire pour les jardiniers d'intérieur. Veillez à ne pas trop arroser ni exposer l'orchidée à des températures extrêmes.",
-        "image": "images/suzie.jpg",
-        "location": "Apartment"
+        "feedingMax": [
+            20,
+            20,
+            20,
+            20,
+            20,
+            20,
+            20,
+            20,
+            20,
+            20,
+            20,
+            20
+        ]
     },
     {
         "name": "Impatiens",
-        "wateringFreq": [
+        "description": "**Nom scientifique :** *Impatiens walleriana*  \n**Nom commun :** Impatiens, Balsamine de l'Est, Balsamine des jardins\n\n**Caractéristiques clés :**\n- Les fleurs sont roses avec cinq pétales, souvent ornées d'un centre plus clair.\n- Plante annuelle aimant les environnements humides et ombragés.\n- Feuillage vert vibrant, parfois avec nervures plus claires, et texture légèrement dentée sur les bords.\n- Croissance rapide et habitude buissonnante.\n\n**Conseils d'entretien :**\n- **Lumière :** Préfère l'ombre partielle. Peut tolérer une lumière vive indirecte, mais éviter le plein soleil qui peut brunir les feuilles.\n- **Arrosage :** Garder le sol humide sans être détrempé. Sensible à la pourriture des racines si trop d'eau.\n- **Substrat :** Utiliser un terreau bien drainé, riche en matière organique.\n- **Engrais :** Fertiliser modérément pendant la saison de croissance avec un engrais équilibré.\n- **Toxicité :** Non toxique pour les chats et les chiens, ce qui en fait un bon choix pour les ménages avec animaux.\n\nCes informations devraient vous permettre de maintenir votre impatiens en santé et de profiter de sa floraison abondante.",
+        "image": "images/impatience.jpg",
+        "location": "Apartment",
+        "wateringMin": [
             12,
             12,
             2,
@@ -83,7 +143,21 @@
             12,
             12
         ],
-        "feedingFreq": [
+        "wateringMax": [
+            12,
+            12,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            12,
+            12,
+            12,
+            12
+        ],
+        "feedingMin": [
             1000,
             1000,
             15,
@@ -97,13 +171,27 @@
             1000,
             1000
         ],
-        "description": "**Nom scientifique :** *Impatiens walleriana*  \n**Nom commun :** Impatiens, Balsamine de l'Est, Balsamine des jardins\n\n**Caractéristiques clés :**\n- Les fleurs sont roses avec cinq pétales, souvent ornées d'un centre plus clair.\n- Plante annuelle aimant les environnements humides et ombragés.\n- Feuillage vert vibrant, parfois avec nervures plus claires, et texture légèrement dentée sur les bords.\n- Croissance rapide et habitude buissonnante.\n\n**Conseils d'entretien :**\n- **Lumière :** Préfère l'ombre partielle. Peut tolérer une lumière vive indirecte, mais éviter le plein soleil qui peut brunir les feuilles.\n- **Arrosage :** Garder le sol humide sans être détrempé. Sensible à la pourriture des racines si trop d'eau.\n- **Substrat :** Utiliser un terreau bien drainé, riche en matière organique.\n- **Engrais :** Fertiliser modérément pendant la saison de croissance avec un engrais équilibré.\n- **Toxicité :** Non toxique pour les chats et les chiens, ce qui en fait un bon choix pour les ménages avec animaux.\n\nCes informations devraient vous permettre de maintenir votre impatiens en santé et de profiter de sa floraison abondante.",
-        "image": "images/impatience.jpg",
-        "location": "Apartment"
+        "feedingMax": [
+            1000,
+            1000,
+            15,
+            15,
+            15,
+            15,
+            15,
+            15,
+            15,
+            15,
+            1000,
+            1000
+        ]
     },
     {
         "name": "Philo vert pomme",
-        "wateringFreq": [
+        "description": "**Nom scientifique :** Epipremnum aureum  \n**Nom commun :** Pothos doré, Lierre du diable  \n\n**Caractéristiques clé de la plante :**  \n- **Feuillage :** Feuilles en forme de cœur, brillantes, vertes parfois panachées de jaune ou de blanc selon la variété.  \n- **Croissance :** Rapide et vigoureux, peut atteindre plusieurs mètres de longueur en suspension ou grimpant à l’aide de racines aériennes.  \n- **Entretien :** Plante très résiliente, tolérant une certaine négligence.  \n- **Propriétés :** Capacité notable de purification de l'air, selon les études sur les plantes d'intérieur réalisées par la NASA.\n\n**Conseils d’entretien :**  \n- **Lumière :** Lumière modérée à faible; éviter une exposition directe au soleil, car cela pourrait brûler les feuilles.  \n- **Arrosage :** Arroser lorsque les 2-3 cm du dessus du terreau sont secs au toucher. Diminuer l’arrosage en hiver.  \n- **Substrat :** Utiliser un terreau bien drainant, standard pour plantes d'intérieur.  \n- **Engrais :** Fertiliser légèrement au printemps et en été avec un engrais équilibré.  \n- **Toxicité :** Peut être toxique pour les animaux domestiques tels que les chats, provoquant des irritations orales et des difficultés à avaler si mastiquées ou ingérées.\n\nCes conseils devraient vous aider à bien prendre soin de votre Pothos doré et profiter de sa présence purificatrice et décorative à l'intérieur de votre espace.",
+        "image": "images/img_1748190799993.jpeg",
+        "location": "Apartment",
+        "wateringMin": [
             12,
             12,
             5,
@@ -117,7 +205,21 @@
             12,
             12
         ],
-        "feedingFreq": [
+        "wateringMax": [
+            12,
+            12,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            12,
+            12,
+            12,
+            12
+        ],
+        "feedingMin": [
             1000,
             1000,
             1000,
@@ -131,13 +233,27 @@
             1000,
             1000
         ],
-        "description": "**Nom scientifique :** Epipremnum aureum  \n**Nom commun :** Pothos doré, Lierre du diable  \n\n**Caractéristiques clé de la plante :**  \n- **Feuillage :** Feuilles en forme de cœur, brillantes, vertes parfois panachées de jaune ou de blanc selon la variété.  \n- **Croissance :** Rapide et vigoureux, peut atteindre plusieurs mètres de longueur en suspension ou grimpant à l’aide de racines aériennes.  \n- **Entretien :** Plante très résiliente, tolérant une certaine négligence.  \n- **Propriétés :** Capacité notable de purification de l'air, selon les études sur les plantes d'intérieur réalisées par la NASA.\n\n**Conseils d’entretien :**  \n- **Lumière :** Lumière modérée à faible; éviter une exposition directe au soleil, car cela pourrait brûler les feuilles.  \n- **Arrosage :** Arroser lorsque les 2-3 cm du dessus du terreau sont secs au toucher. Diminuer l’arrosage en hiver.  \n- **Substrat :** Utiliser un terreau bien drainant, standard pour plantes d'intérieur.  \n- **Engrais :** Fertiliser légèrement au printemps et en été avec un engrais équilibré.  \n- **Toxicité :** Peut être toxique pour les animaux domestiques tels que les chats, provoquant des irritations orales et des difficultés à avaler si mastiquées ou ingérées.\n\nCes conseils devraient vous aider à bien prendre soin de votre Pothos doré et profiter de sa présence purificatrice et décorative à l'intérieur de votre espace.",
-        "image": "images/img_1748190799993.jpeg",
-        "location": "Apartment"
+        "feedingMax": [
+            1000,
+            1000,
+            1000,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            1000,
+            1000
+        ]
     },
     {
         "name": "Philo velours",
-        "wateringFreq": [
+        "description": "### Fiche de Plante\n\n- **Nom scientifique** : Philodendron hederaceum var. oxycardium  \n- **Nom commun** : Philodendron à feuilles de cœur\n\n### Caractéristiques\n- Feuillage en forme de cœur d'un vert brillant.\n- Plante grimpante et retombante, idéale pour des pots suspendus ou des étagères élevées.\n- Croissance rapide sous les conditions idéales.\n- Peut purifier l'air intérieur.\n\n### Conseils d'entretien\n- **Lumière** : Lumière indirecte modérée à faible. Éviter l'exposition directe au soleil qui peut brûler les feuilles.\n- **Arrosage** : Arroser lorsque le terreau est presque sec au toucher. Diminuer l'arrosage en hiver.\n- **Substrat** : Terreau riche et bien drainé, peut être mélangé avec de la perlite pour améliorer le drainage.\n- **Engrais** : Fertilisation mensuelle au printemps et en été avec un engrais équilibré.\n- **Toxicité** : Toxique pour les animaux domestiques, y compris les chats, en cas d'ingestion. Contient des cristaux d'oxalate de calcium qui peuvent irriter la bouche et le tube digestif.\n\nEn considérant la toxicité pour les chats, gardez cette plante hors de portée de vos animaux domestiques pour éviter tout incident.",
+        "image": "images/img_1748190826701.jpeg",
+        "location": "Apartment",
+        "wateringMin": [
             12,
             12,
             5,
@@ -151,7 +267,21 @@
             12,
             12
         ],
-        "feedingFreq": [
+        "wateringMax": [
+            12,
+            12,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            12,
+            12,
+            12,
+            12
+        ],
+        "feedingMin": [
             1000,
             1000,
             1000,
@@ -165,13 +295,27 @@
             1000,
             1000
         ],
-        "description": "### Fiche de Plante\n\n- **Nom scientifique** : Philodendron hederaceum var. oxycardium  \n- **Nom commun** : Philodendron à feuilles de cœur\n\n### Caractéristiques\n- Feuillage en forme de cœur d'un vert brillant.\n- Plante grimpante et retombante, idéale pour des pots suspendus ou des étagères élevées.\n- Croissance rapide sous les conditions idéales.\n- Peut purifier l'air intérieur.\n\n### Conseils d'entretien\n- **Lumière** : Lumière indirecte modérée à faible. Éviter l'exposition directe au soleil qui peut brûler les feuilles.\n- **Arrosage** : Arroser lorsque le terreau est presque sec au toucher. Diminuer l'arrosage en hiver.\n- **Substrat** : Terreau riche et bien drainé, peut être mélangé avec de la perlite pour améliorer le drainage.\n- **Engrais** : Fertilisation mensuelle au printemps et en été avec un engrais équilibré.\n- **Toxicité** : Toxique pour les animaux domestiques, y compris les chats, en cas d'ingestion. Contient des cristaux d'oxalate de calcium qui peuvent irriter la bouche et le tube digestif.\n\nEn considérant la toxicité pour les chats, gardez cette plante hors de portée de vos animaux domestiques pour éviter tout incident.",
-        "image": "images/img_1748190826701.jpeg",
-        "location": "Apartment"
+        "feedingMax": [
+            1000,
+            1000,
+            1000,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            1000,
+            1000
+        ]
     },
     {
         "name": "Philo vert jungle",
-        "wateringFreq": [
+        "description": "Nom : Philodendron hederaceum (forme classique, non veloutée)\nParticularités : feuilles lisses, vert foncé, en forme de cœur ; facile d’entretien.\nEntretien :\n    Lumière : indirecte, supporte mi-ombre.\n    Arrosage : modéré, laisser sécher le substrat en surface.\n    Engrais : 1×/mois en croissance.\n    Toxicité : toxique pour les animaux.",
+        "image": "images/img_1748190860989.jpeg",
+        "location": "Apartment",
+        "wateringMin": [
             12,
             12,
             5,
@@ -185,7 +329,21 @@
             12,
             12
         ],
-        "feedingFreq": [
+        "wateringMax": [
+            12,
+            12,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            12,
+            12,
+            12,
+            12
+        ],
+        "feedingMin": [
             1000,
             1000,
             1000,
@@ -199,13 +357,27 @@
             1000,
             1000
         ],
-        "description": "Nom : Philodendron hederaceum (forme classique, non veloutée)\nParticularités : feuilles lisses, vert foncé, en forme de cœur ; facile d’entretien.\nEntretien :\n    Lumière : indirecte, supporte mi-ombre.\n    Arrosage : modéré, laisser sécher le substrat en surface.\n    Engrais : 1×/mois en croissance.\n    Toxicité : toxique pour les animaux.",
-        "image": "images/img_1748190860989.jpeg",
-        "location": "Apartment"
+        "feedingMax": [
+            1000,
+            1000,
+            1000,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            1000,
+            1000
+        ]
     },
     {
         "name": "Pothos Stan",
-        "wateringFreq": [
+        "description": "Nom : Epipremnum aureum 'Marble Queen' (Pothos panaché)\nParticularités : feuillage vert marbré de blanc, très résistant, pousse rapide.\nEntretien :\n    Lumière : indirecte, évite le soleil direct.\n    Arrosage : modéré, laisser sécher entre deux.\n    Engrais : 1×/mois en croissance.\n    Toxicité : toxique pour les animaux.",
+        "image": "images/pothos_stan.jpg",
+        "location": "Apartment",
+        "wateringMin": [
             12,
             12,
             6,
@@ -219,7 +391,21 @@
             12,
             12
         ],
-        "feedingFreq": [
+        "wateringMax": [
+            12,
+            12,
+            6,
+            6,
+            6,
+            6,
+            6,
+            6,
+            12,
+            12,
+            12,
+            12
+        ],
+        "feedingMin": [
             1000,
             1000,
             14,
@@ -233,13 +419,27 @@
             1000,
             1000
         ],
-        "description": "Nom : Epipremnum aureum 'Marble Queen' (Pothos panaché)\nParticularités : feuillage vert marbré de blanc, très résistant, pousse rapide.\nEntretien :\n    Lumière : indirecte, évite le soleil direct.\n    Arrosage : modéré, laisser sécher entre deux.\n    Engrais : 1×/mois en croissance.\n    Toxicité : toxique pour les animaux.",
-        "image": "images/pothos_stan.jpg",
-        "location": "Apartment"
+        "feedingMax": [
+            1000,
+            1000,
+            14,
+            14,
+            14,
+            14,
+            14,
+            14,
+            14,
+            14,
+            1000,
+            1000
+        ]
     },
     {
         "name": "Pothos Marjo",
-        "wateringFreq": [
+        "description": "Nom : Epipremnum aureum (Pothos vert / Golden Pothos)\nParticularités : liane tropicale, facile à entretenir, parfois légèrement panaché.\nEntretien :\n    Lumière : indirecte, tolère la faible luminosité.\n    Arrosage : modéré, sol sec en surface avant d’arroser.\n    Engrais : 1×/mois au printemps/été.\n    Toxicité : toxique pour les animaux.",
+        "image": "images/img_1748190894990.jpeg",
+        "location": "Apartment",
+        "wateringMin": [
             12,
             12,
             6,
@@ -253,7 +453,21 @@
             12,
             12
         ],
-        "feedingFreq": [
+        "wateringMax": [
+            12,
+            12,
+            6,
+            6,
+            6,
+            6,
+            6,
+            6,
+            12,
+            12,
+            12,
+            12
+        ],
+        "feedingMin": [
             1000,
             1000,
             14,
@@ -267,13 +481,27 @@
             1000,
             1000
         ],
-        "description": "Nom : Epipremnum aureum (Pothos vert / Golden Pothos)\nParticularités : liane tropicale, facile à entretenir, parfois légèrement panaché.\nEntretien :\n    Lumière : indirecte, tolère la faible luminosité.\n    Arrosage : modéré, sol sec en surface avant d’arroser.\n    Engrais : 1×/mois au printemps/été.\n    Toxicité : toxique pour les animaux.",
-        "image": "images/img_1748190894990.jpeg",
-        "location": "Apartment"
+        "feedingMax": [
+            1000,
+            1000,
+            14,
+            14,
+            14,
+            14,
+            14,
+            14,
+            14,
+            14,
+            1000,
+            1000
+        ]
     },
     {
         "name": "Succulente",
-        "wateringFreq": [
+        "description": "**Nom scientifique:** Pandanus utilis\n**Nom commun:** Pandan, Pandanus\n\n**Caractéristiques clés:**\n- Feuilles longues, linéaires, vertes et disposées en spirale\n- Bordures des feuilles parfois épineuses\n- Aspect exotique et architectural, se développe en formant un tronc épais et touffu avec l'âge\n- Adapté pour une utilisation ornementale intérieure et extérieure en climats chauds\n\n**Conseils d'entretien:**\n- **Lumière:** Préfère une lumière vive et indirecte ; tolère la mi-ombre.\n- **Arrosage:** Arroser modérément, laisser le substrat sécher légèrement entre les arrosages. Réduire l'arrosage en hiver.\n- **Substrat:** Bien drainé, fertile, peut être un mélange pour plantes d'intérieur standard avec un peu de sable pour améliorer le drainage.\n- **Engrais:** Utiliser un engrais liquide dilué une fois par mois pendant la saison de croissance.\n- **Toxicité:** Non toxique pour les chats, ce qui le rend idéal pour les foyers avec animaux domestiques.\n\nCette fiche vous offre une vision globale pour l'entretien de votre Pandan, vous assurant que vous pouvez maintenir sa santé et sa beauté.",
+        "image": "images/img_1748190916525.jpeg",
+        "location": "Apartment",
+        "wateringMin": [
             30,
             30,
             30,
@@ -287,7 +515,21 @@
             30,
             30
         ],
-        "feedingFreq": [
+        "wateringMax": [
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30
+        ],
+        "feedingMin": [
             1000,
             1000,
             1000,
@@ -301,13 +543,27 @@
             1000,
             1000
         ],
-        "description": "**Nom scientifique:** Pandanus utilis\n**Nom commun:** Pandan, Pandanus\n\n**Caractéristiques clés:**\n- Feuilles longues, linéaires, vertes et disposées en spirale\n- Bordures des feuilles parfois épineuses\n- Aspect exotique et architectural, se développe en formant un tronc épais et touffu avec l'âge\n- Adapté pour une utilisation ornementale intérieure et extérieure en climats chauds\n\n**Conseils d'entretien:**\n- **Lumière:** Préfère une lumière vive et indirecte ; tolère la mi-ombre.\n- **Arrosage:** Arroser modérément, laisser le substrat sécher légèrement entre les arrosages. Réduire l'arrosage en hiver.\n- **Substrat:** Bien drainé, fertile, peut être un mélange pour plantes d'intérieur standard avec un peu de sable pour améliorer le drainage.\n- **Engrais:** Utiliser un engrais liquide dilué une fois par mois pendant la saison de croissance.\n- **Toxicité:** Non toxique pour les chats, ce qui le rend idéal pour les foyers avec animaux domestiques.\n\nCette fiche vous offre une vision globale pour l'entretien de votre Pandan, vous assurant que vous pouvez maintenir sa santé et sa beauté.",
-        "image": "images/img_1748190916525.jpeg",
-        "location": "Apartment"
+        "feedingMax": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+        ]
     },
     {
         "name": "Kalanchoe",
-        "wateringFreq": [
+        "description": "### Identification de la Plante\n- **Nom scientifique :** Kalanchoe blossfeldiana\n- **Nom commun :** Kalanchoe\n\n### Caractéristiques Clés\n- **Origine :** Madagascar.\n- **Type de plante :** Succulente.\n- **Feuillage :** Persistant, vert brillant. Feuilles charnues, épaisses, avec des bords légèrement dentés.\n- **Floraison :** Produit des grappes de petites fleurs qui peuvent varier en couleur (rouge, orange, rose, jaune), généralement en hiver ou au printemps.\n\n### Conseils d'Entretien\n- **Lumière :** Préfère la lumière vive et indirecte. Tolère la lumière directe du soleil mais avec modération.\n- **Arrosage :** Arroser modérément durant la période de croissance active (printemps à automne). Laisser le substrat sécher entre les arrosages. Réduire l'arrosage en hiver.\n- **Substrat :** Terreau bien drainant, idéalement avec ajout de perlite ou de sable pour une meilleure drainage.\n- **Engrais :** Appliquer un engrais pour plantes succulentes dilué une fois par mois pendant la période de croissance. Ne pas fertiliser en hiver.\n- **Toxicité :** Peut être toxique pour les chats et autres animaux domestiques si ingéré.\n\nLes informations données sont appropriées pour le soin d'un Kalanchoe blossfeldiana, mais gardez à l'esprit de toujours vérifier si la plante correspond exactement à cette description pour éviter de confondre avec d'autres espèces similaires.",
+        "image": "images/img_1748190930116.jpeg",
+        "location": "Apartment",
+        "wateringMin": [
             15,
             15,
             15,
@@ -321,7 +577,21 @@
             15,
             15
         ],
-        "feedingFreq": [
+        "wateringMax": [
+            15,
+            15,
+            15,
+            15,
+            7,
+            7,
+            7,
+            7,
+            15,
+            15,
+            15,
+            15
+        ],
+        "feedingMin": [
             30,
             30,
             30,
@@ -335,13 +605,27 @@
             30,
             30
         ],
-        "description": "### Identification de la Plante\n- **Nom scientifique :** Kalanchoe blossfeldiana\n- **Nom commun :** Kalanchoe\n\n### Caractéristiques Clés\n- **Origine :** Madagascar.\n- **Type de plante :** Succulente.\n- **Feuillage :** Persistant, vert brillant. Feuilles charnues, épaisses, avec des bords légèrement dentés.\n- **Floraison :** Produit des grappes de petites fleurs qui peuvent varier en couleur (rouge, orange, rose, jaune), généralement en hiver ou au printemps.\n\n### Conseils d'Entretien\n- **Lumière :** Préfère la lumière vive et indirecte. Tolère la lumière directe du soleil mais avec modération.\n- **Arrosage :** Arroser modérément durant la période de croissance active (printemps à automne). Laisser le substrat sécher entre les arrosages. Réduire l'arrosage en hiver.\n- **Substrat :** Terreau bien drainant, idéalement avec ajout de perlite ou de sable pour une meilleure drainage.\n- **Engrais :** Appliquer un engrais pour plantes succulentes dilué une fois par mois pendant la période de croissance. Ne pas fertiliser en hiver.\n- **Toxicité :** Peut être toxique pour les chats et autres animaux domestiques si ingéré.\n\nLes informations données sont appropriées pour le soin d'un Kalanchoe blossfeldiana, mais gardez à l'esprit de toujours vérifier si la plante correspond exactement à cette description pour éviter de confondre avec d'autres espèces similaires.",
-        "image": "images/img_1748190930116.jpeg",
-        "location": "Apartment"
+        "feedingMax": [
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30
+        ]
     },
     {
         "name": "Azalée",
-        "wateringFreq": [
+        "description": "Nom : Azalea japonica (ou Rhododendron indicum)\nParticularités : arbuste à floraison abondante au printemps, feuillage persistant.\nEntretien :\n    Lumière : vive sans soleil direct.\n    Arrosage : fréquent, terre toujours humide (eau non calcaire).\n    Substrat : terre de bruyère acide.\n    Engrais : spécial plantes acidophiles, 2×/mois en floraison.\n    Toxicité : toxique pour les animaux.",
+        "image": "images/img_1748190948877.jpeg",
+        "location": "Apartment",
+        "wateringMin": [
             4,
             4,
             4,
@@ -355,7 +639,21 @@
             4,
             4
         ],
-        "feedingFreq": [
+        "wateringMax": [
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4
+        ],
+        "feedingMin": [
             1000,
             1000,
             1000,
@@ -369,13 +667,28 @@
             1000,
             1000
         ],
-        "description": "Nom : Azalea japonica (ou Rhododendron indicum)\nParticularités : arbuste à floraison abondante au printemps, feuillage persistant.\nEntretien :\n    Lumière : vive sans soleil direct.\n    Arrosage : fréquent, terre toujours humide (eau non calcaire).\n    Substrat : terre de bruyère acide.\n    Engrais : spécial plantes acidophiles, 2×/mois en floraison.\n    Toxicité : toxique pour les animaux.",
-        "image": "images/img_1748190948877.jpeg",
-        "location": "Apartment"
+        "feedingMax": [
+            1000,
+            1000,
+            1000,
+            15,
+            15,
+            15,
+            15,
+            15,
+            15,
+            1000,
+            1000,
+            1000
+        ]
     },
     {
         "name": "Fougère",
-        "wateringFreq": [
+        "description": "",
+        "image": "images/placeholder.png",
+        "archived": false,
+        "location": "Apartment",
+        "wateringMin": [
             15,
             15,
             15,
@@ -389,7 +702,21 @@
             15,
             15
         ],
-        "feedingFreq": [
+        "wateringMax": [
+            15,
+            15,
+            15,
+            15,
+            7,
+            7,
+            7,
+            7,
+            15,
+            15,
+            15,
+            15
+        ],
+        "feedingMin": [
             30,
             30,
             30,
@@ -403,14 +730,27 @@
             30,
             30
         ],
-        "description": "",
-        "image": "images/placeholder.png",
-        "archived": true,
-        "location": "Apartment"
+        "feedingMax": [
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30
+        ]
     },
     {
         "name": "Calathea",
-        "wateringFreq": [
+        "description": "Nom : Ctenanthe burle-marxii (famille des Marantaceae)\nParticularités : feuillage argenté nervuré vert foncé, revers pourpre, mouvements nyctinastiques.\nEntretien :\n    Lumière : indirecte, pas de soleil direct.\n    Arrosage : régulier, sol toujours légèrement humide.\n    Humidité : élevée (brumiser ou placer sur galets humides).\n    Substrat : riche et drainant.\n    Non toxique pour les animaux.",
+        "image": "images/img_1748190964448.jpeg",
+        "location": "Apartment",
+        "wateringMin": [
             4,
             4,
             4,
@@ -424,7 +764,21 @@
             4,
             4
         ],
-        "feedingFreq": [
+        "wateringMax": [
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4
+        ],
+        "feedingMin": [
             1000,
             1000,
             30,
@@ -438,13 +792,27 @@
             1000,
             1000
         ],
-        "description": "Nom : Ctenanthe burle-marxii (famille des Marantaceae)\nParticularités : feuillage argenté nervuré vert foncé, revers pourpre, mouvements nyctinastiques.\nEntretien :\n    Lumière : indirecte, pas de soleil direct.\n    Arrosage : régulier, sol toujours légèrement humide.\n    Humidité : élevée (brumiser ou placer sur galets humides).\n    Substrat : riche et drainant.\n    Non toxique pour les animaux.",
-        "image": "images/img_1748190964448.jpeg",
-        "location": "Apartment"
+        "feedingMax": [
+            1000,
+            1000,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            1000,
+            1000,
+            1000,
+            1000
+        ]
     },
     {
         "name": "Punto Grigio",
-        "wateringFreq": [
+        "description": "Nom : Peperomia albovittata 'Punto Grigio'\nParticularités : feuillage argenté nervuré vert foncé, forme compacte, pétioles pourpre, variété décorative et facile.\nEntretien :\n    Lumière : indirecte, sans soleil direct.\n    Arrosage : modéré, laisser sécher le sol en surface.\n    Substrat : léger et bien drainé (type plante tropicale ou cactus).\n    Engrais : 1×/mois au printemps et été.\n    Non toxique pour les animaux.",
+        "image": "images/punto.JPEG",
+        "location": "Apartment",
+        "wateringMin": [
             7,
             7,
             7,
@@ -458,7 +826,21 @@
             7,
             7
         ],
-        "feedingFreq": [
+        "wateringMax": [
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7
+        ],
+        "feedingMin": [
             1000,
             1000,
             30,
@@ -472,13 +854,27 @@
             1000,
             1000
         ],
-        "description": "Nom : Peperomia albovittata 'Punto Grigio'\nParticularités : feuillage argenté nervuré vert foncé, forme compacte, pétioles pourpre, variété décorative et facile.\nEntretien :\n    Lumière : indirecte, sans soleil direct.\n    Arrosage : modéré, laisser sécher le sol en surface.\n    Substrat : léger et bien drainé (type plante tropicale ou cactus).\n    Engrais : 1×/mois au printemps et été.\n    Non toxique pour les animaux.",
-        "image": "images/punto.JPEG",
-        "location": "Apartment"
+        "feedingMax": [
+            1000,
+            1000,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            1000,
+            1000,
+            1000,
+            1000
+        ]
     },
     {
         "name": "Calathea junior",
-        "wateringFreq": [
+        "description": "Nom : Ctenanthe burle-marxii (souvent vendue comme Calathea burle-marxii)\nParticularités : feuilles ovales argentées à nervures vertes, revers pourpre, mouvements nocturnes.\nEntretien :\n    Lumière : indirecte, pas de soleil direct.\n    Arrosage : régulier, substrat légèrement humide.\n    Humidité : élevée, aime être brumisée.\n    Substrat : riche, léger et drainant.\n    Non toxique pour les animaux.",
+        "image": "images/img_1748190992502.jpeg",
+        "location": "Apartment",
+        "wateringMin": [
             4,
             4,
             4,
@@ -492,7 +888,21 @@
             4,
             4
         ],
-        "feedingFreq": [
+        "wateringMax": [
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4
+        ],
+        "feedingMin": [
             1000,
             1000,
             30,
@@ -506,13 +916,27 @@
             1000,
             1000
         ],
-        "description": "Nom : Ctenanthe burle-marxii (souvent vendue comme Calathea burle-marxii)\nParticularités : feuilles ovales argentées à nervures vertes, revers pourpre, mouvements nocturnes.\nEntretien :\n    Lumière : indirecte, pas de soleil direct.\n    Arrosage : régulier, substrat légèrement humide.\n    Humidité : élevée, aime être brumisée.\n    Substrat : riche, léger et drainant.\n    Non toxique pour les animaux.",
-        "image": "images/img_1748190992502.jpeg",
-        "location": "Apartment"
+        "feedingMax": [
+            1000,
+            1000,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            1000,
+            1000,
+            1000,
+            1000
+        ]
     },
     {
         "name": "Laitue",
-        "wateringFreq": [
+        "description": "Nom : Plectranthus scutellarioides (anciennement Coleus blumei)\nParticularités : feuillage très décoratif, panaché, croissance rapide, facile à bouturer.\nEntretien :\n    Lumière : vive sans soleil direct (ou légèrement en matinée).\n    Arrosage : régulier, sol légèrement humide.\n    Taille : pincer les tiges pour favoriser la ramification.\n    Engrais : 1×/15 jours au printemps-été.\n    Non toxique mais à surveiller pour les chats curieux.",
+        "image": "images/img_1748191010843.jpeg",
+        "location": "Apartment",
+        "wateringMin": [
             4,
             4,
             4,
@@ -526,7 +950,21 @@
             4,
             4
         ],
-        "feedingFreq": [
+        "wateringMax": [
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4
+        ],
+        "feedingMin": [
             1000,
             1000,
             30,
@@ -540,13 +978,27 @@
             1000,
             1000
         ],
-        "description": "Nom : Plectranthus scutellarioides (anciennement Coleus blumei)\nParticularités : feuillage très décoratif, panaché, croissance rapide, facile à bouturer.\nEntretien :\n    Lumière : vive sans soleil direct (ou légèrement en matinée).\n    Arrosage : régulier, sol légèrement humide.\n    Taille : pincer les tiges pour favoriser la ramification.\n    Engrais : 1×/15 jours au printemps-été.\n    Non toxique mais à surveiller pour les chats curieux.",
-        "image": "images/img_1748191010843.jpeg",
-        "location": "Apartment"
+        "feedingMax": [
+            1000,
+            1000,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            1000,
+            1000,
+            1000,
+            1000
+        ]
     },
     {
         "name": "Succulente pointue",
-        "wateringFreq": [
+        "description": "Nom : Aloe variegata ou Aloe vera jeune (ressemble aussi à Aloe aristata)\nParticularités : rosette épaisse, feuilles tachetées, croissance lente, succulente facile.\nEntretien :\n    Lumière : vive à plein soleil.\n    Arrosage : espacé, bien laisser sécher entre deux.\n    Substrat : très drainant (type cactus).\n    Engrais : 1×/2 mois en été.\n    Toxicité : toxique pour les animaux (sève).",
+        "image": "images/img_1748191031978.jpeg",
+        "location": "Apartment",
+        "wateringMin": [
             30,
             30,
             30,
@@ -560,7 +1012,21 @@
             30,
             30
         ],
-        "feedingFreq": [
+        "wateringMax": [
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30
+        ],
+        "feedingMin": [
             1000,
             1000,
             30,
@@ -574,14 +1040,27 @@
             1000,
             1000
         ],
-        "description": "Nom : Aloe variegata ou Aloe vera jeune (ressemble aussi à Aloe aristata)\nParticularités : rosette épaisse, feuilles tachetées, croissance lente, succulente facile.\nEntretien :\n    Lumière : vive à plein soleil.\n    Arrosage : espacé, bien laisser sécher entre deux.\n    Substrat : très drainant (type cactus).\n    Engrais : 1×/2 mois en été.\n    Toxicité : toxique pour les animaux (sève).",
-        "image": "images/img_1748191031978.jpeg",
-        "location": "Apartment"
+        "feedingMax": [
+            1000,
+            1000,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            1000,
+            1000,
+            1000,
+            1000
+        ]
     },
     {
         "name": "Vigne",
         "description": "Vitis vinifera (Vigne)\n\n- Cette plante est connue pour produire des raisins, utilisés en table ou en vin.  \n- Elle préfère les emplacements en plein soleil pour un meilleur développement.  \n- Arrosez modérément ; laissez le sol sécher entre les arrosages.  \n- Fertilisez au printemps avec un engrais équilibré pour stimuler la croissance.  \n- Taillez les rameaux en hiver pour favoriser une bonne production de fruits.  \n- Protégez-la contre les maladies comme le mildiou en assurant une bonne circulation d'air.  ",
-        "wateringFreq": [
+        "image": "images/img_1748361786818.jpeg",
+        "location": "Belle-Île",
+        "wateringMin": [
             7,
             7,
             7,
@@ -595,7 +1074,21 @@
             7,
             7
         ],
-        "feedingFreq": [
+        "wateringMax": [
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7
+        ],
+        "feedingMin": [
             30,
             30,
             30,
@@ -609,13 +1102,27 @@
             30,
             30
         ],
-        "image": "images/img_1748361786818.jpeg",
-        "location": "Belle-Île"
+        "feedingMax": [
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30
+        ]
     },
     {
         "name": "Rose trémière",
         "description": "- **Nom scientifique et commun :** Verbascum thapsus, également connu sous le nom de Bouillon-blanc ou Molène bouillon-blanc.\n  \n- **Caractéristiques clés :**\n  - Feuilles : Grandes, duveteuses, légèrement argentées et disposées en rosette à la base durant la première année; la deuxième année, elles forment une hampe florale érigée.\n  - Fleurs : Petites, jaune vif et disposées en grappes denses sur une tige centrale qui peut atteindre jusqu'à 2 mètres de haut.\n  - Habitat : Fréquent dans les lieux incultes, les bords de route et les terrains vagues. La plante est bisannuelle, complétant son cycle de vie en deux ans.\n  - Utilisation : Traditionnellement utilisée en phytothérapie pour ses propriétés émollientes et adoucissantes, particulièrement en cas de toux ou d’irritations de la gorge.\n\n- **Conseils d’entretien :**\n  - Lumière : Préfère une exposition ensoleillée.\n  - Arrosage : Tolère la sécheresse, mais nécessite un arrosage modéré durant les périodes de croissance si plantée dans un jardin.\n  - Substrat : Pousse dans une grande variété de sols, mais préfère les sols bien drainés et légèrement sablonneux.\n  - Engrais : Nécessite peu de fertilisation si le sol est de qualité raisonnable.\n  - Toxicité : Non toxique pour les humains et les animaux domestiques, mais toujours prudent d'éviter l'ingestion de plantes par les animaux.\n\nCette plante est intéressante à la fois pour son aspect visuel et ses propriétés médicinales, faisant d'elle une belle addition aux jardins de plantes indigènes ou de style sauvage.",
-        "wateringFreq": [
+        "image": "images/img_1748361832109.jpeg",
+        "location": "Belle-Île",
+        "wateringMin": [
             7,
             7,
             7,
@@ -629,7 +1136,21 @@
             7,
             7
         ],
-        "feedingFreq": [
+        "wateringMax": [
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7
+        ],
+        "feedingMin": [
             30,
             30,
             30,
@@ -643,13 +1164,27 @@
             30,
             30
         ],
-        "image": "images/img_1748361832109.jpeg",
-        "location": "Belle-Île"
+        "feedingMax": [
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30
+        ]
     },
     {
         "name": "Pâquerettes",
         "description": "### Identification de la Plante\n- **Nom scientifique :** Erigeron karvinskianus\n- **Nom commun :** Véronique de Karvinski, Pâquerette mexicaine\n\n### Caractéristiques Clés\n- **Description :** Plante herbacée vivace au port étalé et buissonnant. Feuillage dense, petites feuilles caduques vertes.\n- **Fleurs :** Petites fleurs ressemblant à des marguerites, blanches à cœur jaune qui deviennent roses en vieillissant.\n- **Hauteur :** Peut atteindre 15 à 30 cm de hauteur et s'étend sur environ 50 cm.\n\n### Conseils d'Entretien\n- **Lumière :** Préfère une exposition en plein soleil ou mi-ombre.\n- **Arrosage :** Arrosez modérément, permettez au terreau de sécher entre les arrosages.\n- **Substrat :** Terreau bien drainé, pauvre à modérément fertile.\n- **Engrais :** Utiliser un engrais équilibré au début du printemps et en été.\n- **Toxicité :** Non toxique pour les chats, sécuritaire pour les animaux domestiques.\n\nCe profil synthétique vous aidera à maintenir votre Véronique de Karvinski en bonne santé tout en assurant la sécurité de vos animaux domestiques.",
-        "wateringFreq": [
+        "image": "images/img_1748361857819.jpeg",
+        "location": "Belle-Île",
+        "wateringMin": [
             7,
             7,
             7,
@@ -663,7 +1198,21 @@
             7,
             7
         ],
-        "feedingFreq": [
+        "wateringMax": [
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7
+        ],
+        "feedingMin": [
             30,
             30,
             30,
@@ -677,13 +1226,27 @@
             30,
             30
         ],
-        "image": "images/img_1748361857819.jpeg",
-        "location": "Belle-Île"
+        "feedingMax": [
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30
+        ]
     },
     {
         "name": "Sedum spurium",
         "description": "Sedum spurium (Faux orpin)\n\n- Cette plante est une variété de sedum, souvent utilisée en couvre-sol.  \n- Elle préfère une exposition en plein soleil, mais tolère une ombre légère.  \n- Arrosez modérément, en laissant le sol sécher entre les arrosages.  \n- Un engrais équilibré peut être appliqué au printemps pour favoriser la croissance.  \n- Elle est résistante à la sécheresse et nécessite peu d'entretien.  \n- Les feuilles charnues aident à stocker l'eau, ce qui contribue à sa robustesse.",
-        "wateringFreq": [
+        "image": "images/img_1748361889432.jpeg",
+        "location": "Belle-Île",
+        "wateringMin": [
             7,
             7,
             7,
@@ -697,7 +1260,21 @@
             7,
             7
         ],
-        "feedingFreq": [
+        "wateringMax": [
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7
+        ],
+        "feedingMin": [
             30,
             30,
             30,
@@ -711,18 +1288,32 @@
             30,
             30
         ],
-        "image": "images/img_1748361889432.jpeg",
-        "location": "Belle-Île"
+        "feedingMax": [
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30
+        ]
     },
     {
         "name": "Fusain du Japon",
         "description": "### Identification de la Plante\n\n\n- **Nom Scientifique :** Euonymus japonicus 'Aureo-marginatus'\n- **Nom Commun :** Fusain du Japon panaché\n\n### Caractéristiques Clés\n\n- Arbuste à feuillage persistant, brillant et panaché de jaune crémeux.\n- Croissance modérée pouvant atteindre jusqu’à 2-3 mètres de hauteur.\n- Adapté tant pour une utilisation en haie décorative qu'en isolé dans les jardins ou en pot.\n\n### Conseils d’Entretien\n\n- **Lumière :** Préfère une exposition au soleil ou à mi-ombre. Une lumière adéquate est importante pour maintenir la vivacité de la couleur des feuilles.\n- **Arrosage :** Arroser régulièrement mais sans excès pour éviter de saturer le sol. Laisser le sol sécher légèrement entre deux arrosages.\n- **Substrat :** Bien drainé, fertile et légèrement acide à neutre.\n- **Engrais :** Appliquer un engrais équilibré au printemps pour encourager une croissance saine.\n- **Toxicité :** Les feuilles et autres parties de la plante peuvent être toxiques si ingérées. Peut être nocif pour les chats et autres animaux domestiques.\n\n### Précautions\n\n- Surveillez la présence de pucerons et autres parasites, notamment dans un milieu humide.\n- Taillez légèrement après la floraison pour encourager un port compact et densifier la feuillaison.\n\nCe profil de soin devrait aider à maintenir votre Fusain du Japon panaché en bonne santé et à assurer sa beauté dans votre espace vert.",
-        "wateringFreq": [
+        "image": "images/img_1748361912154.jpeg",
+        "location": "Belle-Île",
+        "wateringMin": [
             7,
             7,
             7,
             7,
-            7,
+            0,
             7,
             7,
             7,
@@ -731,7 +1322,21 @@
             7,
             7
         ],
-        "feedingFreq": [
+        "wateringMax": [
+            7,
+            7,
+            7,
+            7,
+            0,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7
+        ],
+        "feedingMin": [
             30,
             30,
             30,
@@ -745,13 +1350,41 @@
             30,
             30
         ],
-        "image": "images/img_1748361912154.jpeg",
-        "location": "Belle-Île"
+        "feedingMax": [
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30
+        ]
     },
     {
         "name": "Palmier",
         "description": "**Nom Scientifique :** Phoenix canariensis  \n**Nom Commun :** Palmier des Canaries  \n\n**Caractéristiques Clés :**  \n- Origine : îles Canaries  \n- Type : palmier  \n- Taille : peut atteindre jusqu'à 20 mètres de haut  \n- Feuillage : Feuilles pennées pouvant mesurer jusqu’à 5 à 6 mètres de long  \n\n**Conseils d'entretien :**  \n- **Lumière :** Préfère un plein soleil  \n- **Arrosage :** Modéré, laisser sécher le substrat entre les arrosages  \n- **Substrat :** Bien drainé, sablonneux  \n- **Engrais :** Apport en engrais palmier pendant la saison de croissance  \n- **Toxicité :** Non toxique pour les chats  \n\nCe palmier est résistant et adapté à un climat tempéré chaud, et nécessite peu d'entretien une fois bien établi.",
-        "wateringFreq": [
+        "image": "images/img_1748361940181.jpeg",
+        "location": "Belle-Île",
+        "wateringMin": [
+            0,
+            7,
+            7,
+            7,
+            0,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7
+        ],
+        "wateringMax": [
             7,
             7,
             7,
@@ -765,7 +1398,7 @@
             7,
             7
         ],
-        "feedingFreq": [
+        "feedingMin": [
             30,
             30,
             30,
@@ -779,7 +1412,81 @@
             30,
             30
         ],
-        "image": "images/img_1748361940181.jpeg",
-        "location": "Belle-Île"
+        "feedingMax": [
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30
+        ]
+    },
+    {
+        "name": "BadNum",
+        "description": "",
+        "wateringMin": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        ],
+        "wateringMax": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        ],
+        "feedingMin": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        ],
+        "feedingMax": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        ],
+        "image": "images/placeholder.png",
+        "location": "TestArea"
     }
 ]

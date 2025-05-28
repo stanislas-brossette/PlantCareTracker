@@ -65,8 +65,10 @@ document.addEventListener('DOMContentLoaded', () => {
             button.textContent = 'Never'; // Initial text
             button.id = `button-${plant.name}-${type}`;
             button.className = 'btn w-100 btn-success';
-            button.setAttribute('feedingFrequency', plant.feedingFreq)
-            button.setAttribute('wateringFrequency', plant.wateringFreq)
+            button.setAttribute('feedingMin', plant.feedingMin)
+            button.setAttribute('feedingMax', plant.feedingMax)
+            button.setAttribute('wateringMin', plant.wateringMin)
+            button.setAttribute('wateringMax', plant.wateringMax)
             button.onclick = () => buttonClicked(button.id);
             row.insertCell().appendChild(button);
             buttonRefs[button.id] = button; // Store button reference
@@ -122,20 +124,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const lastClickedDate = new Date(lastClickedTime);
         const differenceInDays = Math.floor((now - lastClickedDate) / (1000 * 60 * 60 * 24));
 
-        let limitFrequencies;
-        let limitDays;
+        const isWateringButton = buttonId.includes('Arrosage');
+        const minAttr = isWateringButton ? 'wateringMin' : 'feedingMin';
+        const maxAttr = isWateringButton ? 'wateringMax' : 'feedingMax';
+        const minArr = buttonRefs[buttonId].getAttribute(minAttr).split(',');
+        const maxArr = buttonRefs[buttonId].getAttribute(maxAttr).split(',');
+        const minDays = parseInt(minArr[now.getMonth()]);
+        const maxDays = parseInt(maxArr[now.getMonth()]);
 
-        const isWateringButton = buttonId.includes("Arrosage");
-        limitFrequencies = buttonRefs[buttonId].getAttribute('feedingFrequency').split(',');
-        if (isWateringButton == true)
-        {
-            limitFrequencies = buttonRefs[buttonId].getAttribute('wateringFrequency').split(',');
-        }
-        limitDays = limitFrequencies[now.getMonth()];
+        let color = 'btn-success';
+        if (!isNaN(minDays) && differenceInDays >= minDays) color = 'btn-warning';
+        if (!isNaN(maxDays) && differenceInDays > maxDays) color = 'btn-danger';
 
-        const needsAttention = differenceInDays > limitDays;
-
-        buttonRefs[buttonId].className = `btn w-100 ${needsAttention ? 'btn-danger' : 'btn-success'}`;
+        buttonRefs[buttonId].className = `btn w-100 ${color}`;
     };
 
     const getLastClickedTimes = async () => {

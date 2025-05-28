@@ -172,30 +172,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    const wateringInputs = [];
-    const feedingInputs = [];
+    const wateringMinInputs = [];
+    const wateringMaxInputs = [];
+    const feedingMinInputs = [];
+    const feedingMaxInputs = [];
 
-    const createCell = (arr) => {
+    const createCell = (arrMin, arrMax) => {
         const td = document.createElement('td');
         td.className = 'text-center schedule-cell';
-        const minus = document.createElement('button');
-        minus.type = 'button';
-        minus.className = 'btn btn-sm btn-outline-secondary minus';
-        minus.textContent = '-';
-        const input = document.createElement('input');
-        input.type = 'number';
-        input.className = 'form-control d-inline-block value mx-1 text-center';
-        input.style.width = '60px';
-        const plus = document.createElement('button');
-        plus.type = 'button';
-        plus.className = 'btn btn-sm btn-outline-secondary plus';
-        plus.textContent = '+';
-        minus.addEventListener('click', () => { if(editing){ input.value = Math.max(0, parseInt(input.value || 0) - 1); } });
-        plus.addEventListener('click', () => { if(editing){ input.value = parseInt(input.value || 0) + 1; } });
-        td.appendChild(minus);
-        td.appendChild(input);
-        td.appendChild(plus);
-        arr.push(input);
+        const createInput = (arr) => {
+            const minus = document.createElement('button');
+            minus.type = 'button';
+            minus.className = 'btn btn-sm btn-outline-secondary minus';
+            minus.textContent = '-';
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.className = 'form-control d-inline-block value mx-1 text-center';
+            input.style.width = '60px';
+            const plus = document.createElement('button');
+            plus.type = 'button';
+            plus.className = 'btn btn-sm btn-outline-secondary plus';
+            plus.textContent = '+';
+            minus.addEventListener('click', () => { if(editing){ input.value = Math.max(0, parseInt(input.value || 0) - 1); } });
+            plus.addEventListener('click', () => { if(editing){ input.value = parseInt(input.value || 0) + 1; } });
+            td.appendChild(minus);
+            td.appendChild(input);
+            td.appendChild(plus);
+            arr.push(input);
+        };
+        createInput(arrMin);
+        createInput(arrMax);
         return td;
     };
 
@@ -204,8 +210,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const monthTd = document.createElement('td');
         monthTd.textContent = m;
         tr.appendChild(monthTd);
-        tr.appendChild(createCell(wateringInputs));
-        tr.appendChild(createCell(feedingInputs));
+        tr.appendChild(createCell(wateringMinInputs, wateringMaxInputs));
+        tr.appendChild(createCell(feedingMinInputs, feedingMaxInputs));
         scheduleBody.appendChild(tr);
     });
 
@@ -242,8 +248,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         descElem.value = plant.description || '';
         updateDescDisplay();
         autoResize();
-        (plant.wateringFreq || []).forEach((val, i) => { if (wateringInputs[i]) wateringInputs[i].value = val; });
-        (plant.feedingFreq || []).forEach((val, i) => { if (feedingInputs[i]) feedingInputs[i].value = val; });
+        (plant.wateringMin || []).forEach((val, i) => { if (wateringMinInputs[i]) wateringMinInputs[i].value = val; });
+        (plant.wateringMax || []).forEach((val, i) => { if (wateringMaxInputs[i]) wateringMaxInputs[i].value = val; });
+        (plant.feedingMin || []).forEach((val, i) => { if (feedingMinInputs[i]) feedingMinInputs[i].value = val; });
+        (plant.feedingMax || []).forEach((val, i) => { if (feedingMaxInputs[i]) feedingMaxInputs[i].value = val; });
         archiveBtn.disabled = !!plant.archived;
         locationSelect.value = plant.location;
     };
@@ -320,8 +328,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         const body = {
             name: plantNameInput.value.trim(),
             description: descElem.value,
-            wateringFreq: wateringInputs.map(input => parseInt(input.value, 10) || 0),
-            feedingFreq: feedingInputs.map(input => parseInt(input.value, 10) || 0),
+            wateringMin: wateringMinInputs.map(input => parseInt(input.value, 10) || 0),
+            wateringMax: wateringMaxInputs.map(input => parseInt(input.value, 10) || 0),
+            feedingMin: feedingMinInputs.map(input => parseInt(input.value, 10) || 0),
+            feedingMax: feedingMaxInputs.map(input => parseInt(input.value, 10) || 0),
             location: locationSelect.value
         };
         if (imageData) { body.imageData = imageData; }

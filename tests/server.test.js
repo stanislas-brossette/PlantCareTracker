@@ -23,8 +23,10 @@ describe('Server endpoints', () => {
       .post('/plants')
       .send({
         name: 'TempPlant',
-        wateringFreq: Array(12).fill(1),
-        feedingFreq: Array(12).fill(1),
+        wateringMin: Array(12).fill(1),
+        wateringMax: Array(12).fill(1),
+        feedingMin: Array(12).fill(1),
+        feedingMax: Array(12).fill(1),
         image: 'images/placeholder.png',
         location: 'TempLoc'
       });
@@ -125,8 +127,10 @@ describe('Server endpoints', () => {
     const newPlant = {
       name: 'TestPlant',
       description: 'temp',
-      wateringFreq: Array(12).fill(1),
-      feedingFreq: Array(12).fill(1),
+      wateringMin: Array(12).fill(1),
+      wateringMax: Array(12).fill(1),
+      feedingMin: Array(12).fill(1),
+      feedingMax: Array(12).fill(1),
       image: 'images/placeholder.png',
       location: 'TestArea'
     };
@@ -147,8 +151,10 @@ describe('Server endpoints', () => {
       .post('/plants')
       .send({
         name: 'InvalidPlant',
-        wateringFreq: [1],
-        feedingFreq: Array(12).fill(1),
+        wateringMin: [1],
+        wateringMax: Array(12).fill(1),
+        feedingMin: Array(12).fill(1),
+        feedingMax: Array(12).fill(1),
         location: 'TestArea'
       });
     expect(res.statusCode).toBe(400);
@@ -157,15 +163,15 @@ describe('Server endpoints', () => {
   test('Reject invalid frequency arrays on update', async () => {
     const res = await request(app)
       .put('/plants/ZZ')
-      .send({ wateringFreq: [1] });
+      .send({ wateringMin: [1] });
     expect(res.statusCode).toBe(400);
   });
 
   test('Reject non-finite frequency values', async () => {
-    const invalid = Array(12).fill(1e309); // Infinity when parsed
+    const invalid = Array(12).fill('x');
     const res = await request(app)
       .post('/plants')
-      .send({ name: 'BadNum', wateringFreq: invalid, feedingFreq: invalid, location: 'TestArea' });
+      .send({ name: 'BadNum', wateringMin: invalid, wateringMax: invalid, feedingMin: invalid, feedingMax: invalid, location: 'TestArea' });
     expect(res.statusCode).toBe(400);
   });
 });

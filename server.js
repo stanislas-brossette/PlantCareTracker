@@ -102,7 +102,7 @@ app.use(express.json({ limit: '10mb' }));
 function isValidFreqArray(arr) {
     return Array.isArray(arr) &&
         arr.length === 12 &&
-        arr.every(n => typeof n === 'number' && Number.isFinite(n));
+        arr.every(n => n === null || (typeof n === 'number' && Number.isFinite(n)));
 }
 
 app.post('/clicked', (req, res) => {
@@ -220,11 +220,17 @@ app.put('/plants/:name', (req, res) => {
         }
         delete req.body.imageData;
     }
-    if (req.body.wateringFreq && !isValidFreqArray(req.body.wateringFreq)) {
-        return res.status(400).send('wateringFreq must be an array of 12 numbers');
+    if (req.body.wateringMin && !isValidFreqArray(req.body.wateringMin)) {
+        return res.status(400).send('wateringMin must be an array of 12 numbers');
     }
-    if (req.body.feedingFreq && !isValidFreqArray(req.body.feedingFreq)) {
-        return res.status(400).send('feedingFreq must be an array of 12 numbers');
+    if (req.body.wateringMax && !isValidFreqArray(req.body.wateringMax)) {
+        return res.status(400).send('wateringMax must be an array of 12 numbers');
+    }
+    if (req.body.feedingMin && !isValidFreqArray(req.body.feedingMin)) {
+        return res.status(400).send('feedingMin must be an array of 12 numbers');
+    }
+    if (req.body.feedingMax && !isValidFreqArray(req.body.feedingMax)) {
+        return res.status(400).send('feedingMax must be an array of 12 numbers');
     }
 
     if (req.body.location && !locations.includes(req.body.location)) {
@@ -264,17 +270,25 @@ app.post('/plants', (req, res) => {
     if (!newPlant.location) {
         return res.status(400).send('Location is required');
     }
-    if (newPlant.wateringFreq && !isValidFreqArray(newPlant.wateringFreq)) {
-        return res.status(400).send('wateringFreq must be an array of 12 numbers');
+    if (newPlant.wateringMin && !isValidFreqArray(newPlant.wateringMin)) {
+        return res.status(400).send('wateringMin must be an array of 12 numbers');
     }
-    if (newPlant.feedingFreq && !isValidFreqArray(newPlant.feedingFreq)) {
-        return res.status(400).send('feedingFreq must be an array of 12 numbers');
+    if (newPlant.wateringMax && !isValidFreqArray(newPlant.wateringMax)) {
+        return res.status(400).send('wateringMax must be an array of 12 numbers');
+    }
+    if (newPlant.feedingMin && !isValidFreqArray(newPlant.feedingMin)) {
+        return res.status(400).send('feedingMin must be an array of 12 numbers');
+    }
+    if (newPlant.feedingMax && !isValidFreqArray(newPlant.feedingMax)) {
+        return res.status(400).send('feedingMax must be an array of 12 numbers');
     }
     const plantToAdd = {
         name: newPlant.name,
         description: newPlant.description || '',
-        wateringFreq: newPlant.wateringFreq || Array(12).fill(0),
-        feedingFreq: newPlant.feedingFreq || Array(12).fill(0),
+        wateringMin: newPlant.wateringMin || Array(12).fill(null),
+        wateringMax: newPlant.wateringMax || Array(12).fill(null),
+        feedingMin: newPlant.feedingMin || Array(12).fill(null),
+        feedingMax: newPlant.feedingMax || Array(12).fill(null),
         image: newPlant.image || 'images/placeholder.png',
         location: newPlant.location
     };

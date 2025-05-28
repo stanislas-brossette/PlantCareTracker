@@ -4,28 +4,35 @@ document.addEventListener('DOMContentLoaded', () => {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const createMonthInputs = (containerId, prefix, defaultValue) => {
         const container = document.getElementById(containerId);
-        const inputs = [];
+        const mins = [], maxs = [];
         months.forEach((m, i) => {
             const div = document.createElement('div');
             div.className = 'month-container';
             const label = document.createElement('label');
             label.className = 'form-label mb-1';
             label.textContent = m;
-            const input = document.createElement('input');
-            input.type = 'number';
-            input.className = 'form-control form-control-sm month-input';
-            input.id = `${prefix}-${i}`;
-            input.value = defaultValue;
+            const inputMin = document.createElement('input');
+            inputMin.type = 'number';
+            inputMin.className = 'form-control form-control-sm month-input';
+            inputMin.id = `${prefix}-min-${i}`;
+            inputMin.value = defaultValue;
+            const inputMax = document.createElement('input');
+            inputMax.type = 'number';
+            inputMax.className = 'form-control form-control-sm month-input mt-1';
+            inputMax.id = `${prefix}-max-${i}`;
+            inputMax.value = defaultValue;
             div.appendChild(label);
-            div.appendChild(input);
+            div.appendChild(inputMin);
+            div.appendChild(inputMax);
             container.appendChild(div);
-            inputs.push(input);
+            mins.push(inputMin);
+            maxs.push(inputMax);
         });
-        return inputs;
+        return [mins, maxs];
     };
 
-    const wateringInputs = createMonthInputs('watering-inputs', 'watering', 7);
-    const feedingInputs = createMonthInputs('feeding-inputs', 'feeding', 30);
+    const [wateringMinInputs, wateringMaxInputs] = createMonthInputs('watering-inputs', 'watering', 7);
+    const [feedingMinInputs, feedingMaxInputs] = createMonthInputs('feeding-inputs', 'feeding', 30);
     const imageElem = document.getElementById('image');
     const imageFileElem = document.getElementById('imageFile');
     const previewElem = document.getElementById('imagePreview');
@@ -118,8 +125,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const body = {
             name: nameElem.value.trim(),
             description: descElem.value,
-            wateringFreq: wateringInputs.map(input => parseInt(input.value, 10) || 0),
-            feedingFreq: feedingInputs.map(input => parseInt(input.value, 10) || 0),
+            wateringMin: wateringMinInputs.map(i => parseInt(i.value, 10) || 0),
+            wateringMax: wateringMaxInputs.map(i => parseInt(i.value, 10) || 0),
+            feedingMin: feedingMinInputs.map(i => parseInt(i.value, 10) || 0),
+            feedingMax: feedingMaxInputs.map(i => parseInt(i.value, 10) || 0),
             location: locationSelect.value
         };
         if (imageData) {
