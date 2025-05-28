@@ -3,6 +3,7 @@ const fs = require('fs');
 const app = express();
 const port = 3000;
 const path = require('path');
+const parseIdentifyResponse = require('./parseIdentifyResponse');
 
 const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4-turbo";
 let lastClickedTimes = {}; // Stores last clicked times for each action of each plant
@@ -341,7 +342,7 @@ app.post('/identify', async (req, res) => {
                     content: [
                         {
                             type: 'text',
-                            text: 'Peux-tu identifier cette plante à partir de la photo ci-jointe. Réponds en français en deux parties distinctes.\n\nPremière partie : courte fiche synthétique au format markdown avec nom scientifique et commun, 3 ou 4 caractéristiques clés et des conseils d\'entretien (lumière, arrosage, substrat, engrais, toxicité éventuelle). Pas de ligne vide entre les sections.\n\nSeconde partie : un bloc JSON exactement au format suivant décrivant les recommandations d\'arrosage et d\'engrais par mois (de janvier à décembre). Chaque valeur correspond au nombre de jours entre deux actions, utiliser null en absence de recommandation.\n```json\n{"wateringMin":[],"wateringMax":[],"feedingMin":[],"feedingMax":[]}\n```\nSi l\'identification est incertaine, propose deux ou trois options.'
+                            text: 'Peux-tu identifier cette plante à partir de la photo ci-jointe. Réponds en français. Donne d\'abord une courte fiche synthétique au format markdown (nom scientifique et commun, 3 ou 4 caractéristiques clés et conseils d\'entretien : lumière, arrosage, substrat, engrais, toxicité éventuelle). Pas de ligne vide entre les sections.\nEnsuite écris une ligne contenant uniquement --- puis un bloc JSON exactement au format suivant avec les recommandations d\'arrosage et d\'engrais par mois (janvier à décembre), chaque valeur étant le nombre de jours entre deux actions et null s\'il n\'y a pas de recommandation.\n```json\n{"wateringMin":[],"wateringMax":[],"feedingMin":[],"feedingMax":[]}\n```\nSi l\'identification est incertaine, propose deux ou trois options.'
                         },
                         { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${base64}` } }
                     ]
@@ -355,17 +356,7 @@ app.post('/identify', async (req, res) => {
         }
         const data = await apiRes.json();
         const full = data.choices?.[0]?.message?.content || '';
-        const match = /```json\s*([\s\S]+?)\s*```/i.exec(full);
-        let schedule = null;
-        let description = full;
-        if (match) {
-            try {
-                schedule = JSON.parse(match[1]);
-            } catch (e) {
-                schedule = null;
-            }
-            description = full.replace(match[0], '').trim();
-        }
+        const { description, schedule } = parseIdentifyResponse(full);
         res.send({ description, schedule });
     } catch (err) {
         console.error('Identify error', err);
