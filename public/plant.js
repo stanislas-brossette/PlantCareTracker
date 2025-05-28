@@ -177,42 +177,43 @@ document.addEventListener('DOMContentLoaded', async () => {
     const feedingMinInputs = [];
     const feedingMaxInputs = [];
 
-    const createCell = (arrMin, arrMax) => {
+    const createInputCell = (arr) => {
         const td = document.createElement('td');
         td.className = 'text-center schedule-cell';
-        const createInput = (arr) => {
-            const minus = document.createElement('button');
-            minus.type = 'button';
-            minus.className = 'btn btn-sm btn-outline-secondary minus';
-            minus.textContent = '-';
-            const input = document.createElement('input');
-            input.type = 'number';
-            input.className = 'form-control d-inline-block value mx-1 text-center';
-            input.style.width = '60px';
-            const plus = document.createElement('button');
-            plus.type = 'button';
-            plus.className = 'btn btn-sm btn-outline-secondary plus';
-            plus.textContent = '+';
-            minus.addEventListener('click', () => { if(editing){ input.value = Math.max(0, parseInt(input.value || 0) - 1); } });
-            plus.addEventListener('click', () => { if(editing){ input.value = parseInt(input.value || 0) + 1; } });
-            td.appendChild(minus);
-            td.appendChild(input);
-            td.appendChild(plus);
-            arr.push(input);
-        };
-        createInput(arrMin);
-        createInput(arrMax);
+        const minus = document.createElement('button');
+        minus.type = 'button';
+        minus.className = 'btn btn-sm btn-outline-secondary minus';
+        minus.textContent = '-';
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.className = 'form-control d-inline-block value mx-1 text-center';
+        input.style.width = '60px';
+        const plus = document.createElement('button');
+        plus.type = 'button';
+        plus.className = 'btn btn-sm btn-outline-secondary plus';
+        plus.textContent = '+';
+        minus.addEventListener('click', () => { if(editing){ input.value = Math.max(0, parseInt(input.value || 0) - 1); } });
+        plus.addEventListener('click', () => { if(editing){ input.value = parseInt(input.value || 0) + 1; } });
+        td.appendChild(minus);
+        td.appendChild(input);
+        td.appendChild(plus);
+        arr.push(input);
         return td;
     };
 
     months.forEach((m) => {
-        const tr = document.createElement('tr');
+        const trMin = document.createElement('tr');
+        const trMax = document.createElement('tr');
         const monthTd = document.createElement('td');
         monthTd.textContent = m;
-        tr.appendChild(monthTd);
-        tr.appendChild(createCell(wateringMinInputs, wateringMaxInputs));
-        tr.appendChild(createCell(feedingMinInputs, feedingMaxInputs));
-        scheduleBody.appendChild(tr);
+        monthTd.rowSpan = 2;
+        trMin.appendChild(monthTd);
+        trMin.appendChild(createInputCell(wateringMinInputs));
+        trMin.appendChild(createInputCell(feedingMinInputs));
+        trMax.appendChild(createInputCell(wateringMaxInputs));
+        trMax.appendChild(createInputCell(feedingMaxInputs));
+        scheduleBody.appendChild(trMin);
+        scheduleBody.appendChild(trMax);
     });
 
     const setEditing = (state) => {

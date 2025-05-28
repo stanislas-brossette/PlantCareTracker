@@ -686,7 +686,7 @@
         "name": "Fougère",
         "description": "",
         "image": "images/placeholder.png",
-        "archived": false,
+        "archived": true,
         "location": "Apartment",
         "wateringMin": [
             15,
