@@ -341,7 +341,7 @@ app.post('/identify', async (req, res) => {
                     content: [
                         {
                             type: 'text',
-                            text: 'Peux-tu identifier cette plante à partir de la photo ci-jointe et me donner une fiche synthétique ?  Je veux : – Le nom scientifique et le nom commun – 3 ou 4 caractéristiques clés de la plante – Des conseils d’entretien (lumière, arrosage, substrat, engrais, toxicité éventuelle) – Le tout présenté de manière claire et concise, en bullet points, sans ligne vide entre les sections et au format markdown pour plus de clarté. Fais attention à la toxicité pour les chats. Format répondant à un usage d’application mobile / carnet de plantes. Si l’identification est incertaine, donne-moi les deux ou trois options possibles'
+                            text: 'Peux-tu identifier cette plante à partir de la photo ci-jointe. Réponds en français en deux parties distinctes.\n\nPremière partie : courte fiche synthétique au format markdown avec nom scientifique et commun, 3 ou 4 caractéristiques clés et des conseils d\'entretien (lumière, arrosage, substrat, engrais, toxicité éventuelle). Pas de ligne vide entre les sections.\n\nSeconde partie : un bloc JSON exactement au format suivant décrivant les recommandations d\'arrosage et d\'engrais par mois (de janvier à décembre). Chaque valeur correspond au nombre de jours entre deux actions, utiliser null en absence de recommandation.\n```json\n{"wateringMin":[],"wateringMax":[],"feedingMin":[],"feedingMax":[]}\n```\nSi l\'identification est incertaine, propose deux ou trois options.'
                         },
                         { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${base64}` } }
                     ]
@@ -354,8 +354,19 @@ app.post('/identify', async (req, res) => {
             return res.status(500).send('OpenAI request failed');
         }
         const data = await apiRes.json();
-        const answer = data.choices?.[0]?.message?.content || '';
-        res.send({ answer });
+        const full = data.choices?.[0]?.message?.content || '';
+        const match = /```json\s*([\s\S]+?)\s*```/i.exec(full);
+        let schedule = null;
+        let description = full;
+        if (match) {
+            try {
+                schedule = JSON.parse(match[1]);
+            } catch (e) {
+                schedule = null;
+            }
+            description = full.replace(match[0], '').trim();
+        }
+        res.send({ description, schedule });
     } catch (err) {
         console.error('Identify error', err);
         res.status(500).send('Error identifying plant');

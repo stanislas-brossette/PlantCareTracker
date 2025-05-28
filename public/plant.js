@@ -379,6 +379,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         showMessage('Description updated', 'success');
     };
 
+    const updateSchedule = async (sched) => {
+        await fetch(`/plants/${encodeURIComponent(name)}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                wateringMin: sched.wateringMin,
+                wateringMax: sched.wateringMax,
+                feedingMin: sched.feedingMin,
+                feedingMax: sched.feedingMax
+            })
+        });
+        showMessage('Schedule updated', 'success');
+    };
+
     const archive = async () => {
         await fetch(`/plants/${encodeURIComponent(name)}`, {
             method: 'PUT',
@@ -401,17 +415,34 @@ document.addEventListener('DOMContentLoaded', async () => {
         stopLeafAnimation();
         loadingElem.classList.add('d-none');
         identifyBtn.disabled = false;
-        if (res.ok) {
-            const data = await res.json();
-            try { await navigator.clipboard.writeText(data.answer); } catch(e) {}
-            if (confirm(`${data.answer}\n\nMettre à jour la description ?`)) {
-                descElem.value = data.answer;
-                updateDescDisplay();
-                autoResize();
-                await updateDescription(data.answer);
-            }
-        } else {
+        if (!res.ok) {
             alert('Error identifying plant');
+            return;
+        }
+        const data = await res.json();
+        try { await navigator.clipboard.writeText(data.description); } catch(e) {}
+        if (confirm(`${data.description}\n\nMettre à jour la description ?`)) {
+            descElem.value = data.description;
+            updateDescDisplay();
+            autoResize();
+            await updateDescription(data.description);
+        }
+        if (data.schedule) {
+            const sched = data.schedule;
+            const table = months.map((m,i)=>{
+                const wMin = sched.wateringMin?.[i];
+                const wMax = sched.wateringMax?.[i];
+                const fMin = sched.feedingMin?.[i];
+                const fMax = sched.feedingMax?.[i];
+                return `${m}: W ${wMin ?? '-'}-${wMax ?? '-'} | F ${fMin ?? '-'}-${fMax ?? '-'}`;
+            }).join('\n');
+            if (confirm(`${table}\n\nMettre à jour le planning ?`)) {
+                (sched.wateringMin || []).forEach((v,i)=>{ if(wateringMinInputs[i]) wateringMinInputs[i].value = v ?? ''; });
+                (sched.wateringMax || []).forEach((v,i)=>{ if(wateringMaxInputs[i]) wateringMaxInputs[i].value = v ?? ''; });
+                (sched.feedingMin || []).forEach((v,i)=>{ if(feedingMinInputs[i]) feedingMinInputs[i].value = v ?? ''; });
+                (sched.feedingMax || []).forEach((v,i)=>{ if(feedingMaxInputs[i]) feedingMaxInputs[i].value = v ?? ''; });
+                await updateSchedule(sched);
+            }
         }
     };
 
