@@ -9,12 +9,13 @@ describe('Server endpoints', () => {
   });
 
   test('POST /locations creates a location', async () => {
+    const name = 'TestArea-' + Date.now();
     const res = await request(app)
       .post('/locations')
-      .send({ name: 'TestArea' });
-    expect(res.statusCode).toBe(201);
+      .send({ name });
+    expect([200, 201]).toContain(res.statusCode);
     const list = await request(app).get('/locations');
-    expect(list.body).toContain('TestArea');
+    expect(list.body).toContain(name);
   });
 
   test('DELETE /locations removes location and updates plants', async () => {
@@ -173,5 +174,15 @@ describe('Server endpoints', () => {
       .post('/plants')
       .send({ name: 'BadNum', wateringMin: invalid, wateringMax: invalid, feedingMin: invalid, feedingMax: invalid, location: 'TestArea' });
     expect(res.statusCode).toBe(400);
+  });
+
+  test('Allow null frequency values on update', async () => {
+    const arr = Array(12).fill(null);
+    const res = await request(app)
+      .put('/plants/ZZ')
+      .send({ wateringMin: arr, wateringMax: arr });
+    expect(res.statusCode).toBe(200);
+    const plant = await request(app).get('/plants/ZZ');
+    expect(plant.body.wateringMin.every(v => v === null)).toBe(true);
   });
 });

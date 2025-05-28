@@ -76,6 +76,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     let plantNames = [];
     const currentLocation = localStorage.getItem('currentLocation') || 'All';
 
+    const parseFreqValue = (val) => {
+        const num = parseInt(val, 10);
+        return isNaN(num) ? null : num;
+    };
+
     const loadLocations = async () => {
         const res = await fetch('/locations');
         const list = await res.json();
@@ -192,8 +197,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         plus.type = 'button';
         plus.className = 'btn btn-sm btn-outline-secondary plus';
         plus.textContent = '+';
-        minus.addEventListener('click', () => { if(editing){ input.value = Math.max(0, parseInt(input.value || 0) - 1); input.dispatchEvent(new Event('input')); } });
-        plus.addEventListener('click', () => { if(editing){ input.value = parseInt(input.value || 0) + 1; input.dispatchEvent(new Event('input')); } });
+        minus.addEventListener('click', () => {
+            if (editing) {
+                input.value = Math.max(0, parseInt(input.value || 0) - 1);
+                input.dispatchEvent(new Event('input'));
+            }
+        });
+        plus.addEventListener('click', () => {
+            if (editing) {
+                input.value = parseInt(input.value || 0) + 1;
+                input.dispatchEvent(new Event('input'));
+            }
+        });
         td.appendChild(minus);
         td.appendChild(input);
         td.appendChild(plus);
@@ -217,12 +232,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     const enforcePair = (minInput, maxInput) => {
-        const minVal = parseInt(minInput.value || 0, 10);
-        const maxVal = parseInt(maxInput.value || 0, 10);
-        if (minVal > maxVal) {
+        const minVal = parseFreqValue(minInput.value);
+        const maxVal = parseFreqValue(maxInput.value);
+        if (minVal !== null && maxVal !== null && minVal > maxVal) {
             maxInput.value = minVal;
-        } else if (maxVal < minVal) {
-            minInput.value = maxVal;
         }
     };
 
@@ -354,10 +367,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         const body = {
             name: plantNameInput.value.trim(),
             description: descElem.value,
-            wateringMin: wateringMinInputs.map(input => parseInt(input.value, 10) || 0),
-            wateringMax: wateringMaxInputs.map(input => parseInt(input.value, 10) || 0),
-            feedingMin: feedingMinInputs.map(input => parseInt(input.value, 10) || 0),
-            feedingMax: feedingMaxInputs.map(input => parseInt(input.value, 10) || 0),
+            wateringMin: wateringMinInputs.map(i => parseFreqValue(i.value)),
+            wateringMax: wateringMaxInputs.map(i => parseFreqValue(i.value)),
+            feedingMin: feedingMinInputs.map(i => parseFreqValue(i.value)),
+            feedingMax: feedingMaxInputs.map(i => parseFreqValue(i.value)),
             location: locationSelect.value
         };
         if (imageData) { body.imageData = imageData; }

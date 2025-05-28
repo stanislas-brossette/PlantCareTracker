@@ -121,14 +121,19 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => messageElem.classList.add('d-none'), 3000);
     };
 
+    const parseFreqValue = (val) => {
+        const num = parseInt(val, 10);
+        return isNaN(num) ? null : num;
+    };
+
     const save = async () => {
         const body = {
             name: nameElem.value.trim(),
             description: descElem.value,
-            wateringMin: wateringMinInputs.map(i => parseInt(i.value, 10) || 0),
-            wateringMax: wateringMaxInputs.map(i => parseInt(i.value, 10) || 0),
-            feedingMin: feedingMinInputs.map(i => parseInt(i.value, 10) || 0),
-            feedingMax: feedingMaxInputs.map(i => parseInt(i.value, 10) || 0),
+            wateringMin: wateringMinInputs.map(i => parseFreqValue(i.value)),
+            wateringMax: wateringMaxInputs.map(i => parseFreqValue(i.value)),
+            feedingMin: feedingMinInputs.map(i => parseFreqValue(i.value)),
+            feedingMax: feedingMaxInputs.map(i => parseFreqValue(i.value)),
             location: locationSelect.value
         };
         if (imageData) {

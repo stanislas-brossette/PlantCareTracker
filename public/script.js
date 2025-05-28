@@ -133,8 +133,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const maxDays = parseInt(maxArr[now.getMonth()]);
 
         let color = 'btn-success';
-        if (!isNaN(minDays) && differenceInDays >= minDays) color = 'btn-warning';
-        if (!isNaN(maxDays) && differenceInDays > maxDays) color = 'btn-danger';
+        if (!(isNaN(minDays) && isNaN(maxDays))) {
+            if (!isNaN(minDays) && differenceInDays >= minDays) color = 'btn-warning';
+            if (!isNaN(maxDays) && differenceInDays > maxDays) color = 'btn-danger';
+        }
 
         buttonRefs[buttonId].className = `btn w-100 ${color}`;
     };
