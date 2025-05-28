@@ -68,6 +68,24 @@ npm test
 
 ---
 
+## **API Overview**
+
+The server exposes a small REST API consumed by the frontend. Useful endpoints:
+
+- `GET /plants` – list all non‑archived plants.
+- `GET /plants/:name` – fetch details for a single plant.
+- `POST /plants` – create a plant.
+- `PUT /plants/:name` – update a plant or archive it by sending `{ "archived": true }`.
+- `DELETE /plants/:name` – remove a plant.
+- `GET /locations` – list locations.
+- `POST /locations` – add a location (returns **201** when created, **200** if it already existed).
+- `DELETE /locations/:name` – delete a location and reassign any plants using it.
+- `GET /lastClickedTimes` – retrieve timestamps for watering and feeding actions.
+- `POST /clicked` – record a watering or feeding action.
+- `POST /undo` – revert the most recent action for a button.
+
+---
+
 ## **Auto-Start on Boot**
 
 To ensure your app runs automatically on Raspberry Pi startup, you can use **`cron`**. Here’s how to set it up:

@@ -145,11 +145,14 @@ app.post('/locations', (req, res) => {
     if (!name) {
         return res.status(400).send('Name is required');
     }
+
     if (!locations.includes(name)) {
         locations.push(name);
         writeLocations();
+        return res.status(201).send({ name });
     }
-    res.status(201).send({ name });
+
+    res.status(200).send({ name });
 });
 
 app.delete('/locations/:name', (req, res) => {
