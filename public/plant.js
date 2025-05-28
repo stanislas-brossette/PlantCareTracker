@@ -389,6 +389,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ description: text })
         });
+        if (plantCache[name]) {
+            plantCache[name].description = text;
+        }
         showMessage('Description updated', 'success');
     };
 
@@ -403,6 +406,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 feedingMax: sched.feedingMax
             })
         });
+        if (plantCache[name]) {
+            plantCache[name].wateringMin = sched.wateringMin;
+            plantCache[name].wateringMax = sched.wateringMax;
+            plantCache[name].feedingMin = sched.feedingMin;
+            plantCache[name].feedingMax = sched.feedingMax;
+        }
         showMessage('Schedule updated', 'success');
     };
 
