@@ -192,8 +192,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         plus.type = 'button';
         plus.className = 'btn btn-sm btn-outline-secondary plus';
         plus.textContent = '+';
-        minus.addEventListener('click', () => { if(editing){ input.value = Math.max(0, parseInt(input.value || 0) - 1); } });
-        plus.addEventListener('click', () => { if(editing){ input.value = parseInt(input.value || 0) + 1; } });
+        minus.addEventListener('click', () => { if(editing){ input.value = Math.max(0, parseInt(input.value || 0) - 1); input.dispatchEvent(new Event('input')); } });
+        plus.addEventListener('click', () => { if(editing){ input.value = parseInt(input.value || 0) + 1; input.dispatchEvent(new Event('input')); } });
         td.appendChild(minus);
         td.appendChild(input);
         td.appendChild(plus);
@@ -215,6 +215,31 @@ document.addEventListener('DOMContentLoaded', async () => {
         scheduleBody.appendChild(trMin);
         scheduleBody.appendChild(trMax);
     });
+
+    const enforcePair = (minInput, maxInput) => {
+        const minVal = parseInt(minInput.value || 0, 10);
+        const maxVal = parseInt(maxInput.value || 0, 10);
+        if (minVal > maxVal) {
+            maxInput.value = minVal;
+        } else if (maxVal < minVal) {
+            minInput.value = maxVal;
+        }
+    };
+
+    const attachPairListeners = (minArr, maxArr) => {
+        minArr.forEach((minInput, idx) => {
+            const maxInput = maxArr[idx];
+            minInput.addEventListener('input', () => {
+                if (editing) enforcePair(minInput, maxInput);
+            });
+            maxInput.addEventListener('input', () => {
+                if (editing) enforcePair(minInput, maxInput);
+            });
+        });
+    };
+
+    attachPairListeners(wateringMinInputs, wateringMaxInputs);
+    attachPairListeners(feedingMinInputs, feedingMaxInputs);
 
     const setEditing = (state) => {
         editing = state;
