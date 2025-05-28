@@ -133,21 +133,22 @@ img {
     }
 }
 
-/* Inline controls for schedule table */
-.schedule-cell button {
-    width: 30px;
-    padding: 2px 0;
-}
-.schedule-cell input {
-    width: 60px;
+/* Compact schedule table */
+.schedule-table input {
+    width: 50px;
     text-align: center;
-    display: inline-block;
+    border-radius: 4px;
+    padding: 4px;
     -moz-appearance: textfield;
 }
-.schedule-cell input::-webkit-outer-spin-button,
-.schedule-cell input::-webkit-inner-spin-button {
+.schedule-table input::-webkit-outer-spin-button,
+.schedule-table input::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
+}
+.schedule-table th,
+.schedule-table td {
+    padding: 6px 4px;
 }
 
 /* Auto-resizing description textarea */

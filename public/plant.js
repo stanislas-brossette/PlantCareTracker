@@ -184,51 +184,24 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const createInputCell = (arr) => {
         const td = document.createElement('td');
-        td.className = 'text-center schedule-cell';
-        const minus = document.createElement('button');
-        minus.type = 'button';
-        minus.className = 'btn btn-sm btn-outline-secondary minus';
-        minus.textContent = '-';
         const input = document.createElement('input');
         input.type = 'number';
-        input.className = 'form-control d-inline-block value mx-1 text-center';
-        input.style.width = '60px';
-        const plus = document.createElement('button');
-        plus.type = 'button';
-        plus.className = 'btn btn-sm btn-outline-secondary plus';
-        plus.textContent = '+';
-        minus.addEventListener('click', () => {
-            if (editing) {
-                input.value = Math.max(0, parseInt(input.value || 0) - 1);
-                input.dispatchEvent(new Event('input'));
-            }
-        });
-        plus.addEventListener('click', () => {
-            if (editing) {
-                input.value = parseInt(input.value || 0) + 1;
-                input.dispatchEvent(new Event('input'));
-            }
-        });
-        td.appendChild(minus);
+        input.className = 'form-control';
         td.appendChild(input);
-        td.appendChild(plus);
         arr.push(input);
         return td;
     };
 
     months.forEach((m) => {
-        const trMin = document.createElement('tr');
-        const trMax = document.createElement('tr');
+        const tr = document.createElement('tr');
         const monthTd = document.createElement('td');
         monthTd.textContent = m;
-        monthTd.rowSpan = 2;
-        trMin.appendChild(monthTd);
-        trMin.appendChild(createInputCell(wateringMinInputs));
-        trMin.appendChild(createInputCell(feedingMinInputs));
-        trMax.appendChild(createInputCell(wateringMaxInputs));
-        trMax.appendChild(createInputCell(feedingMaxInputs));
-        scheduleBody.appendChild(trMin);
-        scheduleBody.appendChild(trMax);
+        tr.appendChild(monthTd);
+        tr.appendChild(createInputCell(wateringMinInputs));
+        tr.appendChild(createInputCell(wateringMaxInputs));
+        tr.appendChild(createInputCell(feedingMinInputs));
+        tr.appendChild(createInputCell(feedingMaxInputs));
+        scheduleBody.appendChild(tr);
     });
 
     const enforcePair = (minInput, maxInput) => {
@@ -267,7 +240,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         locationSelect.disabled = !state;
         addLocationBtn.classList.toggle('d-none', !state);
         document.querySelectorAll('#schedule-table input').forEach(i => i.readOnly = !state);
-        document.querySelectorAll('#schedule-table .minus, #schedule-table .plus').forEach(btn => btn.classList.toggle('d-none', !state));
         toggleBtn.textContent = state ? 'View' : 'Edit';
         if (!state) updateDescDisplay();
         autoResize();
