@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const { queueRequest, processQueue, loadOfflinePlants, saveOfflinePlants, loadOfflineLocations, saveOfflineLocations } = window.offlineHelpers || {};
     const nameInput = document.getElementById('plant-name-input');
     const descElem = document.getElementById('description');
     const locationSelect = document.getElementById('location-select');
@@ -23,6 +24,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let imageData = null;
     let identifying = false;
     const { startLeafAnimation, stopLeafAnimation } = createLeafAnimator(loadingElem, loadingLeaf);
+    const updateOnlineStatus = () => { if (identifyBtn) identifyBtn.disabled = !navigator.onLine; };
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+    updateOnlineStatus();
 
     const autoResize = () => {
         descElem.style.height = 'auto';
@@ -145,8 +150,14 @@ document.addEventListener('DOMContentLoaded', () => {
     galleryFileElem.addEventListener('change', () => handleFileChange(galleryFileElem));
 
     const loadLocations = async () => {
-        const res = await fetch('/locations');
-        const list = await res.json();
+        let list;
+        try {
+            const res = await fetch('/locations');
+            list = await res.json();
+            if (saveOfflineLocations) saveOfflineLocations(list);
+        } catch(e) {
+            list = (loadOfflineLocations && loadOfflineLocations()) || [];
+        }
         locationSelect.innerHTML = '';
         list.forEach(loc => {
             const opt = document.createElement('option');
@@ -161,11 +172,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const addLocation = async () => {
         const name = prompt('New location name');
         if (!name) return;
-        await fetch('/locations', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name })
-        });
+        if (!navigator.onLine) {
+            if (queueRequest) queueRequest('POST', '/locations', { name });
+            const locs = (loadOfflineLocations && loadOfflineLocations()) || [];
+            if (!locs.includes(name)) {
+                locs.push(name);
+                if (saveOfflineLocations) saveOfflineLocations(locs);
+            }
+        } else {
+            try {
+                await fetch('/locations', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name })
+                });
+            } catch (e) {
+                if (queueRequest) queueRequest('POST', '/locations', { name });
+            }
+        }
         const opt = document.createElement('option');
         opt.value = name;
         opt.textContent = name;
@@ -189,6 +213,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const img = imageData || imageElem.getAttribute('src');
         if (!img || img === 'images/placeholder.png') {
             alert('Please add a photo first');
+            return;
+        }
+        if (!navigator.onLine) {
+            alert('Identify unavailable offline');
             return;
         }
         identifying = true;
@@ -253,20 +281,33 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             body.image = imageElem.getAttribute('src');
         }
-        const res = await fetch('/plants', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body)
-        });
-        if (res.ok) {
-            const created = await res.json();
-            showMessage('Created', 'success');
-            setTimeout(() => {
-                window.location.href = `plant.html?name=${encodeURIComponent(created.name)}`;
-            }, 1000);
-        } else {
-            const text = await res.text();
-            showMessage('Error: ' + text, 'danger');
+        if (!navigator.onLine) {
+            if (queueRequest) queueRequest('POST', '/plants', body);
+            if (upsertOfflinePlant) upsertOfflinePlant(body);
+            showMessage('Saved offline', 'success');
+            return;
+        }
+        try {
+            const res = await fetch('/plants', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            if (res.ok) {
+                const created = await res.json();
+                if (upsertOfflinePlant) upsertOfflinePlant(created);
+                showMessage('Created', 'success');
+                setTimeout(() => {
+                    window.location.href = `plant.html?name=${encodeURIComponent(created.name)}`;
+                }, 1000);
+            } else {
+                const text = await res.text();
+                showMessage('Error: ' + text, 'danger');
+            }
+        } catch (e) {
+            if (queueRequest) queueRequest('POST', '/plants', body);
+            if (upsertOfflinePlant) upsertOfflinePlant(body);
+            showMessage('Saved offline', 'success');
         }
     };
 
@@ -276,5 +317,5 @@ document.addEventListener('DOMContentLoaded', () => {
     descElem.addEventListener('input', autoResize);
     autoResize();
 
-    loadLocations();
+    loadLocations().then(() => { if (processQueue) processQueue(); });
 });

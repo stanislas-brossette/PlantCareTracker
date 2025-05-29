@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <link href="styles.css" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
 </head>
 <body class="container">
     <a href="index.html" class="btn btn-link my-2">&larr; Back to Dashboard</a>
@@ -82,6 +83,12 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="leafAnimations.js"></script>
+    <script src="offline.js"></script>
     <script src="plant.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('service-worker.js');
+      }
+    </script>
 </body>
 </html>

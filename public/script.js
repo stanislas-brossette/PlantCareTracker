@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const { queueRequest, processQueue, loadOfflinePlants, saveOfflinePlants, loadOfflineLocations, saveOfflineLocations } = window.offlineHelpers || {};
     const plantsTable = document.getElementById('plantsTable');
     const undoBtn = document.getElementById('undo');
     const locationSelect = document.getElementById('location-select');
@@ -17,8 +18,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const buttonRefs = {};
 
     const loadLocations = async () => {
-        const res = await fetch('/locations');
-        const list = await res.json();
+        let list;
+        try {
+            const res = await fetch('/locations');
+            list = await res.json();
+            if (saveOfflineLocations) saveOfflineLocations(list);
+        } catch (e) {
+            list = (loadOfflineLocations && loadOfflineLocations()) || [];
+        }
         locations = ['All', ...list];
         locationSelect.innerHTML = '';
         locations.forEach(loc => {
@@ -84,8 +91,13 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const loadPlants = async () => {
-        const response = await fetch('/plants');
-        plants = await response.json();
+        try {
+            const response = await fetch('/plants');
+            plants = await response.json();
+            if (saveOfflinePlants) saveOfflinePlants(plants);
+        } catch (e) {
+            plants = (loadOfflinePlants && loadOfflinePlants()) || [];
+        }
         renderPlants();
         setInterval(refreshTimes, 60000);
     };
@@ -231,7 +243,9 @@ document.addEventListener('DOMContentLoaded', () => {
         renderPlants();
     });
 
+    const syncBtn = document.getElementById('sync');
     undoBtn.addEventListener('click', undoLast);
+    if (syncBtn && processQueue) syncBtn.addEventListener('click', processQueue);
     updateUndoBtn();
-    loadLocations().then(loadPlants).then(initSwipe);
+    loadLocations().then(loadPlants).then(initSwipe).then(() => { if (processQueue) processQueue(); });
 });
