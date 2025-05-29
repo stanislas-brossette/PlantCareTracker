@@ -1488,5 +1488,67 @@
         ],
         "image": "images/placeholder.png",
         "location": "TestArea"
+    },
+    {
+        "name": "Laurier rose",
+        "description": "**Nom scientifique :** Nerium oleander  \n**Nom commun :** Laurier-rose  \n\n**Caractéristiques clés :**  \n- Arbuste persistant très ramifié, pouvant atteindre 2 à 5 mètres de haut.  \n- Feuilles étroites et allongées, de couleur vert foncé.  \n- Fleurs en forme de trompette disponibles en plusieurs couleurs (blanc, rose, rouge), généralement en été.  \n\n**Conseils d'entretien :**  \n- **Lumière :** Plein soleil pour une floraison abondante.  \n- **Arrosage :** Régulier mais modéré, laisser le substrat sécher entre les arrosages.  \n- **Substrat :** Bien drainé, tolère une gamme de types de sol.  \n- **Engrais :** Fertiliser modérément pendant la saison de croissance.  \n- **Toxicité :** Toutes les parties de la plante sont hautement toxiques en cas d'ingestion.\n\n---",
+        "wateringMin": [
+            7,
+            7,
+            7,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            7,
+            7,
+            7
+        ],
+        "wateringMax": [
+            10,
+            10,
+            10,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            10,
+            10,
+            10
+        ],
+        "feedingMin": [
+            null,
+            null,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            30,
+            null,
+            null,
+            null
+        ],
+        "feedingMax": [
+            null,
+            null,
+            45,
+            45,
+            45,
+            45,
+            45,
+            45,
+            45,
+            null,
+            null,
+            null
+        ],
+        "image": "images/img_1748510827741.jpeg",
+        "location": "Belle-Île"
     }
 ]
