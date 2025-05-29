@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     let plants = [];
+    let locations = [];
+    let currentIndex = 0;
 
     // Object to store button references
     const buttonRefs = {};
@@ -17,19 +19,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadLocations = async () => {
         const res = await fetch('/locations');
         const list = await res.json();
+        locations = ['All', ...list];
         locationSelect.innerHTML = '';
-        const optAll = document.createElement('option');
-        optAll.value = 'All';
-        optAll.textContent = 'All';
-        locationSelect.appendChild(optAll);
-        list.forEach(loc => {
-            const o = document.createElement('option');
-            o.value = loc;
-            o.textContent = loc;
-            locationSelect.appendChild(o);
+        locations.forEach(loc => {
+            const opt = document.createElement('option');
+            opt.value = loc;
+            opt.textContent = loc;
+            locationSelect.appendChild(opt);
         });
         const stored = localStorage.getItem('currentLocation') || 'All';
         locationSelect.value = stored;
+        currentIndex = locations.indexOf(stored);
     };
 
     const renderPlants = () => {
@@ -88,6 +88,43 @@ document.addEventListener('DOMContentLoaded', () => {
         plants = await response.json();
         renderPlants();
         setInterval(refreshTimes, 60000);
+    };
+
+    const transitionToLocation = (targetIndex, dir) => {
+        if (targetIndex === currentIndex) return;
+        const incoming = dir === 'left' ? 'right' : 'left';
+        document.body.classList.add(`slide-out-${dir}`);
+        setTimeout(() => {
+            currentIndex = (targetIndex + locations.length) % locations.length;
+            const loc = locations[currentIndex];
+            locationSelect.value = loc;
+            localStorage.setItem('currentLocation', loc);
+            renderPlants();
+            document.body.classList.remove(`slide-out-${dir}`);
+            document.body.classList.add(`slide-in-${incoming}`);
+            setTimeout(() => document.body.classList.remove(`slide-in-${incoming}`), 200);
+        }, 200);
+    };
+
+    const initSwipe = () => {
+        let startX = 0;
+        document.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                startX = e.touches[0].clientX;
+            }
+        });
+        document.addEventListener('touchend', (e) => {
+            const dx = e.changedTouches[0].clientX - startX;
+            if (Math.abs(dx) > 50 && locations.length > 0) {
+                if (dx < 0) {
+                    const next = (currentIndex + 1) % locations.length;
+                    transitionToLocation(next, 'left');
+                } else {
+                    const prev = (currentIndex - 1 + locations.length) % locations.length;
+                    transitionToLocation(prev, 'right');
+                }
+            }
+        });
     };
 
     const calculateTimeSince = (lastClickedTime) => {
@@ -190,10 +227,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     locationSelect.addEventListener('change', () => {
         localStorage.setItem('currentLocation', locationSelect.value);
+        currentIndex = locations.indexOf(locationSelect.value);
         renderPlants();
     });
 
     undoBtn.addEventListener('click', undoLast);
     updateUndoBtn();
-    loadLocations().then(loadPlants);
+    loadLocations().then(loadPlants).then(initSwipe);
 });
