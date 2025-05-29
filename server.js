@@ -18,6 +18,17 @@ const plantsFile = 'plants.json';
 let locations = [];
 const locationsFile = 'locations.json';
 
+function generateDefaultName() {
+    let idx = 1;
+    const existing = new Set(plants.map(p => p.name));
+    let name = `Plant ${idx}`;
+    while (existing.has(name)) {
+        idx += 1;
+        name = `Plant ${idx}`;
+    }
+    return name;
+}
+
 // Function to read the last clicked times from a file
 function readLastClickedTimes() {
     try {
@@ -259,8 +270,8 @@ app.put('/plants/:name', (req, res) => {
 
 app.post('/plants', (req, res) => {
     const newPlant = req.body;
-    if (!newPlant.name) {
-        return res.status(400).send('Name is required');
+    if (!newPlant.name || !newPlant.name.trim()) {
+        newPlant.name = generateDefaultName();
     }
     if (plants.find(p => p.name === newPlant.name)) {
         return res.status(400).send('Plant already exists');

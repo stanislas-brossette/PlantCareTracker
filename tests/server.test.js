@@ -147,6 +147,23 @@ describe('Server endpoints', () => {
     expect(delRes.statusCode).toBe(200);
   });
 
+  test('POST /plants assigns default name when missing', async () => {
+    const res = await request(app)
+      .post('/plants')
+      .send({
+        description: 'temp',
+        wateringMin: Array(12).fill(1),
+        wateringMax: Array(12).fill(1),
+        feedingMin: Array(12).fill(1),
+        feedingMax: Array(12).fill(1),
+        image: 'images/placeholder.png',
+        location: 'TestArea'
+      });
+    expect(res.statusCode).toBe(201);
+    expect(res.body.name).toBeTruthy();
+    await request(app).delete('/plants/' + encodeURIComponent(res.body.name));
+  });
+
   test('Reject invalid frequency arrays on creation', async () => {
     const res = await request(app)
       .post('/plants')
