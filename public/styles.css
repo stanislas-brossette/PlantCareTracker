@@ -198,6 +198,21 @@ img {
     filter: drop-shadow(0 0 4px rgba(0, 128, 0, 0.6));
 }
 
+.tiny-leaf {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    opacity: 0.8;
+    pointer-events: none;
+    animation: tinyLeaf 1s forwards ease-out;
+    filter: drop-shadow(0 0 3px rgba(0, 128, 0, 0.6));
+}
+
+@keyframes tinyLeaf {
+    from { transform: translate(0,0) rotate(0deg); opacity: 0.8; }
+    to   { transform: translate(var(--dx), var(--dy)) rotate(360deg); opacity: 0; }
+}
+
 @keyframes leafTrail {
     from { opacity: 0.6; transform: scale(1); }
     to { opacity: 0; transform: scale(0.5); }
