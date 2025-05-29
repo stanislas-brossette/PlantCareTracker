@@ -28,10 +28,10 @@ A simple web app to track watering and fertilizing schedules for your plants. Bu
 - If you haven’t already, download or clone the project to your Raspberry Pi.
 
 ### **3. Install Dependencies**
-Navigate to the project directory and install dependencies:
+Navigate to the project directory and run the setup script to install dependencies:
 ```bash
 cd /path/to/PlantCareTracker
-npm install
+./setup.sh
 ```
 
 ---
@@ -63,7 +63,7 @@ For even more reliable results you can also try a dedicated plant identification
 ## **Running Tests**
 Install dev dependencies first:
 ```bash
-npm install
+./setup.sh
 ```
 Then execute:
 ```bash
