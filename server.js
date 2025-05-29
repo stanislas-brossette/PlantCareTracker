@@ -244,8 +244,9 @@ app.put('/plants/:name', (req, res) => {
     plants[index] = { ...plants[index], ...req.body };
 
     if (req.body.archived === true) {
+        const finalName = newName || req.params.name;
         Object.keys(lastClickedTimes).forEach(key => {
-            if (key.startsWith(`button-${req.params.name}-`)) {
+            if (key.startsWith(`button-${finalName}-`)) {
                 delete lastClickedTimes[key];
             }
         });

@@ -185,4 +185,27 @@ describe('Server endpoints', () => {
     const plant = await request(app).get('/plants/ZZ');
     expect(plant.body.wateringMin.every(v => v === null)).toBe(true);
   });
+
+  test('Renaming and archiving removes renamed lastClickedTimes', async () => {
+    const oldName = 'ZZ';
+    const newName = `New${Date.now()}`;
+
+    await request(app).post('/clicked').send({ buttonId: `button-${oldName}-Arrosage` });
+    await request(app).post('/clicked').send({ buttonId: `button-${oldName}-Engrais` });
+
+    const archiveRes = await request(app)
+      .put('/plants/' + encodeURIComponent(oldName))
+      .send({ name: newName, archived: true });
+    expect(archiveRes.statusCode).toBe(200);
+
+    const times = await request(app).get('/lastClickedTimes');
+    const has = Object.keys(times.body).some(k => k.includes(newName));
+    expect(has).toBe(false);
+
+    await request(app)
+      .put('/plants/' + encodeURIComponent(newName))
+      .send({ name: oldName, archived: false });
+    await request(app).post('/clicked').send({ buttonId: `button-${oldName}-Arrosage` });
+    await request(app).post('/clicked').send({ buttonId: `button-${oldName}-Engrais` });
+  });
 });
