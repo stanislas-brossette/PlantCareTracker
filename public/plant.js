@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', async () => {
+    const { queueRequest, processQueue, loadOfflinePlants, saveOfflinePlants, loadOfflineLocations, saveOfflineLocations, upsertOfflinePlant } = window.offlineHelpers || {};
     const params = new URLSearchParams(window.location.search);
     let name = params.get('name');
     if (!name) return;
@@ -33,6 +34,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const loadingLeaf = document.getElementById('loading-leaf');
     let identifying = false;
     const { startLeafAnimation, stopLeafAnimation } = createLeafAnimator(loadingElem, loadingLeaf, { tinyLeafDuration: 2000 });
+    const updateOnlineStatus = () => { if (identifyBtn) identifyBtn.disabled = !navigator.onLine; };
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+    updateOnlineStatus();
 
     const autoResize = () => {
         descElem.style.height = 'auto';
@@ -58,8 +63,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const loadLocations = async () => {
-        const res = await fetch('/locations');
-        const list = await res.json();
+        let list;
+        try {
+            const res = await fetch('/locations');
+            list = await res.json();
+            if (saveOfflineLocations) saveOfflineLocations(list);
+        } catch(e) {
+            list = (loadOfflineLocations && loadOfflineLocations()) || [];
+        }
         locationSelect.innerHTML = '';
         list.forEach(loc => {
             const opt = document.createElement('option');
@@ -72,11 +83,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     const addLocation = async () => {
         const name = prompt('New location name');
         if (!name) return;
-        await fetch('/locations', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name })
-        });
+        if (!navigator.onLine) {
+            if (queueRequest) queueRequest('POST', '/locations', { name });
+            const locs = (loadOfflineLocations && loadOfflineLocations()) || [];
+            if (!locs.includes(name)) {
+                locs.push(name);
+                if (saveOfflineLocations) saveOfflineLocations(locs);
+            }
+        } else {
+            try {
+                await fetch('/locations', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name })
+                });
+            } catch (e) {
+                if (queueRequest) queueRequest('POST', '/locations', { name });
+            }
+        }
         const opt = document.createElement('option');
         opt.value = name;
         opt.textContent = name;
@@ -107,11 +131,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const fetchPlant = async (plantName) => {
         if (plantCache[plantName]) return plantCache[plantName];
-        const res = await fetch(`/plants/${encodeURIComponent(plantName)}`);
-        if (res.ok) {
-            const plant = await res.json();
-            plantCache[plantName] = plant;
-            return plant;
+        try {
+            const res = await fetch(`/plants/${encodeURIComponent(plantName)}`);
+            if (res.ok) {
+                const plant = await res.json();
+                plantCache[plantName] = plant;
+                if (upsertOfflinePlant) upsertOfflinePlant(plant);
+                return plant;
+            }
+        } catch(e) {
+            const offline = (loadOfflinePlants && loadOfflinePlants()) || [];
+            const found = offline.find(p => p.name === plantName);
+            if (found) return found;
         }
         return null;
     };
@@ -289,12 +320,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const loadPlantNames = async () => {
-        const res = await fetch('/plants');
-        if (res.ok) {
-            const list = await res.json();
-            const filtered = list.filter(p => !p.archived && (currentLocation === 'All' || p.location === currentLocation));
-            plantNames = filtered.map(p => p.name);
+        let list;
+        try {
+            const res = await fetch('/plants');
+            if (res.ok) {
+                list = await res.json();
+                if (saveOfflinePlants) saveOfflinePlants(list);
+            }
+        } catch(e) {
+            list = (loadOfflinePlants && loadOfflinePlants()) || [];
         }
+        if (!list) list = [];
+        const filtered = list.filter(p => !p.archived && (currentLocation === 'All' || p.location === currentLocation));
+        plantNames = filtered.map(p => p.name);
     };
 
     const preloaded = new Set();
@@ -369,21 +407,42 @@ document.addEventListener('DOMContentLoaded', async () => {
             location: locationSelect.value
         };
         if (imageData) { body.imageData = imageData; }
-        await fetch(`/plants/${encodeURIComponent(name)}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body)
-        });
-        showMessage('Saved', 'success');
-        setTimeout(() => { window.location.href = 'index.html'; }, 1000);
+        if (!navigator.onLine) {
+            if (queueRequest) queueRequest('PUT', `/plants/${encodeURIComponent(name)}`, body);
+            if (upsertOfflinePlant) upsertOfflinePlant({ ...body, name });
+            showMessage('Saved offline', 'success');
+            return;
+        }
+        try {
+            await fetch(`/plants/${encodeURIComponent(name)}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            if (upsertOfflinePlant) upsertOfflinePlant({ ...body, name });
+            showMessage('Saved', 'success');
+            setTimeout(() => { window.location.href = 'index.html'; }, 1000);
+        } catch (e) {
+            if (queueRequest) queueRequest('PUT', `/plants/${encodeURIComponent(name)}`, body);
+            if (upsertOfflinePlant) upsertOfflinePlant({ ...body, name });
+            showMessage('Saved offline', 'success');
+        }
     };
 
     const updateDescription = async (text) => {
-        await fetch(`/plants/${encodeURIComponent(name)}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ description: text })
-        });
+        if (!navigator.onLine) {
+            if (queueRequest) queueRequest('PUT', `/plants/${encodeURIComponent(name)}`, { description: text });
+        } else {
+            try {
+                await fetch(`/plants/${encodeURIComponent(name)}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ description: text })
+                });
+            } catch(e) {
+                if (queueRequest) queueRequest('PUT', `/plants/${encodeURIComponent(name)}`, { description: text });
+            }
+        }
         if (plantCache[name]) {
             plantCache[name].description = text;
         }
@@ -391,16 +450,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const updateSchedule = async (sched) => {
-        await fetch(`/plants/${encodeURIComponent(name)}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                wateringMin: sched.wateringMin,
-                wateringMax: sched.wateringMax,
-                feedingMin: sched.feedingMin,
-                feedingMax: sched.feedingMax
-            })
-        });
+        const payload = {
+            wateringMin: sched.wateringMin,
+            wateringMax: sched.wateringMax,
+            feedingMin: sched.feedingMin,
+            feedingMax: sched.feedingMax
+        };
+        if (!navigator.onLine) {
+            if (queueRequest) queueRequest('PUT', `/plants/${encodeURIComponent(name)}`, payload);
+        } else {
+            try {
+                await fetch(`/plants/${encodeURIComponent(name)}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            } catch(e) {
+                if (queueRequest) queueRequest('PUT', `/plants/${encodeURIComponent(name)}`, payload);
+            }
+        }
         if (plantCache[name]) {
             plantCache[name].wateringMin = sched.wateringMin;
             plantCache[name].wateringMax = sched.wateringMax;
@@ -411,11 +479,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const archive = async () => {
-        await fetch(`/plants/${encodeURIComponent(name)}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ archived: true })
-        });
+        const payload = { archived: true };
+        if (!navigator.onLine) {
+            if (queueRequest) queueRequest('PUT', `/plants/${encodeURIComponent(name)}`, payload);
+        } else {
+            try {
+                await fetch(`/plants/${encodeURIComponent(name)}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            } catch(e) {
+                if (queueRequest) queueRequest('PUT', `/plants/${encodeURIComponent(name)}`, payload);
+            }
+        }
         showMessage('Archived', 'success');
         setTimeout(() => { window.location.href = 'index.html'; }, 1000);
     };
@@ -427,12 +504,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const renamePlant = async (newName) => {
         if (!newName || newName === name) return;
-        const res = await fetch(`/plants/${encodeURIComponent(name)}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: newName })
-        });
-        if (!res.ok) return;
+        const payload = { name: newName };
+        let ok = true;
+        if (!navigator.onLine) {
+            ok = false;
+            if (queueRequest) queueRequest('PUT', `/plants/${encodeURIComponent(name)}`, payload);
+        } else {
+            try {
+                const res = await fetch(`/plants/${encodeURIComponent(name)}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                ok = res.ok;
+            } catch(e) {
+                ok = false;
+                if (queueRequest) queueRequest('PUT', `/plants/${encodeURIComponent(name)}`, payload);
+            }
+        }
+        if (!ok) {
+            // offline rename; we'll update locally
+        }
         if (plantCache[name]) {
             plantCache[newName] = { ...plantCache[name], name: newName };
             delete plantCache[name];
@@ -446,6 +538,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const identify = async () => {
+        if (!navigator.onLine) {
+            alert('Identify unavailable offline');
+            return;
+        }
         identifying = true;
         loadingElem.classList.remove('d-none');
         loadingElem.classList.add('blocking');
@@ -516,4 +612,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     initSwipe();
     await load(name);
     updateNavLinks();
+    if (processQueue) processQueue();
 });
