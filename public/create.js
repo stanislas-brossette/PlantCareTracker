@@ -58,8 +58,8 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingLeaf.style.transition = 'none';
         let x = Math.random() * (window.innerWidth - 40);
         let y = Math.random() * (window.innerHeight - 40);
-        let vx = (Math.random() * 4 - 2);
-        let vy = -5;
+        let vx = (Math.random() * 10 - 5);
+        let vy = 15;
         let rot = 0;
         const g = 0.3;
         const step = () => {
@@ -68,10 +68,10 @@ document.addEventListener('DOMContentLoaded', () => {
             vy += g;
             x += vx;
             y += vy;
-            if (x <= 0) { x = 0; vx *= -0.8; }
-            if (x >= maxX) { x = maxX; vx *= -0.8; }
-            if (y <= 0) { y = 0; vy *= -0.8; }
-            if (y >= maxY) { y = maxY; vy *= -0.8; }
+            if (x <= 0) { x = 0; vx *= -0.95; }
+            if (x >= maxX) { x = maxX; vx *= -0.95; }
+            if (y <= 0) { y = 0; vy *= -0.95; }
+            if (y >= maxY) { y = maxY; vy *= -0.95; }
             rot += (vx + vy) * 2;
             loadingLeaf.style.transform = `translate(${x}px, ${y}px) rotate(${rot}deg)`;
             bounceFrame = requestAnimationFrame(step);
@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
             leaf.className = 'tiny-leaf';
             leaf.style.left = `${cx + 20}px`;
             leaf.style.top = `${cy + 20}px`;
-            const dist = 40 + Math.random() * 20;
+            const dist = 80 + Math.random() * 40;
             const a = Math.random() * Math.PI * 2;
             leaf.style.setProperty('--dx', `${Math.cos(a) * dist}px`);
             leaf.style.setProperty('--dy', `${Math.sin(a) * dist}px`);
@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => leaf.remove(), 1000);
         };
         const step = () => {
-            speed += (Math.random() - 0.5) * 0.05;
+            speed += (Math.random() - 0.5) * 0.5;
             if (speed < 0.1) speed = 0.1;
             if (speed > 2) speed = 2;
             angle += speed * 10;
