@@ -3,6 +3,19 @@
         const tinyDuration = options.tinyLeafDuration || 1000;
         let stopCurrentAnim = null;
 
+        const spawnTinyLeaf = (x, y, dist = 80 + Math.random() * 40) => {
+            const leaf = document.createElement('img');
+            leaf.src = loadingLeaf.src;
+            leaf.className = 'tiny-leaf';
+            leaf.style.left = `${x}px`;
+            leaf.style.top = `${y}px`;
+            const a = Math.random() * Math.PI * 2;
+            leaf.style.setProperty('--dx', `${Math.cos(a) * dist}px`);
+            leaf.style.setProperty('--dy', `${Math.sin(a) * dist}px`);
+            loadingElem.appendChild(leaf);
+            setTimeout(() => leaf.remove(), tinyDuration);
+        };
+
         // --- Animation 1: random jumps with trail (existing effect) ---
         let jumpInterval, leafX = 0, leafY = 0;
         const moveLeaf = () => {
@@ -47,10 +60,12 @@
                 vy += g;
                 x += vx;
                 y += vy;
-                if (x <= 0) { x = 0; vx *= -0.95; }
-                if (x >= maxX) { x = maxX; vx *= -0.95; }
-                if (y <= 0) { y = 0; vy *= -0.95; }
-                if (y >= maxY) { y = maxY; vy *= -0.95; }
+                let hit = false;
+                if (x <= 0) { x = 0; vx *= -0.95; hit = true; }
+                if (x >= maxX) { x = maxX; vx *= -0.95; hit = true; }
+                if (y <= 0) { y = 0; vy *= -0.95; hit = true; }
+                if (y >= maxY) { y = maxY; vy *= -0.95; hit = true; }
+                if (hit) spawnTinyLeaf(x + 20, y + 20, 40 + Math.random() * 20);
                 rot += (vx + vy) * 2;
                 loadingLeaf.style.transform = `translate(${x}px, ${y}px) rotate(${rot}deg)`;
                 bounceFrame = requestAnimationFrame(step);
@@ -68,17 +83,7 @@
             let angle = 0;
             let speed = 0.1;
             const spawnTiny = () => {
-                const leaf = document.createElement('img');
-                leaf.src = loadingLeaf.src;
-                leaf.className = 'tiny-leaf';
-                leaf.style.left = `${cx + 20}px`;
-                leaf.style.top = `${cy + 20}px`;
-                const dist = 80 + Math.random() * 40;
-                const a = Math.random() * Math.PI * 2;
-                leaf.style.setProperty('--dx', `${Math.cos(a) * dist}px`);
-                leaf.style.setProperty('--dy', `${Math.sin(a) * dist}px`);
-                loadingElem.appendChild(leaf);
-                setTimeout(() => leaf.remove(), tinyDuration);
+                spawnTinyLeaf(cx + 20, cy + 20);
             };
             const step = () => {
                 speed += (Math.random() - 0.5) * 0.5;
