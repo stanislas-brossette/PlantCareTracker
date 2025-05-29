@@ -6,6 +6,9 @@ const path = require('path');
 const parseIdentifyResponse = require('./parseIdentifyResponse');
 
 const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4-turbo";
+const OPENAI_TEMPERATURE = Number.isFinite(parseFloat(process.env.OPENAI_TEMPERATURE))
+    ? parseFloat(process.env.OPENAI_TEMPERATURE)
+    : 0;
 let lastClickedTimes = {}; // Stores last clicked times for each action of each plant
 const dataFile = 'lastClickedTimes.json';
 
@@ -337,16 +340,23 @@ app.post('/identify', async (req, res) => {
             },
             body: JSON.stringify({
                 model: OPENAI_MODEL,
-                messages: [{
-                    role: 'user',
-                    content: [
-                        {
-                            type: 'text',
-                            text: 'Peux-tu identifier cette plante à partir de la photo ci-jointe. Réponds en français. Donne d\'abord une courte fiche synthétique au format markdown (nom scientifique et commun, 3 ou 4 caractéristiques clés et conseils d\'entretien : lumière, arrosage, substrat, engrais, toxicité éventuelle). Pas de ligne vide entre les sections.\nEnsuite écris une ligne contenant uniquement --- puis un bloc JSON exactement au format suivant avec les recommandations d\'arrosage et d\'engrais par mois (janvier à décembre), chaque valeur étant le nombre de jours entre deux actions et null s\'il n\'y a pas de recommandation.\n```json\n{"wateringMin":[],"wateringMax":[],"feedingMin":[],"feedingMax":[]}\n```\nSi l\'identification est incertaine, propose deux ou trois options.'
-                        },
-                        { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${base64}` } }
-                    ]
-                }],
+                messages: [
+                    {
+                        role: 'system',
+                        content: 'You are a botanical expert who helps identify plants and provide care instructions.'
+                    },
+                    {
+                        role: 'user',
+                        content: [
+                            {
+                                type: 'text',
+                                text: 'Peux-tu identifier cette plante à partir de la photo ci-jointe. Réponds en français. Donne d\'abord une courte fiche synthétique au format markdown (nom scientifique et commun, 3 ou 4 caractéristiques clés et conseils d\'entretien : lumière, arrosage, substrat, engrais, toxicité éventuelle). Pas de ligne vide entre les sections.\nEnsuite écris une ligne contenant uniquement --- puis un bloc JSON exactement au format suivant avec les recommandations d\'arrosage et d\'engrais par mois (janvier à décembre), chaque valeur étant le nombre de jours entre deux actions et null s\'il n\'y a pas de recommandation.\n```json\n{"wateringMin":[],"wateringMax":[],"feedingMin":[],"feedingMax":[]}\n```\nSi l\'identification est incertaine, propose deux ou trois options.'
+                            },
+                            { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${base64}` } }
+                        ]
+                    }
+                ],
+                temperature: OPENAI_TEMPERATURE,
                 max_tokens: 500
             })
         });
