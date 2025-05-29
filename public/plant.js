@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let leafInterval;
     let leafX = 0;
     let leafY = 0;
+    let identifying = false;
 
     const moveLeaf = () => {
         const maxX = window.innerWidth - 40;
@@ -358,11 +359,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     const initSwipe = () => {
         let startX = 0;
         document.addEventListener('touchstart', (e) => {
+            if (identifying) return;
             if (e.touches.length === 1) {
                 startX = e.touches[0].clientX;
             }
         });
         document.addEventListener('touchend', (e) => {
+            if (identifying) return;
             const dx = e.changedTouches[0].clientX - startX;
             if (Math.abs(dx) > 50) {
                 if (dx < 0) {
@@ -471,7 +474,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const identify = async () => {
+        identifying = true;
         loadingElem.classList.remove('d-none');
+        loadingElem.classList.add('blocking');
         startLeafAnimation();
         identifyBtn.disabled = true;
         const res = await fetch('/identify', {
@@ -480,6 +485,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             body: JSON.stringify({ image: imageElem.getAttribute('src') })
         });
         stopLeafAnimation();
+        identifying = false;
+        loadingElem.classList.remove('blocking');
         loadingElem.classList.add('d-none');
         identifyBtn.disabled = false;
         if (!res.ok) {

@@ -175,6 +175,10 @@ img {
     overflow: hidden;
     z-index: 1050;
 }
+#loading.blocking {
+    pointer-events: all;
+    background: rgba(255,255,255,0.4);
+}
 
 #loading-leaf {
     position: absolute;
