@@ -257,3 +257,10 @@ img {
     border-color: #F4A6A6 !important;
     color: #5A1A1A !important;
 }
+
+/* Image upload buttons */
+#image-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+}

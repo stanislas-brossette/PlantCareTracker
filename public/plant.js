@@ -14,7 +14,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const imageElem = document.getElementById('plant-image');
     const prevBtn = document.getElementById('prev-plant');
     const nextBtn = document.getElementById('next-plant');
-    const imageFileElem = document.getElementById('imageFile');
+    const cameraFileElem = document.getElementById('cameraFile');
+    const galleryFileElem = document.getElementById('galleryFile');
+    const cameraBtn = document.getElementById('camera-btn');
+    const galleryBtn = document.getElementById('gallery-btn');
     const descElem = document.getElementById('description');
     const descDisplay = document.getElementById('description-display');
     const locationSelect = document.getElementById('location-select');
@@ -158,18 +161,26 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 200);
     };
 
-    if (imageFileElem) {
-        imageFileElem.addEventListener('change', async () => {
-            const file = imageFileElem.files[0];
-            if (!file) { imageData = null; return; }
-            try {
-                imageData = await resizeImage(file);
-                imageElem.src = imageData;
-            } catch (e) {
-                console.error('Image resize failed', e);
-            }
-        });
+    const handleFileChange = async (input) => {
+        const file = input.files[0];
+        if (!file) { imageData = null; return; }
+        try {
+            imageData = await resizeImage(file);
+            imageElem.src = imageData;
+        } catch (e) {
+            console.error('Image resize failed', e);
+        }
+    };
+
+    if (cameraFileElem) {
+        cameraFileElem.addEventListener('change', () => handleFileChange(cameraFileElem));
     }
+    if (galleryFileElem) {
+        galleryFileElem.addEventListener('change', () => handleFileChange(galleryFileElem));
+    }
+
+    if (cameraBtn) cameraBtn.addEventListener('click', () => cameraFileElem.click());
+    if (galleryBtn) galleryBtn.addEventListener('click', () => galleryFileElem.click());
 
     descElem.addEventListener('input', autoResize);
     descElem.addEventListener('input', () => {
@@ -269,7 +280,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         descDisplay.classList.toggle('d-none', state);
         plantNameElem.classList.toggle('d-none', state);
         plantNameInput.classList.toggle('d-none', !state);
-        imageFileElem.classList.toggle('d-none', !state);
+        cameraBtn.classList.toggle('d-none', !state);
+        galleryBtn.classList.toggle('d-none', !state);
         saveBtn.classList.toggle('d-none', !state);
         archiveBtn.classList.toggle('d-none', !state);
         locationSelect.disabled = !state;
