@@ -55,6 +55,9 @@ export OPENAI_MODEL=gpt-4-turbo   # optional
 export OPENAI_TEMPERATURE=0       # optional, lower = more deterministic
 ```
 The "Identify Plant" button on each detail page sends the plant photo to ChatGPT and shows the response in a popup. The answer is also copied to your clipboard.
+If you accept the suggested description while the plant still has a default name
+(like "Plant 1"), the name is automatically replaced with the **nom commun**
+found in the description.
 
 Setting `OPENAI_TEMPERATURE` to a low value (0 is the default) makes responses more consistent, which usually improves the accuracy of the identification.
 For even more reliable results you can also try a dedicated plant identification API such as [Plant.id](https://web.plant.id/) or [PlantNet](https://plantnet.org/).

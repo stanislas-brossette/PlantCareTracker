@@ -9,6 +9,12 @@ describe('parseIdentifyResponse', () => {
     expect(schedule.wateringMax[0]).toBe(2);
   });
 
+  test('extracts common name when present', () => {
+    const text = '**Nom scientifique :** Foo\n**Nom commun :** Bar\n---';
+    const { commonName } = parseIdentifyResponse(text);
+    expect(commonName).toBe('Bar');
+  });
+
   test('handles absence of heading and delimiter', () => {
     const text = 'Desc only\n```json\n{}\n```';
     const { description, schedule } = parseIdentifyResponse(text);

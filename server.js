@@ -378,8 +378,8 @@ app.post('/identify', async (req, res) => {
         }
         const data = await apiRes.json();
         const full = data.choices?.[0]?.message?.content || '';
-        const { description, schedule } = parseIdentifyResponse(full);
-        res.send({ description, schedule });
+        const { description, schedule, commonName } = parseIdentifyResponse(full);
+        res.send({ description, schedule, commonName });
     } catch (err) {
         console.error('Identify error', err);
         res.status(500).send('Error identifying plant');

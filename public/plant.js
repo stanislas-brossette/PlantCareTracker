@@ -445,6 +445,31 @@ document.addEventListener('DOMContentLoaded', async () => {
         setTimeout(() => { window.location.href = 'index.html'; }, 1000);
     };
 
+    const extractCommonName = (text) => {
+        const match = /Nom\s+commun\s*:\s*([^\n]+)/i.exec(text || '');
+        return match ? match[1].replace(/\*+/g, '').trim() : null;
+    };
+
+    const renamePlant = async (newName) => {
+        if (!newName || newName === name) return;
+        const res = await fetch(`/plants/${encodeURIComponent(name)}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: newName })
+        });
+        if (!res.ok) return;
+        if (plantCache[name]) {
+            plantCache[newName] = { ...plantCache[name], name: newName };
+            delete plantCache[name];
+        }
+        const idx = plantNames.indexOf(name);
+        if (idx !== -1) plantNames[idx] = newName;
+        name = newName;
+        plantNameElem.textContent = newName;
+        plantNameInput.value = newName;
+        history.replaceState({}, '', `plant.html?name=${encodeURIComponent(newName)}`);
+    };
+
     const identify = async () => {
         loadingElem.classList.remove('d-none');
         startLeafAnimation();
@@ -468,6 +493,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             updateDescDisplay();
             autoResize();
             await updateDescription(data.description);
+            if (/^Plant \d+$/.test(plantNameInput.value.trim())) {
+                const newName = data.commonName || extractCommonName(data.description);
+                if (newName) await renamePlant(newName);
+            }
         }
         if (data.schedule) {
             const sched = data.schedule;

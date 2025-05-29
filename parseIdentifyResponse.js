@@ -1,3 +1,10 @@
+function extractCommonName(text) {
+    if (typeof text !== 'string') text = String(text || '');
+    const match = /Nom\s+commun\s*:\s*([^\n]+)/i.exec(text);
+    if (!match) return null;
+    return match[1].replace(/\*+/g, '').trim();
+}
+
 function parseIdentifyResponse(full) {
     if (typeof full !== 'string') full = String(full || '');
     const match = /```(?:json)?\s*([\s\S]+?)\s*```/i.exec(full);
@@ -15,7 +22,9 @@ function parseIdentifyResponse(full) {
         .replace(/^(?:\s*#+.*\n)+/, '') // strip leading markdown headings
         .replace(/^\s*-+\s*\n/, '')    // strip delimiter line
         .trim();
-    return { description, schedule };
+    const commonName = extractCommonName(description);
+    return { description, schedule, commonName };
 }
 
 module.exports = parseIdentifyResponse;
+module.exports.extractCommonName = extractCommonName;
