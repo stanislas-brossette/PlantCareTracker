@@ -35,7 +35,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const trail = document.createElement('img');
         trail.src = loadingLeaf.src;
         trail.className = 'leaf-trail';
-        trail.style.transform = `translate(${leafX}px, ${leafY}px)`;
+        trail.style.left = `${leafX}px`;
+        trail.style.top = `${leafY}px`;
         loadingElem.appendChild(trail);
         setTimeout(() => trail.remove(), 1000);
 
