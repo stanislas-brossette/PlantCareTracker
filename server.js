@@ -341,9 +341,14 @@ app.post('/identify', async (req, res) => {
         return res.status(400).send('Image is required');
     }
     try {
-        const filePath = path.join(__dirname, 'public', image);
-        const buffer = fs.readFileSync(filePath);
-        const base64 = buffer.toString('base64');
+        let base64;
+        if (/^data:image\/\w+;base64,/.test(image)) {
+            base64 = image.split(',')[1];
+        } else {
+            const filePath = path.join(__dirname, 'public', image);
+            const buffer = fs.readFileSync(filePath);
+            base64 = buffer.toString('base64');
+        }
         const apiRes = await fetch('https://api.openai.com/v1/chat/completions', {
             method: 'POST',
             headers: {

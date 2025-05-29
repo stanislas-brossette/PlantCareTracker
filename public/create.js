@@ -10,6 +10,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const galleryFileElem = document.getElementById('galleryFile');
     const cameraBtn = document.getElementById('camera-btn');
     const galleryBtn = document.getElementById('gallery-btn');
+    const identifyBtn = document.getElementById('identify');
+    const loadingElem = document.getElementById('loading');
+    const loadingLeaf = document.getElementById('loading-leaf');
     const scheduleBody = document.querySelector('#schedule-table tbody');
 
     const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -18,6 +21,42 @@ document.addEventListener('DOMContentLoaded', () => {
     const feedingMinInputs = [];
     const feedingMaxInputs = [];
     let imageData = null;
+    let leafInterval;
+    let leafX = 0;
+    let leafY = 0;
+    let identifying = false;
+
+    const moveLeaf = () => {
+        const maxX = window.innerWidth - 40;
+        const maxY = window.innerHeight - 40;
+        const newX = Math.random() * maxX;
+        const newY = Math.random() * maxY;
+
+        const trail = document.createElement('img');
+        trail.src = loadingLeaf.src;
+        trail.className = 'leaf-trail';
+        trail.style.transform = `translate(${leafX}px, ${leafY}px)`;
+        loadingElem.appendChild(trail);
+        setTimeout(() => trail.remove(), 1000);
+
+        leafX = newX;
+        leafY = newY;
+        loadingLeaf.style.transform = `translate(${newX}px, ${newY}px) rotate(${Math.random()*360}deg)`;
+    };
+
+    const startLeafAnimation = () => {
+        moveLeaf();
+        leafInterval = setInterval(moveLeaf, 800);
+    };
+
+    const stopLeafAnimation = () => {
+        clearInterval(leafInterval);
+    };
+
+    const autoResize = () => {
+        descElem.style.height = 'auto';
+        descElem.style.height = descElem.scrollHeight + 'px';
+    };
 
     const parseFreqValue = (val) => {
         const num = parseInt(val, 10);
@@ -170,6 +209,64 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => messageElem.classList.add('d-none'), 3000);
     };
 
+    const extractCommonName = (text) => {
+        const match = /Nom\s+commun\s*:\s*([^\n]+)/i.exec(text || '');
+        return match ? match[1].replace(/\*+/g, '').trim() : null;
+    };
+
+    const identify = async () => {
+        const img = imageData || imageElem.getAttribute('src');
+        if (!img || img === 'images/placeholder.png') {
+            alert('Please add a photo first');
+            return;
+        }
+        identifying = true;
+        loadingElem.classList.remove('d-none');
+        loadingElem.classList.add('blocking');
+        startLeafAnimation();
+        identifyBtn.disabled = true;
+        const res = await fetch('/identify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: img })
+        });
+        stopLeafAnimation();
+        identifying = false;
+        loadingElem.classList.remove('blocking');
+        loadingElem.classList.add('d-none');
+        identifyBtn.disabled = false;
+        if (!res.ok) {
+            alert('Error identifying plant');
+            return;
+        }
+        const data = await res.json();
+        try { await navigator.clipboard.writeText(data.description); } catch(e){}
+        if (confirm(`${data.description}\n\nMettre \u00e0 jour la description ?`)) {
+            descElem.value = data.description;
+            autoResize();
+        }
+        if (!nameInput.value.trim()) {
+            const newName = data.commonName || extractCommonName(data.description);
+            if (newName) nameInput.value = newName;
+        }
+        if (data.schedule) {
+            const sched = data.schedule;
+            const table = months.map((m,i)=>{
+                const wMin = sched.wateringMin?.[i];
+                const wMax = sched.wateringMax?.[i];
+                const fMin = sched.feedingMin?.[i];
+                const fMax = sched.feedingMax?.[i];
+                return `${m}: W ${wMin ?? '-'}-${wMax ?? '-'} | F ${fMin ?? '-'}-${fMax ?? '-'}`;
+            }).join('\n');
+            if (confirm(`${table}\n\nMettre \u00e0 jour le planning ?`)) {
+                (sched.wateringMin || []).forEach((v,i)=>{ if(wateringMinInputs[i]) wateringMinInputs[i].value = v ?? ''; });
+                (sched.wateringMax || []).forEach((v,i)=>{ if(wateringMaxInputs[i]) wateringMaxInputs[i].value = v ?? ''; });
+                (sched.feedingMin || []).forEach((v,i)=>{ if(feedingMinInputs[i]) feedingMinInputs[i].value = v ?? ''; });
+                (sched.feedingMax || []).forEach((v,i)=>{ if(feedingMaxInputs[i]) feedingMaxInputs[i].value = v ?? ''; });
+            }
+        }
+    };
+
     const save = async () => {
         const body = {
             name: nameInput.value.trim(),
@@ -204,6 +301,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     addLocationBtn.addEventListener('click', addLocation);
     saveBtn.addEventListener('click', save);
+    if (identifyBtn) identifyBtn.addEventListener('click', identify);
+    descElem.addEventListener('input', autoResize);
+    autoResize();
 
     loadLocations();
 });

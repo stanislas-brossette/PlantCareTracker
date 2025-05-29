@@ -12,6 +12,9 @@
     <a href="index.html" class="btn btn-link my-2">&larr; Back to Dashboard</a>
     <input type="text" id="plant-name-input" class="form-control mb-4" placeholder="Plant name" />
     <div id="message" class="alert d-none" role="alert"></div>
+    <div id="loading" class="d-none">
+        <img id="loading-leaf" src="images/placeholder.png" alt="Loading" />
+    </div>
     <div class="row gy-3">
         <div class="col-md-4 text-center position-relative">
             <img id="plant-image" src="images/placeholder.png" alt="Plant image" class="img-fluid mb-2" />
@@ -59,7 +62,10 @@
                     </div>
                 </div>
             </div>
-            <button id="save" class="btn btn-primary">Save</button>
+            <div class="d-flex mb-3">
+                <button id="identify" class="btn btn-outline-success me-2">Identify Plant</button>
+                <button id="save" class="btn btn-primary">Save</button>
+            </div>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
