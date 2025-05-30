@@ -2,16 +2,61 @@
     // Base URL of the backend API. Update if the server IP or port changes.
     window.API_BASE = window.API_BASE || 'http://192.168.1.20:3000';
     const origFetch = window.fetch.bind(window);
-    window.fetch = function(input, init){
+
+    async function handleOffline(url, init){
+        const path = new URL(url, window.API_BASE).pathname;
+        if (path === '/plants') {
+            const data = await window.offlineCache.getPlants();
+            if (data) return new Response(JSON.stringify(data), { headers: {'Content-Type':'application/json'} });
+        }
+        if (path === '/locations') {
+            const data = await window.offlineCache.getLocations();
+            if (data) return new Response(JSON.stringify(data), { headers: {'Content-Type':'application/json'} });
+        }
+        if (path === '/lastClickedTimes') {
+            const data = await window.offlineCache.getTimes();
+            if (data) return new Response(JSON.stringify(data), { headers: {'Content-Type':'application/json'} });
+        }
+        if (path === '/clicked') {
+            const body = JSON.parse(init?.body || '{}');
+            const now = new Date().toISOString();
+            await window.offlineCache.updateTime(body.buttonId, now);
+            await window.offlineCache.queueRequest('/clicked', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({buttonId: body.buttonId}) });
+            return new Response(JSON.stringify({ lastClickedTime: now }), { headers: {'Content-Type':'application/json'} });
+        }
+        if (path === '/undo') {
+            const body = JSON.parse(init?.body || '{}');
+            await window.offlineCache.updateTime(body.buttonId, body.previousTime);
+            await window.offlineCache.queueRequest('/undo', { method:'POST', headers:{'Content-Type':'application/json'}, body: init.body });
+            return new Response(JSON.stringify({ lastClickedTime: body.previousTime || null }), { headers: {'Content-Type':'application/json'} });
+        }
+        return Promise.reject('offline');
+    }
+
+    window.fetch = async function(input, init){
         try {
             if (typeof input === 'string' && input.startsWith('/')) {
                 input = window.API_BASE + input;
             } else if (input instanceof Request && input.url.startsWith('/')) {
                 input = new Request(window.API_BASE + input.url, input);
             }
-        } catch (e) {
-            // ignore and fall back to original input
+        } catch (e) {}
+
+        if (!navigator.onLine) {
+            try {
+                return await handleOffline(typeof input === 'string' ? input : input.url, init);
+            } catch(e){}
         }
-        return origFetch(input, init);
+
+        const res = await origFetch(input, init);
+        const path = new URL(typeof input === 'string' ? input : input.url).pathname;
+        if (navigator.onLine && res.ok) {
+            if (path === '/plants') res.clone().json().then(window.offlineCache.savePlants).catch(()=>{});
+            else if (path === '/locations') res.clone().json().then(window.offlineCache.saveLocations).catch(()=>{});
+            else if (path === '/lastClickedTimes') res.clone().json().then(window.offlineCache.saveTimes).catch(()=>{});
+        }
+        return res;
     };
+
+    window.addEventListener('online', () => window.offlineCache.flushQueue());
 })();

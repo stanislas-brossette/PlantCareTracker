@@ -47,3 +47,19 @@ The backend API must be hosted separately and reachable from the device running 
 
 ## Configure API URL
 Edit `public/config.js` to point to your server's IP address and port. By default it uses `http://192.168.1.20:3000`.
+
+## Offline Mode
+The Android build caches plant data, images and button state using Capacitor's
+Storage and Filesystem plugins. The first time the app runs while online it
+downloads `/plants`, `/locations` and `/lastClickedTimes` and stores the
+results locally. Images are saved to the app's data directory so they can be
+displayed even when no connection is available. Any watering or feeding actions
+performed offline are queued and automatically sent to the server once
+connectivity is restored.
+
+Install the plugins and resync Capacitor if you haven't already:
+
+```bash
+npm install @capacitor/storage @capacitor/filesystem
+npm run cap:sync
+```
