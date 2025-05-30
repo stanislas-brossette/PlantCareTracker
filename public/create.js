@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const photo = await cam.getPhoto({
                     resultType: 'dataUrl',
-                    source: 'camera',
+                    source: 'CAMERA',
                     quality: 80,
                     width: 600
                 });
