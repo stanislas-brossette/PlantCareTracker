@@ -155,6 +155,27 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
+    const takePhoto = async () => {
+        const cam = window.Capacitor?.Plugins?.Camera;
+        if (cam && window.Capacitor?.isNativePlatform?.()) {
+            try {
+                const photo = await cam.getPhoto({
+                    resultType: 'dataUrl',
+                    source: 'camera',
+                    quality: 80,
+                    width: 600
+                });
+                imageData = photo.dataUrl;
+                imageElem.src = imageData;
+                delete imageElem.dataset.path;
+                return;
+            } catch (err) {
+                console.error('Camera capture failed', err);
+            }
+        }
+        cameraFileElem.click();
+    };
+
     if (cameraFileElem) {
         cameraFileElem.addEventListener('change', () => handleFileChange(cameraFileElem));
     }
@@ -162,7 +183,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         galleryFileElem.addEventListener('change', () => handleFileChange(galleryFileElem));
     }
 
-    if (cameraBtn) cameraBtn.addEventListener('click', () => cameraFileElem.click());
+    if (cameraBtn) cameraBtn.addEventListener('click', takePhoto);
     if (galleryBtn) galleryBtn.addEventListener('click', () => galleryFileElem.click());
 
     descElem.addEventListener('input', autoResize);

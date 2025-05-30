@@ -19,6 +19,14 @@ This project uses [Capacitor](https://capacitorjs.com/) to package the existing 
    ```bash
    npm run cap:add
    ```
+4. Install the Capacitor Camera plugin (if not already installed):
+   ```bash
+   npm install @capacitor/camera
+   ```
+5. Sync Capacitor to install native plugins:
+   ```bash
+   npm run cap:sync
+   ```
 
 ## Building and Running
 1. Build the frontend (no compilation needed for plain HTML/JS):

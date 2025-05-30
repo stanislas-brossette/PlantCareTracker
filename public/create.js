@@ -139,7 +139,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    cameraBtn.addEventListener('click', () => cameraFileElem.click());
+    const takePhoto = async () => {
+        const cam = window.Capacitor?.Plugins?.Camera;
+        if (cam && window.Capacitor?.isNativePlatform?.()) {
+            try {
+                const photo = await cam.getPhoto({
+                    resultType: 'dataUrl',
+                    source: 'camera',
+                    quality: 80,
+                    width: 600
+                });
+                imageData = photo.dataUrl;
+                imageElem.src = imageData;
+                return;
+            } catch (err) {
+                console.error('Camera capture failed', err);
+            }
+        }
+        cameraFileElem.click();
+    };
+
+    cameraBtn.addEventListener('click', takePhoto);
     galleryBtn.addEventListener('click', () => galleryFileElem.click());
     cameraFileElem.addEventListener('change', () => handleFileChange(cameraFileElem));
     galleryFileElem.addEventListener('change', () => handleFileChange(galleryFileElem));
