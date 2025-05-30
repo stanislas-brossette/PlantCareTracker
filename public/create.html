@@ -24,6 +24,13 @@
             </div>
             <input type="file" id="cameraFile" class="form-control d-none" accept="image/*" capture="environment" />
             <input type="file" id="galleryFile" class="form-control d-none" accept="image/*" />
+            <div id="camera-overlay" class="d-none">
+                <video id="camera-video" autoplay playsinline></video>
+                <div class="mt-2">
+                    <button id="camera-capture" type="button" class="btn btn-primary me-2">Capture</button>
+                    <button id="camera-close" type="button" class="btn btn-secondary">Cancel</button>
+                </div>
+            </div>
         </div>
         <div class="col-md-8">
             <div class="d-flex align-items-start mb-3">

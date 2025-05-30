@@ -18,6 +18,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const galleryFileElem = document.getElementById('galleryFile');
     const cameraBtn = document.getElementById('camera-btn');
     const galleryBtn = document.getElementById('gallery-btn');
+    const cameraOverlay = document.getElementById('camera-overlay');
+    const cameraVideo = document.getElementById('camera-video');
+    const cameraCapture = document.getElementById('camera-capture');
+    const cameraClose = document.getElementById('camera-close');
+    let cameraStream = null;
     const descElem = document.getElementById('description');
     const descDisplay = document.getElementById('description-display');
     const locationSelect = document.getElementById('location-select');
@@ -134,8 +139,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 200);
     };
 
-    const handleFileChange = async (input) => {
-        const file = input.files[0];
+    const handleFile = async (file) => {
         if (!file) { imageData = null; return; }
         try {
             imageData = await resizeImage(file);
@@ -145,6 +149,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
+    const handleFileChange = (input) => handleFile(input.files[0]);
+
     if (cameraFileElem) {
         cameraFileElem.addEventListener('change', () => handleFileChange(cameraFileElem));
     }
@@ -152,7 +158,42 @@ document.addEventListener('DOMContentLoaded', async () => {
         galleryFileElem.addEventListener('change', () => handleFileChange(galleryFileElem));
     }
 
-    if (cameraBtn) cameraBtn.addEventListener('click', () => cameraFileElem.click());
+    const openCamera = async () => {
+        try {
+            cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+            cameraVideo.srcObject = cameraStream;
+            cameraOverlay.classList.remove('d-none');
+        } catch (e) {
+            console.error('Camera access failed', e);
+            cameraFileElem && cameraFileElem.click();
+        }
+    };
+
+    const closeCamera = () => {
+        if (cameraStream) {
+            cameraStream.getTracks().forEach(t => t.stop());
+            cameraStream = null;
+        }
+        cameraOverlay.classList.add('d-none');
+    };
+
+    if (cameraCapture) {
+        cameraCapture.addEventListener('click', () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = cameraVideo.videoWidth;
+            canvas.height = cameraVideo.videoHeight;
+            canvas.getContext('2d').drawImage(cameraVideo, 0, 0);
+            canvas.toBlob(blob => {
+                closeCamera();
+                const file = new File([blob], 'capture.jpg', { type: 'image/jpeg' });
+                handleFile(file);
+            }, 'image/jpeg', 0.95);
+        });
+    }
+
+    if (cameraClose) cameraClose.addEventListener('click', closeCamera);
+
+    if (cameraBtn) cameraBtn.addEventListener('click', openCamera);
     if (galleryBtn) galleryBtn.addEventListener('click', () => galleryFileElem.click());
 
     descElem.addEventListener('input', autoResize);
