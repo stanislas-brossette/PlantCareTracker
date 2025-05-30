@@ -32,6 +32,15 @@ document.addEventListener('DOMContentLoaded', () => {
         currentIndex = locations.indexOf(stored);
     };
 
+    const resolveImageUrl = (src) => {
+        if (!src) return src;
+        if (/^https?:\/\//.test(src) || src.startsWith('data:')) return src;
+        if (window.API_BASE) {
+            return window.API_BASE.replace(/\/$/, '') + '/' + src.replace(/^\/+/, '');
+        }
+        return src;
+    };
+
     const renderPlants = () => {
         while (plantsTable.rows.length > 1) {
             plantsTable.deleteRow(1);
@@ -46,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
             container.className = 'plant-photo-container';
 
             const img = document.createElement('img');
-            img.src = plant.image;
+            img.src = resolveImageUrl(plant.image);
             img.alt = `${plant.name} image`;
             img.className = 'plant-photo';
 

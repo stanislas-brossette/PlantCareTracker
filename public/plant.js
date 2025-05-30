@@ -34,6 +34,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     let identifying = false;
     const { startLeafAnimation, stopLeafAnimation } = createLeafAnimator(loadingElem, loadingLeaf, { tinyLeafDuration: 2000 });
 
+    const resolveImageUrl = (src) => {
+        if (!src) return src;
+        if (/^https?:\/\//.test(src) || src.startsWith('data:')) return src;
+        if (window.API_BASE) {
+            return window.API_BASE.replace(/\/$/, '') + '/' + src.replace(/^\/+/, '');
+        }
+        return src;
+    };
+
     const autoResize = () => {
         descElem.style.height = 'auto';
         descElem.style.height = descElem.scrollHeight + 'px';
@@ -140,6 +149,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         try {
             imageData = await resizeImage(file);
             imageElem.src = imageData;
+            delete imageElem.dataset.path;
         } catch (e) {
             console.error('Image resize failed', e);
         }
@@ -276,7 +286,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const displayPlant = (plant) => {
         plantNameElem.textContent = plant.name;
         plantNameInput.value = plant.name;
-        imageElem.src = plant.image;
+        imageElem.dataset.path = plant.image;
+        imageElem.src = resolveImageUrl(plant.image);
         descElem.value = plant.description || '';
         updateDescDisplay();
         autoResize();
@@ -305,7 +316,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const plant = await fetchPlant(plantName);
             if (plant) {
                 const img = new Image();
-                img.src = plant.image;
+                img.src = resolveImageUrl(plant.image);
                 preloaded.add(plantName);
             }
         } catch (err) {
@@ -451,10 +462,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         loadingElem.classList.add('blocking');
         startLeafAnimation();
         identifyBtn.disabled = true;
+        const imgParam = imageData || imageElem.dataset.path || imageElem.getAttribute('src');
         const res = await fetch('/identify', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ image: imageElem.getAttribute('src') })
+            body: JSON.stringify({ image: imgParam })
         });
         stopLeafAnimation();
         identifying = false;
