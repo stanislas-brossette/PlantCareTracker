@@ -9,6 +9,17 @@
             const data = await window.offlineCache.getPlants();
             if (data) return new Response(JSON.stringify(data), { headers: {'Content-Type':'application/json'} });
         }
+        const plantMatch = path.match(/^\/plants\/(.+)$/);
+        if (plantMatch) {
+            const name = decodeURIComponent(plantMatch[1]);
+            const list = await window.offlineCache.getPlants();
+            if (Array.isArray(list)) {
+                const plant = list.find(p => p.name === name);
+                if (plant) {
+                    return new Response(JSON.stringify(plant), { headers: {'Content-Type':'application/json'} });
+                }
+            }
+        }
         if (path === '/locations') {
             const data = await window.offlineCache.getLocations();
             if (data) return new Response(JSON.stringify(data), { headers: {'Content-Type':'application/json'} });
