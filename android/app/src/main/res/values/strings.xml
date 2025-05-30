@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">PlantCareTracker</string>
+    <string name="title_activity_main">PlantCareTracker</string>
+    <string name="package_name">com.stanislas.plantcaretracker</string>
+    <string name="custom_url_scheme">com.stanislas.plantcaretracker</string>
+</resources>
