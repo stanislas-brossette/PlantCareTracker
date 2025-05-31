@@ -225,4 +225,29 @@ describe('Server endpoints', () => {
     await request(app).post('/clicked').send({ buttonId: `button-${oldName}-Arrosage` });
     await request(app).post('/clicked').send({ buttonId: `button-${oldName}-Engrais` });
   });
+
+  test('GET /plants/changes returns recent updates', async () => {
+    const before = Date.now() - 1;
+    await request(app).post('/plants').send({
+      name: 'ChangePlant',
+      wateringMin: Array(12).fill(1),
+      wateringMax: Array(12).fill(1),
+      feedingMin: Array(12).fill(1),
+      feedingMax: Array(12).fill(1),
+      image: 'images/placeholder.png',
+      location: 'TestArea'
+    });
+    const res = await request(app).get('/plants/changes?since=' + before);
+    expect(res.statusCode).toBe(200);
+    await request(app).delete('/plants/ChangePlant');
+  });
+
+  test('POST /bulk processes multiple ops', async () => {
+    const ops = [
+      { method: 'POST', url: '/plants', body: { name: 'BulkPlant', wateringMin: Array(12).fill(1), wateringMax: Array(12).fill(1), feedingMin: Array(12).fill(1), feedingMax: Array(12).fill(1), image: 'images/placeholder.png', location: 'TestArea' } },
+      { method: 'DELETE', url: '/plants/BulkPlant' }
+    ];
+    const res = await request(app).post('/bulk').send(ops);
+    expect(res.statusCode).toBe(200);
+  });
 });
