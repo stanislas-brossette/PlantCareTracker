@@ -62,9 +62,15 @@
         const res = await origFetch(input, init);
         const path = new URL(typeof input === 'string' ? input : input.url).pathname;
         if (navigator.onLine && res.ok) {
-            if (path === '/plants') res.clone().json().then(window.offlineCache.savePlants).catch(()=>{});
-            else if (path === '/locations') res.clone().json().then(window.offlineCache.saveLocations).catch(()=>{});
-            else if (path === '/lastClickedTimes') res.clone().json().then(window.offlineCache.saveTimes).catch(()=>{});
+            if (path === '/plants') {
+                res.clone().json().then(window.offlineCache.savePlants).catch(()=>{});
+            } else if (/^\/plants\/.+/.test(path)) {
+                res.clone().json().then(window.offlineCache.savePlant).catch(()=>{});
+            } else if (path === '/locations') {
+                res.clone().json().then(window.offlineCache.saveLocations).catch(()=>{});
+            } else if (path === '/lastClickedTimes') {
+                res.clone().json().then(window.offlineCache.saveTimes).catch(()=>{});
+            }
         }
         return res;
     };

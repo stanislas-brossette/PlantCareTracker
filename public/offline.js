@@ -35,6 +35,29 @@
         });
     }
 
+    async function embedImages(plants){
+        return await Promise.all(plants.map(async p => {
+            if (p.image && !/^data:/.test(p.image) && !/^https?:/.test(p.image)) {
+                try {
+                    const url = (window.API_BASE || '').replace(/\/$/, '') + '/' + p.image.replace(/^\//,'');
+                    const blob = await fetch(url).then(r => r.blob());
+                    const dataUrl = await toBase64(blob);
+                    if (Filesystem) {
+                        const extMatch = /^data:image\/([^;]+);/.exec(dataUrl);
+                        const ext = extMatch ? extMatch[1] : 'jpg';
+                        const fileName = `plant_${encodeURIComponent(p.name)}.${ext}`;
+                        await Filesystem.writeFile({ path: fileName, data: dataUrl.split(',')[1], directory: Directory });
+                        const { uri } = await Filesystem.getUri({ path: fileName, directory: Directory });
+                        p.image = uri;
+                    } else {
+                        p.image = dataUrl;
+                    }
+                } catch(err){ console.error('cache image', err); }
+            }
+            return p;
+        }));
+    }
+
     async function cacheInitial(){
         try {
             const [pRes, lRes, tRes] = await Promise.all([
@@ -46,26 +69,7 @@
             const locs = await lRes.json();
             const times = await tRes.json();
 
-            plants = await Promise.all(plants.map(async p => {
-                if (p.image && !/^data:/.test(p.image) && !/^https?:/.test(p.image)) {
-                    try {
-                        const url = (window.API_BASE || '').replace(/\/$/, '') + '/' + p.image.replace(/^\//,'');
-                        const blob = await fetch(url).then(r => r.blob());
-                        const dataUrl = await toBase64(blob);
-                        if (Filesystem) {
-                            const extMatch = /^data:image\/([^;]+);/.exec(dataUrl);
-                            const ext = extMatch ? extMatch[1] : 'jpg';
-                            const fileName = `plant_${encodeURIComponent(p.name)}.${ext}`;
-                            await Filesystem.writeFile({ path: fileName, data: dataUrl.split(',')[1], directory: Directory });
-                            const { uri } = await Filesystem.getUri({ path: fileName, directory: Directory });
-                            p.image = uri;
-                        } else {
-                            p.image = dataUrl;
-                        }
-                    } catch(err){ console.error('cache image', err); }
-                }
-                return p;
-            }));
+            plants = await embedImages(plants);
 
             await set(KEYS.plants, plants);
             await set(KEYS.locations, locs);
@@ -124,12 +128,26 @@
         await set(KEYS.times, times);
     }
 
+    async function savePlants(plants){
+        plants = await embedImages(plants);
+        await set(KEYS.plants, plants);
+    }
+
+    async function savePlant(plant){
+        const list = await get(KEYS.plants) || [];
+        const [processed] = await embedImages([plant]);
+        const idx = list.findIndex(p => p.name === processed.name);
+        if (idx !== -1) list[idx] = processed; else list.push(processed);
+        await set(KEYS.plants, list);
+    }
+
     window.offlineCache = {
         init: cacheInitial,
         getPlants: () => get(KEYS.plants),
         getLocations: () => get(KEYS.locations),
         getTimes: () => get(KEYS.times),
-        savePlants: val => set(KEYS.plants, val),
+        savePlants,
+        savePlant,
         saveLocations: val => set(KEYS.locations, val),
         saveTimes: val => set(KEYS.times, val),
         queueRequest,
