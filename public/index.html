@@ -26,6 +26,11 @@
     <button id="undo" class="btn btn-secondary mt-3 ms-3">Undo</button>
     <script src="config.js"></script>
     <script src="offline.js"></script>
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
+    <script>
+    if ('serviceWorker' in navigator){
+      navigator.serviceWorker.register('/sw.js');
+    }
+    </script>
 </body>
 </html>

@@ -1,3 +1,7 @@
+import { api } from './js/api.js';
+import { readLocations, cacheLocations } from './js/storage.js';
+import { sync } from './js/sync.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     const listElem = document.getElementById('locations-list');
     const newInput = document.getElementById('new-location');
@@ -13,8 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
             del.className = 'btn btn-sm btn-danger';
             del.textContent = 'Delete';
             del.onclick = async () => {
-                const res = await fetch(`/locations/${encodeURIComponent(loc)}`, { method: 'DELETE' });
-                if (res.ok) load();
+                const res = await api('DELETE', `/locations/${encodeURIComponent(loc)}`);
+                if (!res.offline) load();
             };
             li.appendChild(del);
             listElem.appendChild(li);
@@ -22,23 +26,24 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const load = async () => {
-        const res = await fetch('/locations');
-        const data = await res.json();
-        render(data);
+        // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/locations')`
+        const cached = await readLocations();
+        render(cached);
+        const data = await api('GET', '/locations');
+        if (!data.offline) {
+            await cacheLocations(data);
+            render(data);
+        }
     };
 
     const add = async () => {
         const name = newInput.value.trim();
         if (!name) return;
-        await fetch('/locations', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name })
-        });
+        await api('POST', '/locations', { name });
         newInput.value = '';
         load();
     };
 
     addBtn.addEventListener('click', add);
-    load();
+    load().then(sync);
 });
