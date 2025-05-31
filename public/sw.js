@@ -12,6 +12,7 @@ const PRECACHE = [
   '/styles.css',
   '/leafAnimations.js',
   '/config.js',
+  '/offline.js',
   '/offlineData.js'
 ];
 
