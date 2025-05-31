@@ -1,3 +1,7 @@
+import { api } from './js/api.js';
+import { readLocations, cacheLocations } from './js/storage.js';
+import { sync } from './js/sync.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     const nameInput = document.getElementById('plant-name-input');
     const descElem = document.getElementById('description');
@@ -165,27 +169,31 @@ document.addEventListener('DOMContentLoaded', () => {
     galleryFileElem.addEventListener('change', () => handleFileChange(galleryFileElem));
 
     const loadLocations = async () => {
-        const res = await fetch('/locations');
-        const list = await res.json();
-        locationSelect.innerHTML = '';
-        list.forEach(loc => {
-            const opt = document.createElement('option');
-            opt.value = loc;
-            opt.textContent = loc;
-            locationSelect.appendChild(opt);
-        });
-        const stored = localStorage.getItem('currentLocation');
-        if (stored && list.includes(stored)) locationSelect.value = stored;
+        // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/locations')`
+        const cached = await readLocations();
+        const render = (list) => {
+            locationSelect.innerHTML = '';
+            list.forEach(loc => {
+                const opt = document.createElement('option');
+                opt.value = loc;
+                opt.textContent = loc;
+                locationSelect.appendChild(opt);
+            });
+            const stored = localStorage.getItem('currentLocation');
+            if (stored && list.includes(stored)) locationSelect.value = stored;
+        };
+        render(cached);
+        const list = await api('GET', '/locations');
+        if (!list.offline) {
+            await cacheLocations(list);
+            render(list);
+        }
     };
 
     const addLocation = async () => {
         const name = prompt('New location name');
         if (!name) return;
-        await fetch('/locations', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name })
-        });
+        await api('POST', '/locations', { name });
         const opt = document.createElement('option');
         opt.value = name;
         opt.textContent = name;
@@ -216,21 +224,17 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingElem.classList.add('blocking');
         startLeafAnimation();
         identifyBtn.disabled = true;
-        const res = await fetch('/identify', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ image: img })
-        });
+        const res = await api('POST', '/identify', { image: img });
         stopLeafAnimation();
         identifying = false;
         loadingElem.classList.remove('blocking');
         loadingElem.classList.add('d-none');
         identifyBtn.disabled = false;
-        if (!res.ok) {
+        if (!res || res.offline) {
             alert('Error identifying plant');
             return;
         }
-        const data = await res.json();
+        const data = res;
         try { await navigator.clipboard.writeText(data.description); } catch(e){}
         if (confirm(`${data.description}\n\nMettre \u00e0 jour la description ?`)) {
             descElem.value = data.description;
@@ -273,20 +277,15 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             body.image = imageElem.getAttribute('src');
         }
-        const res = await fetch('/plants', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body)
-        });
-        if (res.ok) {
-            const created = await res.json();
+        const res = await api('POST', '/plants', body);
+        if (!res.offline) {
+            const created = res;
             showMessage('Created', 'success');
             setTimeout(() => {
                 window.location.href = `plant.html?name=${encodeURIComponent(created.name)}`;
             }, 1000);
         } else {
-            const text = await res.text();
-            showMessage('Error: ' + text, 'danger');
+            showMessage('Error: offline', 'danger');
         }
     };
 
@@ -296,5 +295,5 @@ document.addEventListener('DOMContentLoaded', () => {
     descElem.addEventListener('input', autoResize);
     autoResize();
 
-    loadLocations();
+    loadLocations().then(sync);
 });

@@ -1,5 +1,6 @@
 const express = require('express');
 const fs = require('fs');
+const { randomUUID } = require('crypto');
 const app = express();
 const port = 3000;
 const path = require('path');
@@ -54,6 +55,8 @@ function readPlants() {
     let changed = false;
     plants.forEach(p => {
         if (!p.location) { p.location = defaultLoc; changed = true; }
+        if (!p.uuid){ p.uuid = randomUUID(); changed = true; }
+        if (!p.updatedAt){ p.updatedAt = Date.now(); changed = true; }
     });
     if (changed) writePlants();
 }
@@ -120,6 +123,7 @@ app.use((req, res, next) => {
 });
 // Increase JSON body size limit to handle base64 images
 app.use(express.json({ limit: '10mb' }));
+app.use((req,res,next)=>{ if(['POST','PUT','DELETE'].includes(req.method)) req.updatedAt = Date.now(); next(); });
 
 function isValidFreqArray(arr) {
     return Array.isArray(arr) &&
@@ -205,6 +209,12 @@ app.get('/plants', (req, res) => {
     res.send(visiblePlants);
 });
 
+app.get('/plants/changes', (req, res) => {
+    const since = parseInt(req.query.since || '0', 10);
+    const changed = plants.filter(p => p.updatedAt > since);
+    res.send({ plants: changed });
+});
+
 app.get('/plants/:name', (req, res) => {
     const plant = plants.find(p => p.name === req.params.name);
     if (plant) {
@@ -259,7 +269,7 @@ app.put('/plants/:name', (req, res) => {
         locations.push(req.body.location);
         writeLocations();
     }
-    plants[index] = { ...plants[index], ...req.body };
+    plants[index] = { ...plants[index], ...req.body, updatedAt: req.updatedAt };
 
     if (req.body.archived === true) {
         const finalName = newName || req.params.name;
@@ -313,7 +323,9 @@ app.post('/plants', (req, res) => {
         feedingMin: newPlant.feedingMin || Array(12).fill(null),
         feedingMax: newPlant.feedingMax || Array(12).fill(null),
         image: newPlant.image || 'images/placeholder.png',
-        location: newPlant.location
+        location: newPlant.location,
+        uuid: randomUUID(),
+        updatedAt: req.updatedAt
     };
     if (!locations.includes(plantToAdd.location)) {
         locations.push(plantToAdd.location);
@@ -340,6 +352,24 @@ app.delete('/plants/:name', (req, res) => {
 
     writePlants();
     res.send(removed);
+});
+
+app.post('/bulk', async (req, res) => {
+    const ops = Array.isArray(req.body) ? req.body : [];
+    const results = [];
+    for (const op of ops){
+        try {
+            const r = await fetch(`http://localhost:${port}${op.url}`, {
+                method: op.method,
+                headers:{'Content-Type':'application/json'},
+                body: op.body ? JSON.stringify(op.body) : undefined
+            });
+            results.push({ status: r.status });
+        }catch(err){
+            results.push({ status: 500 });
+        }
+    }
+    res.send({ results });
 });
 
 app.post('/identify', async (req, res) => {

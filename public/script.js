@@ -1,3 +1,7 @@
+import { api } from './js/api.js';
+import { readPlants, cachePlants, readLocations, cacheLocations } from './js/storage.js';
+import { sync } from './js/sync.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     const plantsTable = document.getElementById('plantsTable');
     const undoBtn = document.getElementById('undo');
@@ -17,19 +21,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const buttonRefs = {};
 
     const loadLocations = async () => {
-        const res = await fetch('/locations');
-        const list = await res.json();
-        locations = ['All', ...list];
-        locationSelect.innerHTML = '';
-        locations.forEach(loc => {
-            const opt = document.createElement('option');
-            opt.value = loc;
-            opt.textContent = loc;
-            locationSelect.appendChild(opt);
-        });
-        const stored = localStorage.getItem('currentLocation') || 'All';
-        locationSelect.value = stored;
-        currentIndex = locations.indexOf(stored);
+        // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/locations')`
+        const cached = await readLocations();
+        const render = (list) => {
+            locations = ['All', ...list];
+            locationSelect.innerHTML = '';
+            locations.forEach(loc => {
+                const opt = document.createElement('option');
+                opt.value = loc;
+                opt.textContent = loc;
+                locationSelect.appendChild(opt);
+            });
+            const stored = localStorage.getItem('currentLocation') || 'All';
+            locationSelect.value = stored;
+            currentIndex = locations.indexOf(stored);
+        };
+        render(cached);
+        const list = await api('GET', '/locations');
+        if (!list.offline) {
+            await cacheLocations(list);
+            render(list);
+        }
     };
 
     const resolveImageUrl = (src) => {
@@ -93,9 +105,16 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const loadPlants = async () => {
-        const response = await fetch('/plants');
-        plants = await response.json();
+        // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/plants')`
+        const cached = await readPlants();
+        plants = cached;
         renderPlants();
+        const response = await api('GET', '/plants');
+        if (!response.offline) {
+            plants = response;
+            await cachePlants(response);
+            renderPlants();
+        }
         setInterval(refreshTimes, 60000);
     };
 
@@ -188,8 +207,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const getLastClickedTimes = async () => {
-        const response = await fetch('/lastClickedTimes');
-        const data = await response.json();
+        // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/lastClickedTimes')`
+        const data = await api('GET', '/lastClickedTimes');
         Object.entries(data).forEach(([buttonId, time]) => {
             if (buttonRefs[buttonId]) {
                 updateButtonState(buttonId, time);
@@ -202,28 +221,14 @@ document.addEventListener('DOMContentLoaded', () => {
         undoStack.push({ buttonId, prevTime });
         updateUndoBtn();
 
-        const response = await fetch('/clicked', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ buttonId }),
-        });
-        const data = await response.json();
+        const data = await api('POST', '/clicked', { buttonId });
         updateButtonState(buttonId, data.lastClickedTime);
     };
 
     const undoLast = async () => {
         if (undoStack.length === 0) return;
         const { buttonId, prevTime } = undoStack.pop();
-        const response = await fetch('/undo', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ buttonId, previousTime: prevTime })
-        });
-        const data = await response.json();
+        const data = await api('POST', '/undo', { buttonId, previousTime: prevTime });
         updateButtonState(buttonId, data.lastClickedTime);
         updateUndoBtn();
     };
@@ -242,5 +247,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     undoBtn.addEventListener('click', undoLast);
     updateUndoBtn();
-    loadLocations().then(loadPlants).then(initSwipe);
+    loadLocations().then(loadPlants).then(initSwipe).then(sync);
 });

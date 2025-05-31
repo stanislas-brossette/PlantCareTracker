@@ -1,3 +1,7 @@
+import { api } from './js/api.js';
+import { readPlants, cachePlants, readLocations, cacheLocations } from './js/storage.js';
+import { sync } from './js/sync.js';
+
 document.addEventListener('DOMContentLoaded', async () => {
     const params = new URLSearchParams(window.location.search);
     let name = params.get('name');
@@ -67,25 +71,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const loadLocations = async () => {
-        const res = await fetch('/locations');
-        const list = await res.json();
-        locationSelect.innerHTML = '';
-        list.forEach(loc => {
-            const opt = document.createElement('option');
-            opt.value = loc;
-            opt.textContent = loc;
-            locationSelect.appendChild(opt);
-        });
+        // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/locations')`
+        const cached = await readLocations();
+        const render = (list) => {
+            locationSelect.innerHTML = '';
+            list.forEach(loc => {
+                const opt = document.createElement('option');
+                opt.value = loc;
+                opt.textContent = loc;
+                locationSelect.appendChild(opt);
+            });
+        };
+        render(cached);
+        const list = await api('GET', '/locations');
+        if (!list.offline) {
+            await cacheLocations(list);
+            render(list);
+        }
     };
 
     const addLocation = async () => {
         const name = prompt('New location name');
         if (!name) return;
-        await fetch('/locations', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name })
-        });
+        await api('POST', '/locations', { name });
         const opt = document.createElement('option');
         opt.value = name;
         opt.textContent = name;
@@ -116,13 +124,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const fetchPlant = async (plantName) => {
         if (plantCache[plantName]) return plantCache[plantName];
-        const res = await fetch(`/plants/${encodeURIComponent(plantName)}`);
-        if (res.ok) {
-            const plant = await res.json();
+        const plant = await api('GET', `/plants/${encodeURIComponent(plantName)}`);
+        if (!plant.offline) {
             plantCache[plantName] = plant;
             return plant;
         }
-        return null;
+        return plantCache[plantName] || null;
     };
 
     const transitionToPlant = async (targetName, dir) => {
@@ -321,10 +328,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const loadPlantNames = async () => {
-        const res = await fetch('/plants');
-        if (res.ok) {
-            const list = await res.json();
+        // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/plants')`
+        const list = await api('GET', '/plants');
+        if (!list.offline) {
             const filtered = list.filter(p => !p.archived && (currentLocation === 'All' || p.location === currentLocation));
+            plantNames = filtered.map(p => p.name);
+            await cachePlants(list);
+        } else {
+            const cached = await readPlants();
+            const filtered = cached.filter(p => !p.archived && (currentLocation === 'All' || p.location === currentLocation));
             plantNames = filtered.map(p => p.name);
         }
     };
@@ -401,21 +413,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             location: locationSelect.value
         };
         if (imageData) { body.imageData = imageData; }
-        await fetch(`/plants/${encodeURIComponent(name)}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body)
-        });
+        await api('PUT', `/plants/${encodeURIComponent(name)}`, body);
         showMessage('Saved', 'success');
         setTimeout(() => { window.location.href = 'index.html'; }, 1000);
     };
 
     const updateDescription = async (text) => {
-        await fetch(`/plants/${encodeURIComponent(name)}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ description: text })
-        });
+        await api('PUT', `/plants/${encodeURIComponent(name)}`, { description: text });
         if (plantCache[name]) {
             plantCache[name].description = text;
         }
@@ -423,15 +427,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const updateSchedule = async (sched) => {
-        await fetch(`/plants/${encodeURIComponent(name)}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                wateringMin: sched.wateringMin,
-                wateringMax: sched.wateringMax,
-                feedingMin: sched.feedingMin,
-                feedingMax: sched.feedingMax
-            })
+        await api('PUT', `/plants/${encodeURIComponent(name)}`, {
+            wateringMin: sched.wateringMin,
+            wateringMax: sched.wateringMax,
+            feedingMin: sched.feedingMin,
+            feedingMax: sched.feedingMax
         });
         if (plantCache[name]) {
             plantCache[name].wateringMin = sched.wateringMin;
@@ -443,11 +443,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const archive = async () => {
-        await fetch(`/plants/${encodeURIComponent(name)}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ archived: true })
-        });
+        await api('PUT', `/plants/${encodeURIComponent(name)}`, { archived: true });
         showMessage('Archived', 'success');
         setTimeout(() => { window.location.href = 'index.html'; }, 1000);
     };
@@ -459,12 +455,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const renamePlant = async (newName) => {
         if (!newName || newName === name) return;
-        const res = await fetch(`/plants/${encodeURIComponent(name)}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: newName })
-        });
-        if (!res.ok) return;
+        const res = await api('PUT', `/plants/${encodeURIComponent(name)}`, { name: newName });
+        if (res.offline) return;
         if (plantCache[name]) {
             plantCache[newName] = { ...plantCache[name], name: newName };
             delete plantCache[name];
@@ -484,21 +476,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         startLeafAnimation();
         identifyBtn.disabled = true;
         const imgParam = imageData || imageElem.dataset.path || imageElem.getAttribute('src');
-        const res = await fetch('/identify', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ image: imgParam })
-        });
+        const res = await api('POST', '/identify', { image: imgParam });
         stopLeafAnimation();
         identifying = false;
         loadingElem.classList.remove('blocking');
         loadingElem.classList.add('d-none');
         identifyBtn.disabled = false;
-        if (!res.ok) {
+        if (!res || res.offline) {
             alert('Error identifying plant');
             return;
         }
-        const data = await res.json();
+        const data = res;
         try { await navigator.clipboard.writeText(data.description); } catch(e) {}
         if (confirm(`${data.description}\n\nMettre à jour la description ?`)) {
             descElem.value = data.description;
@@ -549,4 +537,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     initSwipe();
     await load(name);
     updateNavLinks();
+    sync();
 });
