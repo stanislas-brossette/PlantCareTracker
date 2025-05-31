@@ -5,6 +5,12 @@
 
     async function handleOffline(url, init){
         const path = new URL(url, window.API_BASE).pathname;
+        if (path === '/plants' && init?.method === 'POST') {
+            const plant = JSON.parse(init?.body || '{}');
+            await window.offlineCache.savePlant(plant);
+            await window.offlineCache.queueRequest('/plants', {method:'POST', headers:{'Content-Type':'application/json'}, body:init.body});
+            return new Response(JSON.stringify(plant), { status: 201, headers:{'Content-Type':'application/json'} });
+        }
         if (path === '/plants') {
             const data = await window.offlineCache.getPlants();
             if (data) return new Response(JSON.stringify(data), { headers: {'Content-Type':'application/json'} });
