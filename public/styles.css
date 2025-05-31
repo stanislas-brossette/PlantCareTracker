@@ -287,5 +287,10 @@ img {
 /* Space for back links to avoid status bar overlap on mobile */
 .back-link {
     display: inline-block;
-    margin-top: 1.5rem !important;
+    margin-top: 3.0rem !important;
+}
+
+/* Prevent top controls from clashing with phone status bar */
+.top-controls {
+    margin-top: 3.0rem;
 }
