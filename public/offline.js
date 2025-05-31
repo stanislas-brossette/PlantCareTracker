@@ -11,19 +11,26 @@
         queue: 'offline_queue'
     };
 
+    const storageBackend = (typeof localforage !== 'undefined') ?
+        localforage : {
+            async getItem(key){
+                try {
+                    const v = localStorage.getItem(key);
+                    return v ? JSON.parse(v) : null;
+                } catch(e){ return null; }
+            },
+            async setItem(key,val){
+                try { localStorage.setItem(key, JSON.stringify(val)); } catch(e){}
+            },
+            async removeItem(key){
+                try { localStorage.removeItem(key); } catch(e){}
+            }
+        };
+
     const Local = {
-        async get(key){
-            try {
-                const v = localStorage.getItem(key);
-                return v ? JSON.parse(v) : null;
-            } catch(e){ return null; }
-        },
-        async set(key,val){
-            try { localStorage.setItem(key, JSON.stringify(val)); } catch(e){}
-        },
-        async remove(key){
-            try { localStorage.removeItem(key); } catch(e){}
-        }
+        async get(key){ return storageBackend.getItem(key); },
+        async set(key,val){ return storageBackend.setItem(key,val); },
+        async remove(key){ return storageBackend.removeItem(key); }
     };
 
     async function toBase64(blob){
