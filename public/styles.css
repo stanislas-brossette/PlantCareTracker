@@ -283,3 +283,9 @@ img {
     justify-content: center;
     gap: 0.5rem;
 }
+
+/* Space for back links to avoid status bar overlap on mobile */
+.back-link {
+    display: inline-block;
+    margin-top: 1.5rem !important;
+}
