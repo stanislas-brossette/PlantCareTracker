@@ -60,7 +60,9 @@
             null,
             null
         ],
-        "archived": false
+        "archived": false,
+        "uuid": "58077707-6011-420b-ba44-e45fd4afe2d4",
+        "updatedAt": 1748705734090
     },
     {
         "name": "Suzie",
@@ -122,7 +124,9 @@
             30,
             null,
             null
-        ]
+        ],
+        "uuid": "bc0e3124-3d4a-4f3a-8a68-cfd4fd232630",
+        "updatedAt": 1748705734090
     },
     {
         "name": "Impatiens",
@@ -184,7 +188,9 @@
             14,
             null,
             14
-        ]
+        ],
+        "uuid": "c3ac9ee4-3a53-4c4e-a0f7-d4746af25017",
+        "updatedAt": 1748705734090
     },
     {
         "name": "Philo vert pomme",
@@ -246,7 +252,9 @@
             null,
             null,
             null
-        ]
+        ],
+        "uuid": "c4d6baf5-8e2f-43ae-b433-d35b5343ea50",
+        "updatedAt": 1748705734090
     },
     {
         "name": "Philo velours",
@@ -308,7 +316,9 @@
             null,
             null,
             null
-        ]
+        ],
+        "uuid": "7869e57b-31ae-4fe6-b4ff-104ba9d1dab0",
+        "updatedAt": 1748705734090
     },
     {
         "name": "Philo vert jungle",
@@ -370,7 +380,9 @@
             60,
             null,
             null
-        ]
+        ],
+        "uuid": "11b9a850-63a4-49dd-868c-978573df791a",
+        "updatedAt": 1748705734090
     },
     {
         "name": "Pothos Stan",
@@ -432,7 +444,9 @@
             null,
             null,
             null
-        ]
+        ],
+        "uuid": "145fd40c-eb35-4fc2-819e-f20b9d7d0c0a",
+        "updatedAt": 1748705734090
     },
     {
         "name": "Pothos Marjo",
@@ -494,7 +508,9 @@
             30,
             null,
             null
-        ]
+        ],
+        "uuid": "a45122de-e9cb-4f61-aae3-d1475bf46d43",
+        "updatedAt": 1748705734090
     },
     {
         "name": "Succulente",
@@ -556,7 +572,9 @@
             60,
             null,
             null
-        ]
+        ],
+        "uuid": "fd44065a-58c3-45db-ba76-3f5c91f95c2c",
+        "updatedAt": 1748705734090
     },
     {
         "name": "Kalanchoe",
@@ -618,7 +636,9 @@
             30,
             30,
             30
-        ]
+        ],
+        "uuid": "d1ff5aa3-e64d-4ec6-88a3-45ad20b7283c",
+        "updatedAt": 1748705734090
     },
     {
         "name": "Azalée",
@@ -680,7 +700,9 @@
             1000,
             1000,
             1000
-        ]
+        ],
+        "uuid": "56e2ecd2-9fc3-4e26-a4f4-ef1ed61ab85b",
+        "updatedAt": 1748705734090
     },
     {
         "name": "Fougère",
@@ -743,7 +765,9 @@
             30,
             30,
             30
-        ]
+        ],
+        "uuid": "aa19cb60-10ae-4221-b7d6-135ffae7720a",
+        "updatedAt": 1748705734090
     },
     {
         "name": "Calathea",
@@ -805,7 +829,9 @@
             30,
             30,
             30
-        ]
+        ],
+        "uuid": "f2993aeb-79b8-47d1-ab7a-0cb32118cff8",
+        "updatedAt": 1748705734090
     },
     {
         "name": "Punto Grigio",
@@ -867,7 +893,9 @@
             null,
             null,
             null
-        ]
+        ],
+        "uuid": "52dbe476-f195-418b-aefc-3244aef01b8e",
+        "updatedAt": 1748705734090
     },
     {
         "name": "Calathea junior",
@@ -929,7 +957,9 @@
             30,
             null,
             null
-        ]
+        ],
+        "uuid": "07331577-1cdd-410b-9d3c-0dc84faffec8",
+        "updatedAt": 1748705734090
     },
     {
         "name": "Laitue",
@@ -991,7 +1021,9 @@
             35,
             35,
             null
-        ]
+        ],
+        "uuid": "8836fedf-e460-4293-b372-2102d50c2363",
+        "updatedAt": 1748705734090
     },
     {
         "name": "Succulente pointue",
@@ -1053,7 +1085,9 @@
             null,
             null,
             null
-        ]
+        ],
+        "uuid": "b105f54f-ea56-4060-a0bb-8d0465700145",
+        "updatedAt": 1748705734090
     },
     {
         "name": "Vigne",
@@ -1115,7 +1149,9 @@
             30,
             30,
             30
-        ]
+        ],
+        "uuid": "813a65a2-8b33-41a1-a3c2-55f11aaec093",
+        "updatedAt": 1748705734090
     },
     {
         "name": "Rose trémière",
@@ -1177,7 +1213,9 @@
             null,
             null,
             null
-        ]
+        ],
+        "uuid": "9a64e256-4825-4d9c-ad5d-799666c0ec00",
+        "updatedAt": 1748705734090
     },
     {
         "name": "Pâquerettes",
@@ -1239,7 +1277,9 @@
             30,
             30,
             30
-        ]
+        ],
+        "uuid": "4f037383-804f-46dd-a623-e434cde09d2c",
+        "updatedAt": 1748705734090
     },
     {
         "name": "Sedum spurium",
@@ -1301,7 +1341,9 @@
             null,
             null,
             null
-        ]
+        ],
+        "uuid": "b861f5e7-83f8-43ea-9c31-9be7ef739aa9",
+        "updatedAt": 1748705734090
     },
     {
         "name": "Fusain du Japon",
@@ -1363,7 +1405,9 @@
             60,
             null,
             null
-        ]
+        ],
+        "uuid": "5cec3eb4-a185-4e10-b35b-f5f4bd74f07a",
+        "updatedAt": 1748705734090
     },
     {
         "name": "Palmier",
@@ -1425,7 +1469,9 @@
             null,
             null,
             null
-        ]
+        ],
+        "uuid": "edb34046-2ce0-4a87-a709-2651a3959a6a",
+        "updatedAt": 1748705734090
     },
     {
         "name": "BadNum",
@@ -1487,7 +1533,9 @@
             null
         ],
         "image": "images/placeholder.png",
-        "location": "TestArea"
+        "location": "TestArea",
+        "uuid": "7f54b92c-217f-46e3-aebe-a396347d0ee0",
+        "updatedAt": 1748705734090
     },
     {
         "name": "Laurier rose",
@@ -1549,6 +1597,8 @@
             null
         ],
         "image": "images/img_1748510827741.jpeg",
-        "location": "Belle-Île"
+        "location": "Belle-Île",
+        "uuid": "fdfcb1cd-6cd6-482d-a101-0e826510a849",
+        "updatedAt": 1748705734090
     }
 ]
