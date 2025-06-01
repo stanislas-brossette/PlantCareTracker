@@ -1,5 +1,5 @@
 import { api } from './js/api.js';
-import { readLocations, cacheLocations } from './js/storage.js';
+import { readPlants, cachePlants, readLocations, cacheLocations } from './js/storage.js';
 import { sync } from './js/sync.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -285,7 +285,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.location.href = `plant.html?name=${encodeURIComponent(created.name)}`;
             }, 1000);
         } else {
-            showMessage('Error: offline', 'danger');
+            body.uuid = (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2));
+            body.updatedAt = Date.now();
+            const list = await readPlants();
+            list.push(body);
+            await cachePlants(list);
+            try {
+                await window.offlineCache.savePlant(body);
+            } catch (e) {}
+            let locs = await readLocations();
+            if (!locs.includes(body.location)) {
+                locs.push(body.location);
+                await cacheLocations(locs);
+                try {
+                    if (window.offlineCache.saveLocations) {
+                        await window.offlineCache.saveLocations(locs);
+                    }
+                } catch (e) {}
+            }
+            showMessage('Saved locally', 'success');
+            setTimeout(() => {
+                window.location.href = `plant.html?name=${encodeURIComponent(body.name)}`;
+            }, 1000);
         }
     };
 

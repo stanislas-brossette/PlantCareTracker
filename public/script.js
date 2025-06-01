@@ -1,6 +1,6 @@
 import { api } from './js/api.js';
 import { readPlants, cachePlants, readLocations, cacheLocations } from './js/storage.js';
-import { sync } from './js/sync.js';
+import { sync, setRenderer } from './js/sync.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const plantsTable = document.getElementById('plantsTable');
@@ -105,16 +105,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const loadPlants = async () => {
-        // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/plants')`
         const cached = await readPlants();
         plants = cached;
         renderPlants();
-        const response = await api('GET', '/plants');
-        if (!response.offline) {
-            plants = response;
-            await cachePlants(response);
-            renderPlants();
-        }
+        await sync(renderPlants);
         setInterval(refreshTimes, 60000);
     };
 
@@ -247,5 +241,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     undoBtn.addEventListener('click', undoLast);
     updateUndoBtn();
-    loadLocations().then(loadPlants).then(initSwipe).then(sync);
+    setRenderer(renderPlants);
+    loadLocations().then(loadPlants).then(initSwipe);
 });

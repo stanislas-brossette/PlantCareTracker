@@ -1535,7 +1535,8 @@
         "image": "images/placeholder.png",
         "location": "TestArea",
         "uuid": "7f54b92c-217f-46e3-aebe-a396347d0ee0",
-        "updatedAt": 1748705734090
+        "updatedAt": 1748764414847,
+        "archived": true
     },
     {
         "name": "Laurier rose",
@@ -1600,5 +1601,70 @@
         "location": "Belle-Île",
         "uuid": "fdfcb1cd-6cd6-482d-a101-0e826510a849",
         "updatedAt": 1748705734090
+    },
+    {
+        "name": "Test",
+        "description": "- **Nom scientifique :** Hydrangea macrophylla\n- **Nom commun :** Hortensia\n\n### Caractéristiques clés\n- **Fleurs :** Grandes inflorescences globuleuses composées de petites fleurs, souvent bleues, roses, blanches ou violettes.\n- **Feuillage :** Feuilles larges, ovales et dentées, vertes.\n- **Taille :** Peut atteindre 1 à 3 mètres de hauteur.\n- **Rusticité :** Assez rustique, supporte bien le froid jusqu'à certaines limites.\n\n### Conseils d'entretien\n- **Lumière :** Mi-ombre, éviter le plein soleil direct qui peut brûler les feuilles.\n- **Arrosage :** Régulier mais modéré, maintenir le sol humide mais non détrempé.\n- **Substrat :** Sol riche, bien drainé, légèrement acide.\n- **Engrais :** Apporter un engrais pour plantes fleuries au printemps et en été.\n- **Toxicité :** Non toxique pour les humains et les animaux domestiques.\n\n---",
+        "wateringMin": [
+            7,
+            7,
+            7,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            7,
+            7,
+            7
+        ],
+        "wateringMax": [
+            10,
+            10,
+            10,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            10,
+            10,
+            10
+        ],
+        "feedingMin": [
+            null,
+            null,
+            30,
+            30,
+            30,
+            30,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        ],
+        "feedingMax": [
+            null,
+            null,
+            30,
+            30,
+            30,
+            30,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        ],
+        "image": "images/img_1748764359625.jpeg",
+        "location": "Apartment",
+        "uuid": "db8f5291-0001-43c9-8181-b931b5a984c3",
+        "updatedAt": 1748764401026,
+        "archived": true
     }
 ]
