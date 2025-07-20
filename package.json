@@ -22,7 +22,7 @@
     "@capacitor/android": "^7.2.0",
     "@capacitor/camera": "^7.0.1",
     "@capacitor/core": "^7.2.0",
-    "@capacitor/filesystem": "^7.1.1",
+    "@capacitor/filesystem": "^7.1.2",
     "@capacitor/ios": "^7.2.0",
     "@capacitor/preferences": "^7.0.1",
     "express": "^4.18.2",

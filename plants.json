@@ -1093,7 +1093,7 @@
         "name": "Vigne",
         "description": "Vitis vinifera (Vigne)\n\n- Cette plante est connue pour produire des raisins, utilisés en table ou en vin.  \n- Elle préfère les emplacements en plein soleil pour un meilleur développement.  \n- Arrosez modérément ; laissez le sol sécher entre les arrosages.  \n- Fertilisez au printemps avec un engrais équilibré pour stimuler la croissance.  \n- Taillez les rameaux en hiver pour favoriser une bonne production de fruits.  \n- Protégez-la contre les maladies comme le mildiou en assurant une bonne circulation d'air.  ",
         "image": "images/img_1748361786818.jpeg",
-        "location": "Belle-Île",
+        "location": "Apartment",
         "wateringMin": [
             7,
             7,
@@ -1157,7 +1157,7 @@
         "name": "Rose trémière",
         "description": "**Nom scientifique :** Verbascum thapsus  \n**Nom commun :** Bouillon-blanc, Molène bouillon-blanc  \n**Caractéristiques :**  \n- Plante bisannuelle pouvant atteindre jusqu'à 2 mètres de haut.  \n- Feuilles duveteuses, larges et allongées, de couleur vert-gris.  \n- Fleurs jaunes disposées en grappes denses le long de la tige centrale.  \n**Conseils d'entretien :**  \n- **Lumière :** Préfère le plein soleil.  \n- **Arrosage :** Tolère la sécheresse, arroser modérément.  \n- **Substrat :** Pousse dans une grande variété de sols, mais préfère les sols bien drainés.  \n- **Engrais :** Peu d'exigences, un apport au début du printemps peut suffire.  \n- **Toxicité :** Non toxique pour les humains et les animaux domestiques.\n\n---",
         "image": "images/img_1748361832109.jpeg",
-        "location": "Belle-Île",
+        "location": "Apartment",
         "wateringMin": [
             null,
             null,
@@ -1221,7 +1221,7 @@
         "name": "Pâquerettes",
         "description": "### Identification de la Plante\n- **Nom scientifique :** Erigeron karvinskianus\n- **Nom commun :** Véronique de Karvinski, Pâquerette mexicaine\n\n### Caractéristiques Clés\n- **Description :** Plante herbacée vivace au port étalé et buissonnant. Feuillage dense, petites feuilles caduques vertes.\n- **Fleurs :** Petites fleurs ressemblant à des marguerites, blanches à cœur jaune qui deviennent roses en vieillissant.\n- **Hauteur :** Peut atteindre 15 à 30 cm de hauteur et s'étend sur environ 50 cm.\n\n### Conseils d'Entretien\n- **Lumière :** Préfère une exposition en plein soleil ou mi-ombre.\n- **Arrosage :** Arrosez modérément, permettez au terreau de sécher entre les arrosages.\n- **Substrat :** Terreau bien drainé, pauvre à modérément fertile.\n- **Engrais :** Utiliser un engrais équilibré au début du printemps et en été.\n- **Toxicité :** Non toxique pour les chats, sécuritaire pour les animaux domestiques.\n\nCe profil synthétique vous aidera à maintenir votre Véronique de Karvinski en bonne santé tout en assurant la sécurité de vos animaux domestiques.",
         "image": "images/img_1748361857819.jpeg",
-        "location": "Belle-Île",
+        "location": "Apartment",
         "wateringMin": [
             7,
             7,
@@ -1285,7 +1285,7 @@
         "name": "Sedum spurium",
         "description": "**Nom scientifique:** Sedum acre  \n**Nom commun:** Orpin âcre, Poivre des murailles  \n**Caractéristiques clés:**  \n- Plante succulente rampante, souvent utilisée en couverture de sol.  \n- Floraison en petites fleurs jaunes durant le printemps et l'été.  \n- Croissance rapide et propagation facile par fragments de tige.  \n**Conseils d'entretien :**  \n- **Lumière :** Préfère une exposition plein soleil.  \n- **Arrosage :** Modéré, permettre au sol de sécher entre les arrosages.  \n- **Substrat :** Bien drainé, sableux ou rocailleux.  \n- **Engrais :** Peu demandeur, un apport au début du printemps suffit.  \n- **Toxicité :** Peut être légèrement irritant si ingéré ou au contact de la peau sensible.\n\n---",
         "image": "images/img_1748361889432.jpeg",
-        "location": "Belle-Île",
+        "location": "Apartment",
         "wateringMin": [
             null,
             null,
@@ -1349,7 +1349,7 @@
         "name": "Fusain du Japon",
         "description": "**Nom scientifique:** Euonymus japonicus\n**Nom commun:** Fusain du Japon\n**Caractéristiques clés:**\n- Arbuste persistant utilisé fréquemment en haies ou en topiaires.\n- Feuillage panaché vert et jaune qui reste coloré toute l'année.\n- Résistant aux différents climats et relativement facile à entretenir.\n**Conseils d'entretien:**\n- **Lumière:** Préfère un emplacement ensoleillé ou partiellement ombragé.\n- **Arrosage:** Arroser modérément, permettre au sol de sécher entre les arrosages.\n- **Substrat:** Sol bien drainé, tolère une variété de types de sol.\n- **Engrais:** Fertiliser au printemps et à l'automne.\n- **Toxicité:** Peut être toxique si ingéré en grandes quantités.\n\n---",
         "image": "images/img_1748361912154.jpeg",
-        "location": "Belle-Île",
+        "location": "Apartment",
         "wateringMin": [
             null,
             null,
@@ -1413,7 +1413,7 @@
         "name": "Palmier",
         "description": "**Nom scientifique:** Phoenix canariensis  \n**Nom commun:** Palmier des Canaries  \n- **Caractéristiques clés:**  \n  - Croissance lente mais peut atteindre jusqu'à 40 mètres de haut.  \n  - Feuillage dense en forme de couronne, avec de grandes palmes pouvant mesurer jusqu'à 6 mètres de long.  \n  - Tronc robuste et épais, souvent avec des marques de vieilles feuilles.\n- **Conseils d'entretien:**  \n  - **Lumière:** Préfère une exposition plein soleil.  \n  - **Arrosage:** Résistant à la sécheresse une fois établi mais nécessite des arrosages réguliers pendant les périodes de croissance active.\n  - **Substrat:** Sol bien drainé.  \n  - **Engrais:** Fertiliser au printemps et en été, surtout si planté en pot.  \n  - **Toxicité:** Non toxique.\n\n---",
         "image": "images/img_1748361940181.jpeg",
-        "location": "Belle-Île",
+        "location": "Apartment",
         "wateringMin": [
             null,
             null,
@@ -1598,7 +1598,7 @@
             null
         ],
         "image": "images/img_1748510827741.jpeg",
-        "location": "Belle-Île",
+        "location": "Apartment",
         "uuid": "fdfcb1cd-6cd6-482d-a101-0e826510a849",
         "updatedAt": 1748705734090
     },
@@ -1926,67 +1926,67 @@
     },
     {
         "name": "Géranium",
-        "description": "**Nom scientifique :** Pelargonium\n**Nom commun :** Géranium\n- **Caractéristiques :** Plante vivace souvent cultivée comme annuelle, fleurs en forme de bouquets aux couleurs vives, feuillage parfumé.\n- **Lumière :** Préfère une exposition ensoleillée.\n- **Arrosage :** Arroser modérément, laisser le substrat sécher entre les arrosages.\n- **Substrat :** Bien drainé, riche en matière organique.\n- **Engrais :** Fertiliser toutes les deux semaines pendant la saison de croissance.\n- **Toxicité :** Peut être toxique pour les animaux de compagnie si ingéré.\n\n---",
+        "description": "**Nom scientifique :** Pelargonium\n**Nom commun :** Géranium\n- **Caractéristiques :** Plante vivace souvent cultivée comme annuelle, fleurs en forme de grappes, couleur vive, feuillage parfumé.\n- **Lumière :** Besoin de beaucoup de lumière, mais éviter le soleil direct en été.\n- **Arrosage :** Arroser modérément, laisser sécher le substrat entre les arrosages.\n- **Substrat :** Bien drainé, riche en matière organique.\n- **Engrais :** Fertiliser toutes les deux semaines pendant la saison de croissance.\n- **Toxicité :** Certaines variétés peuvent être légèrement toxiques pour les animaux domestiques.\n\n---",
         "wateringMin": [
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7,
-            7
+            4,
+            4,
+            3,
+            3,
+            2,
+            2,
+            2,
+            2,
+            2,
+            3,
+            3,
+            4
         ],
         "wateringMax": [
-            10,
-            10,
-            10,
-            10,
-            10,
-            10,
-            10,
-            10,
-            10,
-            10,
-            10,
-            10
+            7,
+            7,
+            5,
+            5,
+            4,
+            4,
+            4,
+            4,
+            4,
+            5,
+            5,
+            7
         ],
         "feedingMin": [
             14,
             null,
+            14,
+            14,
+            14,
+            14,
+            14,
+            14,
+            14,
+            14,
             null,
-            14,
-            14,
-            14,
-            14,
-            14,
-            14,
-            14,
-            null,
-            null
+            14
         ],
         "feedingMax": [
             14,
             null,
+            14,
+            14,
+            14,
+            14,
+            14,
+            14,
+            14,
+            14,
             null,
-            14,
-            14,
-            14,
-            14,
-            14,
-            14,
-            14,
-            null,
-            null
+            14
         ],
         "image": "images/img_1749389719483.jpeg",
         "location": "Balcon",
         "uuid": "8a87c8e8-3935-4745-bf43-8dc8a126b3a5",
-        "updatedAt": 1749389719482
+        "updatedAt": 1751311253495
     },
     {
         "name": "Pélargonium",
@@ -2309,8 +2309,8 @@
         "updatedAt": 1749389976082
     },
     {
-        "name": "Fraisier des bois, Fraise des bois",
-        "description": "**Nom scientifique:** Fragaria vesca  \n**Nom commun:** Fraisier des bois, Fraise des bois  \n**Caractéristiques clés:**  \n- Plante vivace formant des touffes basses.  \n- Feuilles trifoliées avec une texture légèrement poilue.  \n- Produit de petites fraises rouges comestibles en été.  \n**Conseils d'entretien:**  \n- **Lumière:** Préfère un emplacement ensoleillé à mi-ombragé.  \n- **Arrosage:** Maintenir le sol humide mais pas détrempé, réduire l'arrosage en hiver.  \n- **Substrat:** Sol riche, bien drainé, légèrement acide.  \n- **Engrais:** Fertiliser légèrement au début du printemps et pendant la période de floraison.  \n- **Toxicité:** Non toxique pour les humains et les animaux domestiques.\n\n---",
+        "name": "Fraisier",
+        "description": "**Nom scientifique:** Fragaria vesca  \n**Nom commun:** Fraisier\n**Caractéristiques clés:**  \n- Plante vivace formant des touffes basses.  \n- Feuilles trifoliées avec une texture légèrement poilue.  \n- Produit de petites fraises rouges comestibles en été.  \n**Conseils d'entretien:**  \n- **Lumière:** Préfère un emplacement ensoleillé à mi-ombragé.  \n- **Arrosage:** Maintenir le sol humide mais pas détrempé, réduire l'arrosage en hiver.  \n- **Substrat:** Sol riche, bien drainé, légèrement acide.  \n- **Engrais:** Fertiliser légèrement au début du printemps et pendant la période de floraison.  \n- **Toxicité:** Non toxique pour les humains et les animaux domestiques.\n\n---",
         "wateringMin": [
             7,
             7,
@@ -2370,7 +2370,7 @@
         "image": "images/img_1749390028426.jpeg",
         "location": "Balcon",
         "uuid": "22d5317a-90f4-4aba-9019-1e3eba479df2",
-        "updatedAt": 1749390028426
+        "updatedAt": 1749392427540
     },
     {
         "name": "Hortensia",
