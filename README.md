@@ -44,8 +44,8 @@ Run the app:
 npm start
 ```
 The app will be available at:
-- **Local**: `http://localhost:3000`
-- **Network**: `http://<your-pi-ip>:3000` (e.g., `http://192.168.1.72:3000`)
+- **Local**: `http://localhost:2000`
+- **Network**: `http://<your-pi-ip>:2000` (e.g., `http://192.168.1.72:2000`)
 
 ## Plant Identification
 To use the optional Identify Plant feature, set your OpenAI API key before starting the server:

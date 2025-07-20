@@ -1,6 +1,6 @@
 (function(){
     // Base URL of the backend API. Update if the server IP or port changes.
-    window.API_BASE = window.API_BASE || 'http://192.168.1.123:3000';
+    window.API_BASE = window.API_BASE || 'http://192.168.1.72:2000';
     const origFetch = window.fetch.bind(window);
 
     async function handleOffline(url, init){

@@ -46,7 +46,7 @@ This project uses [Capacitor](https://capacitorjs.com/) to package the existing 
 The backend API must be hosted separately and reachable from the device running the app.
 
 ## Configure API URL
-Edit `public/config.js` to point to your server's IP address and port. By default it uses `http://192.168.1.20:3000`.
+Edit `public/config.js` to point to your server's IP address and port. By default it uses `http://192.168.1.72:2000`.
 
 ## Offline Mode
 The Android build caches plant data, images and button state using Capacitor's
