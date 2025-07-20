@@ -205,7 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
         messageElem.textContent = msg;
         messageElem.className = `alert alert-${type}`;
         messageElem.classList.remove('d-none');
-        setTimeout(() => messageElem.classList.add('d-none'), 3000);
+        setTimeout(() => messageElem.classList.add('d-none'), 2000);
     };
 
     const extractCommonName = (text) => {

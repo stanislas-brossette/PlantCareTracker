@@ -7,14 +7,14 @@ PlantCareTracker is a self‑contained plant management application built with N
 ### Server
 - **Entry point:** `server.js`
 - **Framework:** Express
-- **Port:** 3000, bound to `0.0.0.0` so the server is reachable on the local network.
+- **Port:** 2000, bound to `0.0.0.0` so the server is reachable on the local network.
 - **Data storage:** simple JSON files in the project root:
   - `plants.json` – array describing each plant
   - `locations.json` – array of known location names
   - `lastClickedTimes.json` – map of button IDs to ISO timestamps
 - **OpenAI integration:** the `/identify` endpoint sends a base64 encoded plant photo to the OpenAI ChatGPT API.  The response is parsed to extract a plant description and watering/feeding schedule.
 
-The server exports the Express instance so tests can import it. When run directly it listens on port 3000.
+The server exports the Express instance so tests can import it. When run directly it listens on port 2000.
 
 ### Frontend
 Static files under `public/` contain the client side code.  The major pages are:

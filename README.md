@@ -122,7 +122,7 @@ To ensure your app runs automatically on Raspberry Pi startup, you can use **`cr
 
 2. After reboot, check if the app is running:
    ```bash
-   curl http://localhost:3000
+   curl http://localhost:2000
    ```
 
 ---
