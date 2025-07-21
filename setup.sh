@@ -5,5 +5,5 @@ npm install @capacitor/camera@latest @capacitor/filesystem@latest @capacitor/pre
 npm run cap:sync
 npm run build
 npm run cap:copy
-#npm run cap:open
+npm run cap:open
 npm start
