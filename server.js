@@ -379,21 +379,26 @@ app.post('/identify', async (req, res) => {
     }
 
     const extractText = (content) => {
-        if (content == null) return '';
-        if (typeof content === 'string') return content;
-        if (Array.isArray(content)) {
-            return content
-                .map(part => {
-                    if (typeof part === 'string') return part;
-                    if (typeof part?.text === 'string') return part.text;
-                    if (typeof part === 'object' && typeof part?.content === 'string') return part.content;
-                    return '';
-                })
-                .filter(Boolean)
-                .join('\n\n');
-        }
-        if (typeof content === 'object' && typeof content?.text === 'string') return content.text;
-        return String(content);
+        const pieces = [];
+        const visit = (node) => {
+            if (node == null) return;
+            if (typeof node === 'string' || typeof node === 'number' || typeof node === 'boolean') {
+                pieces.push(String(node));
+                return;
+            }
+            if (Array.isArray(node)) {
+                node.forEach(visit);
+                return;
+            }
+            if (typeof node === 'object') {
+                // Common shapes: { text: '...' }, { text: [{ type: 'text', text: '...' }] }
+                if (node.text !== undefined) visit(node.text);
+                if (node.content !== undefined) visit(node.content);
+                return;
+            }
+        };
+        visit(content);
+        return pieces.join('\n\n');
     };
 
     try {
@@ -452,11 +457,15 @@ app.post('/identify', async (req, res) => {
             return res.status(500).send('OpenAI request failed');
         }
         const data = await apiRes.json();
-        const full = extractText(data.choices?.[0]?.message?.content);
+        const rawContent = data.choices?.[0]?.message?.content;
+        const full = extractText(rawContent);
         if (questionText) {
             console.log('\n[OpenAI Identify] Question:\n', questionText);
         }
         console.log('[OpenAI Identify] Answer:\n', full);
+        if (!full && rawContent !== undefined) {
+            console.log('[OpenAI Identify] Raw content (unexpected shape):', JSON.stringify(rawContent, null, 2));
+        }
         const { description, schedule, commonName } = parseIdentifyResponse(full);
         res.send({ description, schedule, commonName });
     } catch (err) {
