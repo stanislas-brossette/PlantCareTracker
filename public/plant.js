@@ -1,6 +1,7 @@
 import { api } from './js/api.js';
-import { readPlants, cachePlants, readLocations, cacheLocations } from './js/storage.js';
-import { sync } from './js/sync.js';
+import { getLocations as loadLocationsApi, getPlants as loadPlantsApi, getPlantImage, syncIfOnline } from './js/dataClient.js';
+import { cacheLocations } from './js/storage.js';
+import { connectivity } from './js/connectivity.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     const params = new URLSearchParams(window.location.search);
@@ -35,6 +36,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const messageElem = document.getElementById('message');
     const loadingElem = document.getElementById('loading');
     const loadingLeaf = document.getElementById('loading-leaf');
+    const offlineIndicator = document.getElementById('offline-indicator');
     let identifying = false;
     const { startLeafAnimation, stopLeafAnimation } = createLeafAnimator(loadingElem, loadingLeaf, { tinyLeafDuration: 2000 });
 
@@ -60,6 +62,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
+    const applyOfflineUI = () => {
+        const offline = connectivity.isOffline();
+        if (offlineIndicator) offlineIndicator.style.display = offline ? 'block' : 'none';
+        [cameraBtn, galleryBtn, toggleBtn, saveBtn, archiveBtn, identifyBtn, addLocationBtn].forEach(btn => {
+            if (btn) btn.disabled = offline;
+        });
+        if (offline) {
+            editing = false;
+            document.body.classList.add('readonly');
+        }
+    };
+    connectivity.onChange(applyOfflineUI);
+    applyOfflineUI();
+
     let imageData = null;
     let editing = false;
     let plantNames = [];
@@ -70,33 +86,26 @@ document.addEventListener('DOMContentLoaded', async () => {
         return isNaN(num) ? null : num;
     };
 
+    const renderLocations = (list) => {
+        const unique = Array.from(new Set(list)).filter(Boolean);
+        if (unique.length === 0) unique.push('Default');
+        locationSelect.innerHTML = '';
+        unique.forEach(loc => {
+            const opt = document.createElement('option');
+            opt.value = loc;
+            opt.textContent = loc;
+            locationSelect.appendChild(opt);
+        });
+    };
+
     const loadLocations = async () => {
-        const render = (list) => {
-            const unique = Array.from(new Set(list)).filter(Boolean);
-            if (unique.length === 0) unique.push('Default');
-            locationSelect.innerHTML = '';
-            unique.forEach(loc => {
-                const opt = document.createElement('option');
-                opt.value = loc;
-                opt.textContent = loc;
-                locationSelect.appendChild(opt);
-            });
-        };
-        // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/locations')`
-        const cached = await readLocations();
-        render(cached);
-        try {
-            const list = await api('GET', '/locations');
-            if (!list.offline) {
-                await cacheLocations(list);
-                render(list);
-            }
-        } catch (err) {
-            console.error('Failed to load locations', err);
-        }
+        const list = await loadLocationsApi();
+        await cacheLocations(list);
+        renderLocations(list);
     };
 
     const addLocation = async () => {
+        if (connectivity.isOffline()) { alert('Indisponible hors-ligne'); return; }
         const name = prompt('New location name')?.trim();
         if (!name) return;
         try {
@@ -138,12 +147,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const fetchPlant = async (plantName) => {
         if (plantCache[plantName]) return plantCache[plantName];
-        const plant = await api('GET', `/plants/${encodeURIComponent(plantName)}`);
-        if (!plant.offline) {
-            plantCache[plantName] = plant;
-            return plant;
-        }
-        return plantCache[plantName] || null;
+        const list = await loadPlantsApi();
+        const plant = list.find(p => p.name === plantName);
+        if (plant) plantCache[plantName] = plant;
+        return plant || null;
     };
 
     const transitionToPlant = async (targetName, dir) => {
@@ -329,7 +336,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         plantNameElem.textContent = plant.name;
         plantNameInput.value = plant.name;
         imageElem.dataset.path = plant.image;
-        imageElem.src = resolveImageUrl(plant.image);
+        getPlantImage(plant).then(src => { imageElem.src = resolveImageUrl(src); }).catch(() => { imageElem.src = resolveImageUrl(plant.image); });
         descElem.value = plant.description || '';
         updateDescDisplay();
         autoResize();
@@ -342,17 +349,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const loadPlantNames = async () => {
-        // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/plants')`
-        const list = await api('GET', '/plants');
-        if (!list.offline) {
-            const filtered = list.filter(p => !p.archived && (currentLocation === 'All' || p.location === currentLocation));
-            plantNames = filtered.map(p => p.name);
-            await cachePlants(list);
-        } else {
-            const cached = await readPlants();
-            const filtered = cached.filter(p => !p.archived && (currentLocation === 'All' || p.location === currentLocation));
-            plantNames = filtered.map(p => p.name);
-        }
+        const list = await loadPlantsApi();
+        const filtered = list.filter(p => !p.archived && (currentLocation === 'All' || p.location === currentLocation));
+        plantNames = filtered.map(p => p.name);
     };
 
     const preloaded = new Set();
@@ -417,6 +416,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const save = async () => {
+        if (connectivity.isOffline()) { alert('Indisponible hors-ligne'); return; }
         const body = {
             name: plantNameInput.value.trim(),
             description: descElem.value,
@@ -433,6 +433,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const updateDescription = async (text) => {
+        if (connectivity.isOffline()) { alert('Indisponible hors-ligne'); return; }
         await api('PUT', `/plants/${encodeURIComponent(name)}`, { description: text });
         if (plantCache[name]) {
             plantCache[name].description = text;
@@ -441,6 +442,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const updateSchedule = async (sched) => {
+        if (connectivity.isOffline()) { alert('Indisponible hors-ligne'); return; }
         await api('PUT', `/plants/${encodeURIComponent(name)}`, {
             wateringMin: sched.wateringMin,
             wateringMax: sched.wateringMax,
@@ -457,6 +459,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const archive = async () => {
+        if (connectivity.isOffline()) { alert('Indisponible hors-ligne'); return; }
         await api('PUT', `/plants/${encodeURIComponent(name)}`, { archived: true });
         showMessage('Archived', 'success');
         setTimeout(() => { window.location.href = 'index.html'; }, 1000);

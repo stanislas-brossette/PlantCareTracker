@@ -1,16 +1,24 @@
 import { api } from './js/api.js';
-import { readPlants, cachePlants, readLocations, cacheLocations } from './js/storage.js';
-import { sync, setRenderer } from './js/sync.js';
+import { getLastClickedTimes as loadTimes, getLocations as loadLocationsApi, getPlantImage, getPlants as loadPlantsApi, syncIfOnline } from './js/dataClient.js';
+import { connectivity } from './js/connectivity.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const plantsTable = document.getElementById('plantsTable');
     const undoBtn = document.getElementById('undo');
     const locationSelect = document.getElementById('location-select');
+    const offlineIndicator = document.getElementById('offline-indicator');
 
     const undoStack = [];
 
     const updateUndoBtn = () => {
-        undoBtn.disabled = undoStack.length === 0;
+        undoBtn.disabled = undoStack.length === 0 || connectivity.isOffline();
+    };
+
+    const updateOfflineBadge = () => {
+        if (!offlineIndicator) return;
+        offlineIndicator.style.display = connectivity.isOffline() ? 'block' : 'none';
+        Object.values(buttonRefs).forEach(btn => btn.disabled = connectivity.isOffline());
+        updateUndoBtn();
     };
 
     let plants = [];
@@ -20,28 +28,23 @@ document.addEventListener('DOMContentLoaded', () => {
     // Object to store button references
     const buttonRefs = {};
 
+    const renderLocations = (list) => {
+        locations = ['All', ...list];
+        locationSelect.innerHTML = '';
+        locations.forEach(loc => {
+            const opt = document.createElement('option');
+            opt.value = loc;
+            opt.textContent = loc;
+            locationSelect.appendChild(opt);
+        });
+        const stored = localStorage.getItem('currentLocation') || 'All';
+        locationSelect.value = stored;
+        currentIndex = locations.indexOf(stored);
+    };
+
     const loadLocations = async () => {
-        // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/locations')`
-        const cached = await readLocations();
-        const render = (list) => {
-            locations = ['All', ...list];
-            locationSelect.innerHTML = '';
-            locations.forEach(loc => {
-                const opt = document.createElement('option');
-                opt.value = loc;
-                opt.textContent = loc;
-                locationSelect.appendChild(opt);
-            });
-            const stored = localStorage.getItem('currentLocation') || 'All';
-            locationSelect.value = stored;
-            currentIndex = locations.indexOf(stored);
-        };
-        render(cached);
-        const list = await api('GET', '/locations');
-        if (!list.offline) {
-            await cacheLocations(list);
-            render(list);
-        }
+        const list = await loadLocationsApi();
+        renderLocations(list);
     };
 
     const resolveImageUrl = (src) => {
@@ -67,9 +70,10 @@ document.addEventListener('DOMContentLoaded', () => {
             container.className = 'plant-photo-container';
 
             const img = document.createElement('img');
-            img.src = resolveImageUrl(plant.image);
+            img.dataset.imageKey = plant.id || plant.uuid || plant.name;
             img.alt = `${plant.name} image`;
             img.className = 'plant-photo';
+            getPlantImage(plant).then(src => { img.src = resolveImageUrl(src); }).catch(() => { img.src = resolveImageUrl(plant.image); });
 
             const overlay = document.createElement('a');
             overlay.href = `plant.html?name=${encodeURIComponent(plant.name)}`;
@@ -105,10 +109,11 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const loadPlants = async () => {
-        const cached = await readPlants();
-        plants = cached;
+        plants = await loadPlantsApi();
         renderPlants();
-        await sync(renderPlants);
+        await syncIfOnline();
+        plants = await loadPlantsApi();
+        renderPlants();
         setInterval(refreshTimes, 60000);
     };
 
@@ -201,8 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const getLastClickedTimes = async () => {
-        // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/lastClickedTimes')`
-        const data = await api('GET', '/lastClickedTimes');
+        const data = await loadTimes();
         Object.entries(data).forEach(([buttonId, time]) => {
             if (buttonRefs[buttonId]) {
                 updateButtonState(buttonId, time);
@@ -211,6 +215,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const buttonClicked = async (buttonId) => {
+        if (connectivity.isOffline()) {
+            alert('Indisponible hors-ligne');
+            return;
+        }
         const prevTime = buttonRefs[buttonId].dataset.lastClickedTime || null;
         undoStack.push({ buttonId, prevTime });
         updateUndoBtn();
@@ -221,6 +229,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const undoLast = async () => {
         if (undoStack.length === 0) return;
+        if (connectivity.isOffline()) {
+            alert('Indisponible hors-ligne');
+            return;
+        }
         const { buttonId, prevTime } = undoStack.pop();
         const data = await api('POST', '/undo', { buttonId, previousTime: prevTime });
         updateButtonState(buttonId, data.lastClickedTime);
@@ -240,7 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     undoBtn.addEventListener('click', undoLast);
-    updateUndoBtn();
-    setRenderer(renderPlants);
+    connectivity.onChange(updateOfflineBadge);
+    updateOfflineBadge();
     loadLocations().then(loadPlants).then(initSwipe);
 });

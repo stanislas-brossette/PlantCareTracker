@@ -27,11 +27,20 @@ lf.config({ name: 'PlantCareTracker', storeName: 'pct' });
 export const plantsStore = lf.createInstance({ storeName: 'plants' });
 export const locsStore   = lf.createInstance({ storeName: 'locations' });
 export const outbox      = lf.createInstance({ storeName: 'outbox' });
+export const timesStore  = lf.createInstance({ storeName: 'times' });
+export const syncStore   = lf.createInstance({ storeName: 'sync' });
+export const imagesStore = lf.createInstance({ storeName: 'images' });
 
 export async function cachePlants(arr){ await plantsStore.setItem('all', arr); }
 export async function readPlants(){ return (await plantsStore.getItem('all')) ?? []; }
 export async function cacheLocations(arr){ await locsStore.setItem('all', arr); }
 export async function readLocations(){ return (await locsStore.getItem('all')) ?? []; }
+export async function cacheTimes(obj){ await timesStore.setItem('all', obj); }
+export async function readTimes(){ return (await timesStore.getItem('all')) ?? {}; }
+export async function cacheSyncMeta(meta){ await syncStore.setItem('meta', meta); }
+export async function readSyncMeta(){ return (await syncStore.getItem('meta')) ?? { lastServerRev: 0, lastSyncAt: 0 }; }
+export async function cacheImage(key, blob){ await imagesStore.setItem(key, blob); }
+export async function readImage(key){ return imagesStore.getItem(key); }
 export async function queue(op){                // op = {method, url, body, ts}
   const q = (await outbox.getItem('ops')) ?? [];
   q.push(op); await outbox.setItem('ops', q);

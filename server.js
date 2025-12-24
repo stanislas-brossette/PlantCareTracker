@@ -19,6 +19,28 @@ const plantsFile = 'plants.json';
 let locations = [];
 const locationsFile = 'locations.json';
 
+const metaFile = 'serverMeta.json';
+let serverMeta = {
+    serverRev: 1,
+    deletions: { plants: [], locations: [] },
+    locationsRev: 0,
+    lastClickedTimesRev: 0
+};
+
+function writeMeta() {
+    fs.writeFile(metaFile, JSON.stringify(serverMeta, null, 4), err => {
+        if (err) {
+            console.error('Error writing meta file', err);
+        }
+    });
+}
+
+function bumpRev() {
+    serverMeta.serverRev += 1;
+    writeMeta();
+    return serverMeta.serverRev;
+}
+
 function generateDefaultName() {
     let idx = 1;
     const existing = new Set(plants.map(p => p.name));
@@ -56,9 +78,20 @@ function readPlants() {
     plants.forEach(p => {
         if (!p.location) { p.location = defaultLoc; changed = true; }
         if (!p.uuid){ p.uuid = randomUUID(); changed = true; }
+        if (!p.id){ p.id = p.uuid; changed = true; }
         if (!p.updatedAt){ p.updatedAt = Date.now(); changed = true; }
     });
     if (changed) writePlants();
+}
+
+function readMeta() {
+    try {
+        const data = fs.readFileSync(metaFile, 'utf8');
+        serverMeta = { ...serverMeta, ...JSON.parse(data) };
+    } catch (err) {
+        console.log('No meta data found or error reading file:', err);
+        writeMeta();
+    }
 }
 
 function writePlants() {
@@ -109,9 +142,13 @@ function writeLastClickedTimes() {
 }
 
 // Read stored data on server start
+readMeta();
 readLastClickedTimes();
 readLocations();
 readPlants();
+if (!serverMeta.locationsRev) serverMeta.locationsRev = serverMeta.serverRev;
+if (!serverMeta.lastClickedTimesRev) serverMeta.lastClickedTimesRev = serverMeta.serverRev;
+writeMeta();
 
 app.use(express.static('public'));
 app.use((req, res, next) => {
@@ -135,6 +172,9 @@ app.post('/clicked', (req, res) => {
     const buttonId = req.body.buttonId;
     if (buttonId) {
         lastClickedTimes[buttonId] = new Date().toISOString();
+        const rev = bumpRev();
+        serverMeta.lastClickedTimesRev = rev;
+        writeMeta();
         writeLastClickedTimes();
         res.send({ lastClickedTime: lastClickedTimes[buttonId] });
     } else {
@@ -153,7 +193,9 @@ app.post('/undo', (req, res) => {
     } else {
         delete lastClickedTimes[buttonId];
     }
-
+    const rev = bumpRev();
+    serverMeta.lastClickedTimesRev = rev;
+    writeMeta();
     writeLastClickedTimes();
     res.send({ lastClickedTime: previousTime || null });
 });
@@ -174,6 +216,9 @@ app.post('/locations', (req, res) => {
 
     if (!locations.includes(name)) {
         locations.push(name);
+        const rev = bumpRev();
+        serverMeta.locationsRev = rev;
+        writeMeta();
         writeLocations();
         return res.status(201).send({ name });
     }
@@ -190,6 +235,10 @@ app.delete('/locations/:name', (req, res) => {
         return res.status(400).send('Cannot delete last location');
     }
     const removed = locations.splice(idx, 1)[0];
+    const rev = bumpRev();
+    serverMeta.locationsRev = rev;
+    serverMeta.deletions.locations.push({ name: removed, rev });
+    writeMeta();
     const fallback = locations[0] || 'Default';
     let changed = false;
     plants.forEach(p => {
@@ -269,7 +318,8 @@ app.put('/plants/:name', (req, res) => {
         locations.push(req.body.location);
         writeLocations();
     }
-    plants[index] = { ...plants[index], ...req.body, updatedAt: req.updatedAt };
+    const rev = bumpRev();
+    plants[index] = { ...plants[index], ...req.body, updatedAt: rev };
 
     if (req.body.archived === true) {
         const finalName = newName || req.params.name;
@@ -315,6 +365,8 @@ app.post('/plants', (req, res) => {
     if (newPlant.feedingMax && !isValidFreqArray(newPlant.feedingMax)) {
         return res.status(400).send('feedingMax must be an array of 12 numbers');
     }
+    const rev = bumpRev();
+    const newId = randomUUID();
     const plantToAdd = {
         name: newPlant.name,
         description: newPlant.description || '',
@@ -324,8 +376,9 @@ app.post('/plants', (req, res) => {
         feedingMax: newPlant.feedingMax || Array(12).fill(null),
         image: newPlant.image || 'images/placeholder.png',
         location: newPlant.location,
-        uuid: randomUUID(),
-        updatedAt: req.updatedAt
+        uuid: newId,
+        id: newId,
+        updatedAt: rev
     };
     if (!locations.includes(plantToAdd.location)) {
         locations.push(plantToAdd.location);
@@ -342,6 +395,9 @@ app.delete('/plants/:name', (req, res) => {
         return res.status(404).send('Plant not found');
     }
     const removed = plants.splice(index, 1)[0];
+    const rev = bumpRev();
+    serverMeta.deletions.plants.push({ id: removed.id || removed.uuid, name: removed.name, rev });
+    writeMeta();
 
     Object.keys(lastClickedTimes).forEach(key => {
         if (key.startsWith(`button-${req.params.name}-`)) {
@@ -370,6 +426,35 @@ app.post('/bulk', async (req, res) => {
         }
     }
     res.send({ results });
+});
+
+app.get('/sync', (req, res) => {
+    const since = parseInt(req.query.since || '0', 10) || 0;
+    const payload = { serverRev: serverMeta.serverRev };
+
+    const plantUpserts = since === 0 ? plants : plants.filter(p => (p.updatedAt || 0) > since);
+    payload.plants = {
+        upsert: plantUpserts,
+        deleted: serverMeta.deletions.plants
+            .filter(d => d.rev > since)
+            .map(d => ({ id: d.id, name: d.name }))
+    };
+
+    payload.locations = {
+        upsert: (since === 0 || serverMeta.locationsRev > since) ? locations : [],
+        deleted: serverMeta.deletions.locations.filter(l => l.rev > since).map(l => l.name)
+    };
+
+    if (since === 0 || serverMeta.lastClickedTimesRev > since) {
+        payload.lastClickedTimes = lastClickedTimes;
+    }
+
+    payload.images = {
+        changed: plantUpserts.map(p => ({ plantId: p.id || p.uuid, image: p.image, updatedAt: p.updatedAt })),
+        deleted: serverMeta.deletions.plants.filter(d => d.rev > since).map(d => d.id)
+    };
+
+    res.send(payload);
 });
 
 app.post('/identify', async (req, res) => {
