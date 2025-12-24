@@ -36,5 +36,14 @@ npm run cap:copy
 echo "Opening Android project (if available)..."
 npm run cap:open
 
+# Source OpenAI API key setup before launching the server (if available)
+if [ -f "./setup_openai_api_key.sh" ]; then
+  echo "Loading OpenAI API key..."
+  # shellcheck disable=SC1091
+  source ./setup_openai_api_key.sh
+else
+  echo "Warning: setup_openai_api_key.sh not found. Ensure OPENAI_API_KEY is set before running the server." >&2
+fi
+
 echo "Starting development server..."
 npm start
