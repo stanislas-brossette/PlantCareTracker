@@ -407,6 +407,11 @@ app.post('/identify', async (req, res) => {
             // gpt-5-mini rejects max_tokens; use max_completion_tokens instead.
             max_completion_tokens: 500
         };
+        const questionText = requestBody.messages
+            .find(m => m.role === 'user')
+            ?.content
+            ?.find?.(part => part.type === 'text')
+            ?.text;
         if (OPENAI_TEMPERATURE === undefined) {
             // Leave temperature at model default; some models (e.g., gpt-5-mini) only allow the default value.
         } else if (OPENAI_TEMPERATURE === 1) {
@@ -429,6 +434,10 @@ app.post('/identify', async (req, res) => {
         }
         const data = await apiRes.json();
         const full = data.choices?.[0]?.message?.content || '';
+        if (questionText) {
+            console.log('\n[OpenAI Identify] Question:\n', questionText);
+        }
+        console.log('[OpenAI Identify] Answer:\n', full);
         const { description, schedule, commonName } = parseIdentifyResponse(full);
         res.send({ description, schedule, commonName });
     } catch (err) {
