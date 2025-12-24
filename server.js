@@ -428,8 +428,6 @@ app.post('/identify', async (req, res) => {
                     ]
                 }
             ],
-            // gpt-5-mini rejects max_tokens; use max_completion_tokens instead.
-            max_completion_tokens: 500
         };
         const questionText = requestBody.messages
             .find(m => m.role === 'user')
