@@ -6,7 +6,7 @@ const port = 2000;
 const path = require('path');
 const parseIdentifyResponse = require('./parseIdentifyResponse');
 
-const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4-turbo";
+const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-5-mini";
 const OPENAI_TEMPERATURE = Number.isFinite(parseFloat(process.env.OPENAI_TEMPERATURE))
     ? parseFloat(process.env.OPENAI_TEMPERATURE)
     : 0;

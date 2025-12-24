@@ -51,7 +51,7 @@ The app will be available at:
 To use the optional Identify Plant feature, set your OpenAI API key before starting the server:
 ```bash
 export OPENAI_API_KEY=your-api-key
-export OPENAI_MODEL=gpt-4-turbo   # optional
+export OPENAI_MODEL=gpt-5-mini   # optional
 export OPENAI_TEMPERATURE=0       # optional, lower = more deterministic
 ```
 The "Identify Plant" button on each detail page sends the plant photo to ChatGPT and shows the response in a popup. The answer is also copied to your clipboard.
