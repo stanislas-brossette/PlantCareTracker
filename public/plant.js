@@ -71,34 +71,48 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const loadLocations = async () => {
-        // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/locations')`
-        const cached = await readLocations();
         const render = (list) => {
+            const unique = Array.from(new Set(list)).filter(Boolean);
+            if (unique.length === 0) unique.push('Default');
             locationSelect.innerHTML = '';
-            list.forEach(loc => {
+            unique.forEach(loc => {
                 const opt = document.createElement('option');
                 opt.value = loc;
                 opt.textContent = loc;
                 locationSelect.appendChild(opt);
             });
         };
+        // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/locations')`
+        const cached = await readLocations();
         render(cached);
-        const list = await api('GET', '/locations');
-        if (!list.offline) {
-            await cacheLocations(list);
-            render(list);
+        try {
+            const list = await api('GET', '/locations');
+            if (!list.offline) {
+                await cacheLocations(list);
+                render(list);
+            }
+        } catch (err) {
+            console.error('Failed to load locations', err);
         }
     };
 
     const addLocation = async () => {
-        const name = prompt('New location name');
+        const name = prompt('New location name')?.trim();
         if (!name) return;
-        await api('POST', '/locations', { name });
-        const opt = document.createElement('option');
-        opt.value = name;
-        opt.textContent = name;
-        locationSelect.appendChild(opt);
-        locationSelect.value = name;
+        try {
+            await api('POST', '/locations', { name });
+            const opts = Array.from(locationSelect.options).map(o => o.value);
+            if (!opts.includes(name)) {
+                const opt = document.createElement('option');
+                opt.value = name;
+                opt.textContent = name;
+                locationSelect.appendChild(opt);
+            }
+            locationSelect.value = name;
+            await cacheLocations(opts.concat(name));
+        } catch (err) {
+            console.error('Failed to add location', err);
+        }
     };
 
     const resizeImage = (file) => {

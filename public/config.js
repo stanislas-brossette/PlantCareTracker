@@ -1,6 +1,8 @@
 (function(){
-    // Base URL of the backend API. Update if the server IP or port changes.
-    window.API_BASE = window.API_BASE || 'http://192.168.1.72:2000';
+    // Use the current origin by default so the app works when served locally or
+    // via a tunnel. A custom API_BASE can still be injected before this script
+    // loads when needed.
+    window.API_BASE = window.API_BASE || window.location.origin;
     const origFetch = window.fetch.bind(window);
 
     async function handleOffline(url, init){
