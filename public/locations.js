@@ -8,8 +8,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const addBtn = document.getElementById('add-location');
 
     const render = (locs) => {
+        const unique = Array.from(new Set(locs)).filter(Boolean);
+        if (unique.length === 0) unique.push('Default');
         listElem.innerHTML = '';
-        locs.forEach(loc => {
+        unique.forEach(loc => {
             const li = document.createElement('li');
             li.className = 'list-group-item d-flex justify-content-between align-items-center';
             li.textContent = loc;
@@ -17,8 +19,12 @@ document.addEventListener('DOMContentLoaded', () => {
             del.className = 'btn btn-sm btn-danger';
             del.textContent = 'Delete';
             del.onclick = async () => {
-                const res = await api('DELETE', `/locations/${encodeURIComponent(loc)}`);
-                if (!res.offline) load();
+                try {
+                    const res = await api('DELETE', `/locations/${encodeURIComponent(loc)}`);
+                    if (!res.offline) load();
+                } catch (err) {
+                    console.error('Failed to delete location', err);
+                }
             };
             li.appendChild(del);
             listElem.appendChild(li);
@@ -29,19 +35,27 @@ document.addEventListener('DOMContentLoaded', () => {
         // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/locations')`
         const cached = await readLocations();
         render(cached);
-        const data = await api('GET', '/locations');
-        if (!data.offline) {
-            await cacheLocations(data);
-            render(data);
+        try {
+            const data = await api('GET', '/locations');
+            if (!data.offline) {
+                await cacheLocations(data);
+                render(data);
+            }
+        } catch (err) {
+            console.error('Failed to load locations', err);
         }
     };
 
     const add = async () => {
         const name = newInput.value.trim();
         if (!name) return;
-        await api('POST', '/locations', { name });
-        newInput.value = '';
-        load();
+        try {
+            await api('POST', '/locations', { name });
+            newInput.value = '';
+            load();
+        } catch (err) {
+            console.error('Failed to add location', err);
+        }
     };
 
     addBtn.addEventListener('click', add);

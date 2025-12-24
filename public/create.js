@@ -169,36 +169,56 @@ document.addEventListener('DOMContentLoaded', () => {
     galleryFileElem.addEventListener('change', () => handleFileChange(galleryFileElem));
 
     const loadLocations = async () => {
-        // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/locations')`
-        const cached = await readLocations();
         const render = (list) => {
+            const unique = Array.from(new Set(list)).filter(Boolean);
+            if (unique.length === 0) unique.push('Default');
             locationSelect.innerHTML = '';
-            list.forEach(loc => {
+            unique.forEach(loc => {
                 const opt = document.createElement('option');
                 opt.value = loc;
                 opt.textContent = loc;
                 locationSelect.appendChild(opt);
             });
             const stored = localStorage.getItem('currentLocation');
-            if (stored && list.includes(stored)) locationSelect.value = stored;
+            if (stored && unique.includes(stored)) {
+                locationSelect.value = stored;
+            }
         };
+
+        // Start with cached data so the dropdown is never empty.
+        const cached = await readLocations();
         render(cached);
-        const list = await api('GET', '/locations');
-        if (!list.offline) {
-            await cacheLocations(list);
-            render(list);
+
+        try {
+            const list = await api('GET', '/locations');
+            if (!list.offline) {
+                await cacheLocations(list);
+                render(list);
+            }
+        } catch (err) {
+            console.error('Failed to load locations', err);
+            showMessage('Could not load locations, using cached list', 'warning');
         }
     };
 
     const addLocation = async () => {
-        const name = prompt('New location name');
+        const name = prompt('New location name')?.trim();
         if (!name) return;
-        await api('POST', '/locations', { name });
-        const opt = document.createElement('option');
-        opt.value = name;
-        opt.textContent = name;
-        locationSelect.appendChild(opt);
-        locationSelect.value = name;
+        try {
+            await api('POST', '/locations', { name });
+            const opts = Array.from(locationSelect.options).map(o => o.value);
+            if (!opts.includes(name)) {
+                const opt = document.createElement('option');
+                opt.value = name;
+                opt.textContent = name;
+                locationSelect.appendChild(opt);
+            }
+            locationSelect.value = name;
+            await cacheLocations(opts.concat(name));
+        } catch (err) {
+            console.error('Failed to add location', err);
+            showMessage(err.message || 'Could not add location', 'danger');
+        }
     };
 
     const showMessage = (msg, type = 'success') => {
@@ -224,45 +244,63 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingElem.classList.add('blocking');
         startLeafAnimation();
         identifyBtn.disabled = true;
-        const res = await api('POST', '/identify', { image: img });
-        stopLeafAnimation();
-        identifying = false;
-        loadingElem.classList.remove('blocking');
-        loadingElem.classList.add('d-none');
-        identifyBtn.disabled = false;
-        if (!res || res.offline) {
-            alert('Error identifying plant');
-            return;
-        }
-        const data = res;
-        try { await navigator.clipboard.writeText(data.description); } catch(e){}
-        if (confirm(`${data.description}\n\nMettre \u00e0 jour la description ?`)) {
-            descElem.value = data.description;
-            autoResize();
-        }
-        if (!nameInput.value.trim()) {
-            const newName = data.commonName || extractCommonName(data.description);
-            if (newName) nameInput.value = newName;
-        }
-        if (data.schedule) {
-            const sched = data.schedule;
-            const table = months.map((m,i)=>{
-                const wMin = sched.wateringMin?.[i];
-                const wMax = sched.wateringMax?.[i];
-                const fMin = sched.feedingMin?.[i];
-                const fMax = sched.feedingMax?.[i];
-                return `${m}: W ${wMin ?? '-'}-${wMax ?? '-'} | F ${fMin ?? '-'}-${fMax ?? '-'}`;
-            }).join('\n');
-            if (confirm(`${table}\n\nMettre \u00e0 jour le planning ?`)) {
-                (sched.wateringMin || []).forEach((v,i)=>{ if(wateringMinInputs[i]) wateringMinInputs[i].value = v ?? ''; });
-                (sched.wateringMax || []).forEach((v,i)=>{ if(wateringMaxInputs[i]) wateringMaxInputs[i].value = v ?? ''; });
-                (sched.feedingMin || []).forEach((v,i)=>{ if(feedingMinInputs[i]) feedingMinInputs[i].value = v ?? ''; });
-                (sched.feedingMax || []).forEach((v,i)=>{ if(feedingMaxInputs[i]) feedingMaxInputs[i].value = v ?? ''; });
+
+        try {
+            const res = await api('POST', '/identify', { image: img });
+            if (!res || res.offline) {
+                throw new Error('Error identifying plant');
             }
+
+            const data = res;
+            try { await navigator.clipboard.writeText(data.description); } catch(e){}
+            if (confirm(`${data.description}\n\nMettre \u00e0 jour la description ?`)) {
+                descElem.value = data.description;
+                autoResize();
+            }
+            if (!nameInput.value.trim()) {
+                const newName = data.commonName || extractCommonName(data.description);
+                if (newName) nameInput.value = newName;
+            }
+            if (data.schedule) {
+                const sched = data.schedule;
+                const table = months.map((m,i)=>{
+                    const wMin = sched.wateringMin?.[i];
+                    const wMax = sched.wateringMax?.[i];
+                    const fMin = sched.feedingMin?.[i];
+                    const fMax = sched.feedingMax?.[i];
+                    return `${m}: W ${wMin ?? '-'}-${wMax ?? '-'} | F ${fMin ?? '-'}-${fMax ?? '-'}`;
+                }).join('\n');
+                if (confirm(`${table}\n\nMettre \u00e0 jour le planning ?`)) {
+                    (sched.wateringMin || []).forEach((v,i)=>{ if(wateringMinInputs[i]) wateringMinInputs[i].value = v ?? ''; });
+                    (sched.wateringMax || []).forEach((v,i)=>{ if(wateringMaxInputs[i]) wateringMaxInputs[i].value = v ?? ''; });
+                    (sched.feedingMin || []).forEach((v,i)=>{ if(feedingMinInputs[i]) feedingMinInputs[i].value = v ?? ''; });
+                    (sched.feedingMax || []).forEach((v,i)=>{ if(feedingMaxInputs[i]) feedingMaxInputs[i].value = v ?? ''; });
+                }
+            }
+        } catch (err) {
+            console.error('Identify failed', err);
+            const message = err?.message || 'Could not identify plant';
+            showMessage(message, 'danger');
+        } finally {
+            stopLeafAnimation();
+            identifying = false;
+            loadingElem.classList.remove('blocking');
+            loadingElem.classList.add('d-none');
+            identifyBtn.disabled = false;
         }
     };
 
+    const setSaving = (saving) => {
+        saveBtn.disabled = saving;
+        saveBtn.textContent = saving ? 'Saving...' : 'Save';
+    };
+
     const save = async () => {
+        if (!locationSelect.value) {
+            showMessage('Please pick a location before saving', 'danger');
+            return;
+        }
+
         const body = {
             name: nameInput.value.trim(),
             description: descElem.value,
@@ -277,36 +315,45 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             body.image = imageElem.getAttribute('src');
         }
-        const res = await api('POST', '/plants', body);
-        if (!res.offline) {
-            const created = res;
-            showMessage('Created', 'success');
-            setTimeout(() => {
-                window.location.href = `plant.html?name=${encodeURIComponent(created.name)}`;
-            }, 1000);
-        } else {
-            body.uuid = (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2));
-            body.updatedAt = Date.now();
-            const list = await readPlants();
-            list.push(body);
-            await cachePlants(list);
-            try {
-                await window.offlineCache.savePlant(body);
-            } catch (e) {}
-            let locs = await readLocations();
-            if (!locs.includes(body.location)) {
-                locs.push(body.location);
-                await cacheLocations(locs);
+
+        setSaving(true);
+        try {
+            const res = await api('POST', '/plants', body);
+            if (!res.offline) {
+                const created = res;
+                showMessage('Created', 'success');
+                setTimeout(() => {
+                    window.location.href = `plant.html?name=${encodeURIComponent(created.name)}`;
+                }, 1000);
+            } else {
+                body.uuid = (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2));
+                body.updatedAt = Date.now();
+                const list = await readPlants();
+                list.push(body);
+                await cachePlants(list);
                 try {
-                    if (window.offlineCache.saveLocations) {
-                        await window.offlineCache.saveLocations(locs);
-                    }
+                    await window.offlineCache.savePlant(body);
                 } catch (e) {}
+                let locs = await readLocations();
+                if (!locs.includes(body.location)) {
+                    locs.push(body.location);
+                    await cacheLocations(locs);
+                    try {
+                        if (window.offlineCache.saveLocations) {
+                            await window.offlineCache.saveLocations(locs);
+                        }
+                    } catch (e) {}
+                }
+                showMessage('Saved locally', 'success');
+                setTimeout(() => {
+                    window.location.href = `plant.html?name=${encodeURIComponent(body.name)}`;
+                }, 1000);
             }
-            showMessage('Saved locally', 'success');
-            setTimeout(() => {
-                window.location.href = `plant.html?name=${encodeURIComponent(body.name)}`;
-            }, 1000);
+        } catch (err) {
+            console.error('Save failed', err);
+            showMessage(err.message || 'Could not save plant', 'danger');
+        } finally {
+            setSaving(false);
         }
     };
 

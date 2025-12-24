@@ -71,34 +71,48 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const loadLocations = async () => {
-        // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/locations')`
-        const cached = await readLocations();
         const render = (list) => {
+            const unique = Array.from(new Set(list)).filter(Boolean);
+            if (unique.length === 0) unique.push('Default');
             locationSelect.innerHTML = '';
-            list.forEach(loc => {
+            unique.forEach(loc => {
                 const opt = document.createElement('option');
                 opt.value = loc;
                 opt.textContent = loc;
                 locationSelect.appendChild(opt);
             });
         };
+        // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/locations')`
+        const cached = await readLocations();
         render(cached);
-        const list = await api('GET', '/locations');
-        if (!list.offline) {
-            await cacheLocations(list);
-            render(list);
+        try {
+            const list = await api('GET', '/locations');
+            if (!list.offline) {
+                await cacheLocations(list);
+                render(list);
+            }
+        } catch (err) {
+            console.error('Failed to load locations', err);
         }
     };
 
     const addLocation = async () => {
-        const name = prompt('New location name');
+        const name = prompt('New location name')?.trim();
         if (!name) return;
-        await api('POST', '/locations', { name });
-        const opt = document.createElement('option');
-        opt.value = name;
-        opt.textContent = name;
-        locationSelect.appendChild(opt);
-        locationSelect.value = name;
+        try {
+            await api('POST', '/locations', { name });
+            const opts = Array.from(locationSelect.options).map(o => o.value);
+            if (!opts.includes(name)) {
+                const opt = document.createElement('option');
+                opt.value = name;
+                opt.textContent = name;
+                locationSelect.appendChild(opt);
+            }
+            locationSelect.value = name;
+            await cacheLocations(opts.concat(name));
+        } catch (err) {
+            console.error('Failed to add location', err);
+        }
     };
 
     const resizeImage = (file) => {
@@ -476,44 +490,52 @@ document.addEventListener('DOMContentLoaded', async () => {
         startLeafAnimation();
         identifyBtn.disabled = true;
         const imgParam = imageData || imageElem.dataset.path || imageElem.getAttribute('src');
-        const res = await api('POST', '/identify', { image: imgParam });
-        stopLeafAnimation();
-        identifying = false;
-        loadingElem.classList.remove('blocking');
-        loadingElem.classList.add('d-none');
-        identifyBtn.disabled = false;
-        if (!res || res.offline) {
-            alert('Error identifying plant');
-            return;
-        }
-        const data = res;
-        try { await navigator.clipboard.writeText(data.description); } catch(e) {}
-        if (confirm(`${data.description}\n\nMettre à jour la description ?`)) {
-            descElem.value = data.description;
-            updateDescDisplay();
-            autoResize();
-            await updateDescription(data.description);
-            if (/^Plant \d+$/.test(plantNameInput.value.trim())) {
-                const newName = data.commonName || extractCommonName(data.description);
-                if (newName) await renamePlant(newName);
+
+        try {
+            const res = await api('POST', '/identify', { image: imgParam });
+            if (!res || res.offline) {
+                throw new Error('Error identifying plant');
             }
-        }
-        if (data.schedule) {
-            const sched = data.schedule;
-            const table = months.map((m,i)=>{
-                const wMin = sched.wateringMin?.[i];
-                const wMax = sched.wateringMax?.[i];
-                const fMin = sched.feedingMin?.[i];
-                const fMax = sched.feedingMax?.[i];
-                return `${m}: W ${wMin ?? '-'}-${wMax ?? '-'} | F ${fMin ?? '-'}-${fMax ?? '-'}`;
-            }).join('\n');
-            if (confirm(`${table}\n\nMettre à jour le planning ?`)) {
-                (sched.wateringMin || []).forEach((v,i)=>{ if(wateringMinInputs[i]) wateringMinInputs[i].value = v ?? ''; });
-                (sched.wateringMax || []).forEach((v,i)=>{ if(wateringMaxInputs[i]) wateringMaxInputs[i].value = v ?? ''; });
-                (sched.feedingMin || []).forEach((v,i)=>{ if(feedingMinInputs[i]) feedingMinInputs[i].value = v ?? ''; });
-                (sched.feedingMax || []).forEach((v,i)=>{ if(feedingMaxInputs[i]) feedingMaxInputs[i].value = v ?? ''; });
-                await updateSchedule(sched);
+
+            const data = res;
+            try { await navigator.clipboard.writeText(data.description); } catch(e) {}
+            if (confirm(`${data.description}\n\nMettre à jour la description ?`)) {
+                descElem.value = data.description;
+                updateDescDisplay();
+                autoResize();
+                await updateDescription(data.description);
+                if (/^Plant \d+$/.test(plantNameInput.value.trim())) {
+                    const newName = data.commonName || extractCommonName(data.description);
+                    if (newName) await renamePlant(newName);
+                }
             }
+            if (data.schedule) {
+                const sched = data.schedule;
+                const table = months.map((m,i)=>{
+                    const wMin = sched.wateringMin?.[i];
+                    const wMax = sched.wateringMax?.[i];
+                    const fMin = sched.feedingMin?.[i];
+                    const fMax = sched.feedingMax?.[i];
+                    return `${m}: W ${wMin ?? '-'}-${wMax ?? '-'} | F ${fMin ?? '-'}-${fMax ?? '-'}`;
+                }).join('\n');
+                if (confirm(`${table}\n\nMettre à jour le planning ?`)) {
+                    (sched.wateringMin || []).forEach((v,i)=>{ if(wateringMinInputs[i]) wateringMinInputs[i].value = v ?? ''; });
+                    (sched.wateringMax || []).forEach((v,i)=>{ if(wateringMaxInputs[i]) wateringMaxInputs[i].value = v ?? ''; });
+                    (sched.feedingMin || []).forEach((v,i)=>{ if(feedingMinInputs[i]) feedingMinInputs[i].value = v ?? ''; });
+                    (sched.feedingMax || []).forEach((v,i)=>{ if(feedingMaxInputs[i]) feedingMaxInputs[i].value = v ?? ''; });
+                    await updateSchedule(sched);
+                }
+            }
+        } catch (err) {
+            console.error('Identify failed', err);
+            const message = err?.message || 'Could not identify plant';
+            showMessage(message, 'danger');
+        } finally {
+            stopLeafAnimation();
+            identifying = false;
+            loadingElem.classList.remove('blocking');
+            loadingElem.classList.add('d-none');
+            identifyBtn.disabled = false;
         }
     };
 

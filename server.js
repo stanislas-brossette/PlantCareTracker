@@ -7,9 +7,9 @@ const path = require('path');
 const parseIdentifyResponse = require('./parseIdentifyResponse');
 
 const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-5-mini";
-const OPENAI_TEMPERATURE = Number.isFinite(parseFloat(process.env.OPENAI_TEMPERATURE))
-    ? parseFloat(process.env.OPENAI_TEMPERATURE)
-    : 0;
+const rawTemp = process.env.OPENAI_TEMPERATURE;
+const parsedTemp = Number.isFinite(parseFloat(rawTemp)) ? parseFloat(rawTemp) : undefined;
+const OPENAI_TEMPERATURE = parsedTemp === undefined ? undefined : parsedTemp;
 let lastClickedTimes = {}; // Stores last clicked times for each action of each plant
 const dataFile = 'lastClickedTimes.json';
 
@@ -377,6 +377,30 @@ app.post('/identify', async (req, res) => {
     if (!image) {
         return res.status(400).send('Image is required');
     }
+
+    const extractText = (content) => {
+        const pieces = [];
+        const visit = (node) => {
+            if (node == null) return;
+            if (typeof node === 'string' || typeof node === 'number' || typeof node === 'boolean') {
+                pieces.push(String(node));
+                return;
+            }
+            if (Array.isArray(node)) {
+                node.forEach(visit);
+                return;
+            }
+            if (typeof node === 'object') {
+                // Common shapes: { text: '...' }, { text: [{ type: 'text', text: '...' }] }
+                if (node.text !== undefined) visit(node.text);
+                if (node.content !== undefined) visit(node.content);
+                return;
+            }
+        };
+        visit(content);
+        return pieces.join('\n\n');
+    };
+
     try {
         let base64;
         if (/^data:image\/\w+;base64,/.test(image)) {
@@ -386,40 +410,63 @@ app.post('/identify', async (req, res) => {
             const buffer = fs.readFileSync(filePath);
             base64 = buffer.toString('base64');
         }
+        const requestBody = {
+            model: OPENAI_MODEL,
+            messages: [
+                {
+                    role: 'system',
+                    content: 'You are a botanical expert who helps identify plants and provide care instructions.'
+                },
+                {
+                    role: 'user',
+                    content: [
+                        {
+                            type: 'text',
+                            text: 'Peux-tu identifier cette plante à partir de la photo ci-jointe. Réponds en français. Donne d\'abord une courte fiche synthétique au format markdown (nom scientifique et commun, 3 ou 4 caractéristiques clés et conseils d\'entretien : lumière, arrosage, substrat, engrais, toxicité éventuelle). Pas de ligne vide entre les sections.\nEnsuite écris une ligne contenant uniquement --- puis un bloc JSON exactement au format suivant avec les recommandations d\'arrosage et d\'engrais par mois (janvier à décembre), chaque valeur étant le nombre de jours entre deux actions et null s\'il n\'y a pas de recommandation.\n```json\n{"wateringMin":[],"wateringMax":[],"feedingMin":[],"feedingMax":[]}\n```'
+                        },
+                        { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${base64}` } }
+                    ]
+                }
+            ],
+        };
+        const questionText = requestBody.messages
+            .find(m => m.role === 'user')
+            ?.content
+            ?.find?.(part => part.type === 'text')
+            ?.text;
+        if (OPENAI_TEMPERATURE === undefined) {
+            // Leave temperature at model default; some models (e.g., gpt-5-mini) only allow the default value.
+        } else if (OPENAI_TEMPERATURE === 1) {
+            requestBody.temperature = OPENAI_TEMPERATURE;
+        } else {
+            console.warn(`OPENAI_TEMPERATURE=${OPENAI_TEMPERATURE} is not supported for ${OPENAI_MODEL}; using model default.`);
+        }
+
         const apiRes = await fetch('https://api.openai.com/v1/chat/completions', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
             },
-            body: JSON.stringify({
-                model: OPENAI_MODEL,
-                messages: [
-                    {
-                        role: 'system',
-                        content: 'You are a botanical expert who helps identify plants and provide care instructions.'
-                    },
-                    {
-                        role: 'user',
-                        content: [
-                            {
-                                type: 'text',
-                                text: 'Peux-tu identifier cette plante à partir de la photo ci-jointe. Réponds en français. Donne d\'abord une courte fiche synthétique au format markdown (nom scientifique et commun, 3 ou 4 caractéristiques clés et conseils d\'entretien : lumière, arrosage, substrat, engrais, toxicité éventuelle). Pas de ligne vide entre les sections.\nEnsuite écris une ligne contenant uniquement --- puis un bloc JSON exactement au format suivant avec les recommandations d\'arrosage et d\'engrais par mois (janvier à décembre), chaque valeur étant le nombre de jours entre deux actions et null s\'il n\'y a pas de recommandation.\n```json\n{"wateringMin":[],"wateringMax":[],"feedingMin":[],"feedingMax":[]}\n```\nSi l\'identification est incertaine, propose deux ou trois options.'
-                            },
-                            { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${base64}` } }
-                        ]
-                    }
-                ],
-                temperature: OPENAI_TEMPERATURE,
-                max_tokens: 500
-            })
+            body: JSON.stringify(requestBody)
         });
         if (!apiRes.ok) {
             console.error('OpenAI error', await apiRes.text());
             return res.status(500).send('OpenAI request failed');
         }
         const data = await apiRes.json();
-        const full = data.choices?.[0]?.message?.content || '';
+        const message = data.choices?.[0]?.message || {};
+        const rawContent = message.content ?? message.text;
+        const full = extractText(rawContent);
+        if (questionText) {
+            console.log('\n[OpenAI Identify] Question:\n', questionText);
+        }
+        console.log('[OpenAI Identify] Answer:\n', full);
+        if (!full && rawContent !== undefined) {
+            console.log('[OpenAI Identify] Raw content (unexpected shape):', JSON.stringify(rawContent, null, 2));
+            console.log('[OpenAI Identify] Full message payload:', JSON.stringify(message, null, 2));
+            console.log('[OpenAI Identify] Full API response:', JSON.stringify(data, null, 2));
+        }
         const { description, schedule, commonName } = parseIdentifyResponse(full);
         res.send({ description, schedule, commonName });
     } catch (err) {

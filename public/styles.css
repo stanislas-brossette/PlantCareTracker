@@ -294,3 +294,25 @@ img {
 .top-controls {
     margin-top: 3.0rem;
 }
+
+/* API settings floating control */
+.api-settings-wrapper {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 1050;
+}
+
+#api-settings-toggle {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    background-color: #ffffff;
+}
+
+#api-settings-panel {
+    width: 320px;
+    margin-top: 0.5rem;
+}
+
+#api-settings-panel .form-control-sm {
+    font-size: 0.9rem;
+}
