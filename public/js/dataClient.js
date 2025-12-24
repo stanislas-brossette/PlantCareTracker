@@ -8,7 +8,7 @@ function withBase(path){
     return path;
 }
 
-async function fetchWithTimeout(url, options = {}, timeout = 3000){
+async function fetchWithTimeout(url, options = {}, timeout = 5000){
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
     try {
@@ -26,6 +26,9 @@ async function safeGetJson(path){
     try {
         const res = await fetchWithTimeout(path);
         connectivity.setOnline();
+        if (!res.ok){
+            return { error: true, status: res.status };
+        }
         return await res.json();
     } catch (err){
         connectivity.setOffline();
@@ -91,7 +94,7 @@ export async function syncIfOnline(){
     const meta = await readSyncMeta();
     const since = meta.lastServerRev || 0;
     const payload = await safeGetJson(`/sync${since ? `?since=${since}` : ''}`);
-    if (payload.offline) return false;
+    if (payload.offline || payload.error) return false;
     await applySync(payload);
     return true;
 }
@@ -99,7 +102,7 @@ export async function syncIfOnline(){
 export async function getPlants(){
     const cached = await readPlants();
     const remote = await safeGetJson('/plants');
-    if (!remote.offline){
+    if (!remote.offline && !remote.error){
         await cachePlants(remote);
         return remote;
     }
@@ -109,7 +112,7 @@ export async function getPlants(){
 export async function getLocations(){
     const cached = await readLocations();
     const remote = await safeGetJson('/locations');
-    if (!remote.offline){
+    if (!remote.offline && !remote.error){
         await cacheLocations(remote);
         return remote;
     }
@@ -119,7 +122,7 @@ export async function getLocations(){
 export async function getLastClickedTimes(){
     const cached = await readTimes();
     const remote = await safeGetJson('/lastClickedTimes');
-    if (!remote.offline){
+    if (!remote.offline && !remote.error){
         await cacheTimes(remote);
         return remote;
     }
