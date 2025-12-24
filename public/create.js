@@ -244,41 +244,49 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingElem.classList.add('blocking');
         startLeafAnimation();
         identifyBtn.disabled = true;
-        const res = await api('POST', '/identify', { image: img });
-        stopLeafAnimation();
-        identifying = false;
-        loadingElem.classList.remove('blocking');
-        loadingElem.classList.add('d-none');
-        identifyBtn.disabled = false;
-        if (!res || res.offline) {
-            alert('Error identifying plant');
-            return;
-        }
-        const data = res;
-        try { await navigator.clipboard.writeText(data.description); } catch(e){}
-        if (confirm(`${data.description}\n\nMettre \u00e0 jour la description ?`)) {
-            descElem.value = data.description;
-            autoResize();
-        }
-        if (!nameInput.value.trim()) {
-            const newName = data.commonName || extractCommonName(data.description);
-            if (newName) nameInput.value = newName;
-        }
-        if (data.schedule) {
-            const sched = data.schedule;
-            const table = months.map((m,i)=>{
-                const wMin = sched.wateringMin?.[i];
-                const wMax = sched.wateringMax?.[i];
-                const fMin = sched.feedingMin?.[i];
-                const fMax = sched.feedingMax?.[i];
-                return `${m}: W ${wMin ?? '-'}-${wMax ?? '-'} | F ${fMin ?? '-'}-${fMax ?? '-'}`;
-            }).join('\n');
-            if (confirm(`${table}\n\nMettre \u00e0 jour le planning ?`)) {
-                (sched.wateringMin || []).forEach((v,i)=>{ if(wateringMinInputs[i]) wateringMinInputs[i].value = v ?? ''; });
-                (sched.wateringMax || []).forEach((v,i)=>{ if(wateringMaxInputs[i]) wateringMaxInputs[i].value = v ?? ''; });
-                (sched.feedingMin || []).forEach((v,i)=>{ if(feedingMinInputs[i]) feedingMinInputs[i].value = v ?? ''; });
-                (sched.feedingMax || []).forEach((v,i)=>{ if(feedingMaxInputs[i]) feedingMaxInputs[i].value = v ?? ''; });
+
+        try {
+            const res = await api('POST', '/identify', { image: img });
+            if (!res || res.offline) {
+                throw new Error('Error identifying plant');
             }
+
+            const data = res;
+            try { await navigator.clipboard.writeText(data.description); } catch(e){}
+            if (confirm(`${data.description}\n\nMettre \u00e0 jour la description ?`)) {
+                descElem.value = data.description;
+                autoResize();
+            }
+            if (!nameInput.value.trim()) {
+                const newName = data.commonName || extractCommonName(data.description);
+                if (newName) nameInput.value = newName;
+            }
+            if (data.schedule) {
+                const sched = data.schedule;
+                const table = months.map((m,i)=>{
+                    const wMin = sched.wateringMin?.[i];
+                    const wMax = sched.wateringMax?.[i];
+                    const fMin = sched.feedingMin?.[i];
+                    const fMax = sched.feedingMax?.[i];
+                    return `${m}: W ${wMin ?? '-'}-${wMax ?? '-'} | F ${fMin ?? '-'}-${fMax ?? '-'}`;
+                }).join('\n');
+                if (confirm(`${table}\n\nMettre \u00e0 jour le planning ?`)) {
+                    (sched.wateringMin || []).forEach((v,i)=>{ if(wateringMinInputs[i]) wateringMinInputs[i].value = v ?? ''; });
+                    (sched.wateringMax || []).forEach((v,i)=>{ if(wateringMaxInputs[i]) wateringMaxInputs[i].value = v ?? ''; });
+                    (sched.feedingMin || []).forEach((v,i)=>{ if(feedingMinInputs[i]) feedingMinInputs[i].value = v ?? ''; });
+                    (sched.feedingMax || []).forEach((v,i)=>{ if(feedingMaxInputs[i]) feedingMaxInputs[i].value = v ?? ''; });
+                }
+            }
+        } catch (err) {
+            console.error('Identify failed', err);
+            const message = err?.message || 'Could not identify plant';
+            showMessage(message, 'danger');
+        } finally {
+            stopLeafAnimation();
+            identifying = false;
+            loadingElem.classList.remove('blocking');
+            loadingElem.classList.add('d-none');
+            identifyBtn.disabled = false;
         }
     };
 
