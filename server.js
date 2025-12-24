@@ -404,7 +404,8 @@ app.post('/identify', async (req, res) => {
                     ]
                 }
             ],
-            max_tokens: 500
+            // gpt-5-mini rejects max_tokens; use max_completion_tokens instead.
+            max_completion_tokens: 500
         };
         if (OPENAI_TEMPERATURE === undefined) {
             // Leave temperature at model default; some models (e.g., gpt-5-mini) only allow the default value.
