@@ -53,6 +53,10 @@ The app will be available at:
 3. On your phone (connected to the same Wi‑Fi), open a browser and visit `http://<that-ip>:2000` (for example `http://192.168.1.42:2000`). The page and API calls both use that origin, so the app works end‑to‑end.
 4. If it doesn’t load, check that local firewalls allow inbound connections on port **2000**.
 
+### Changing the API host/port inside the app
+- A floating **Connection** button (bottom-right of each page) opens a small panel where you can enter the backend IP/hostname and port (e.g., `192.168.1.31` and `2000`).
+- Saving the values stores them locally and updates all API calls immediately. Use **Use default** to clear the override and fall back to the current origin or `http://<your-device>:2000`.
+
 ## Plant Identification
 To use the optional Identify Plant feature, set your OpenAI API key before starting the server:
 ```bash
