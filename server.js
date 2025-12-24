@@ -457,7 +457,8 @@ app.post('/identify', async (req, res) => {
             return res.status(500).send('OpenAI request failed');
         }
         const data = await apiRes.json();
-        const rawContent = data.choices?.[0]?.message?.content;
+        const message = data.choices?.[0]?.message || {};
+        const rawContent = message.content ?? message.text;
         const full = extractText(rawContent);
         if (questionText) {
             console.log('\n[OpenAI Identify] Question:\n', questionText);
@@ -465,6 +466,8 @@ app.post('/identify', async (req, res) => {
         console.log('[OpenAI Identify] Answer:\n', full);
         if (!full && rawContent !== undefined) {
             console.log('[OpenAI Identify] Raw content (unexpected shape):', JSON.stringify(rawContent, null, 2));
+            console.log('[OpenAI Identify] Full message payload:', JSON.stringify(message, null, 2));
+            console.log('[OpenAI Identify] Full API response:', JSON.stringify(data, null, 2));
         }
         const { description, schedule, commonName } = parseIdentifyResponse(full);
         res.send({ description, schedule, commonName });
