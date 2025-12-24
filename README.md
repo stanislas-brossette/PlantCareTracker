@@ -47,6 +47,12 @@ The app will be available at:
 - **Local**: `http://localhost:2000`
 - **Network**: `http://<your-pi-ip>:2000` (e.g., `http://192.168.1.72:2000`)
 
+### **Using the app from your phone on the same Wi‑Fi**
+1. Start the server (`npm start` or `./setup.sh`). It listens on **0.0.0.0:2000**, so it’s reachable from your LAN.
+2. Find your computer/Raspberry Pi IP on that network (e.g., `ip addr`, `hostname -I`, or `ipconfig` on Windows). You should get something like `192.168.1.42`.
+3. On your phone (connected to the same Wi‑Fi), open a browser and visit `http://<that-ip>:2000` (for example `http://192.168.1.42:2000`). The page and API calls both use that origin, so the app works end‑to‑end.
+4. If it doesn’t load, check that local firewalls allow inbound connections on port **2000**.
+
 ## Plant Identification
 To use the optional Identify Plant feature, set your OpenAI API key before starting the server:
 ```bash
