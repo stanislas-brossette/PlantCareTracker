@@ -23,7 +23,6 @@ fi
 
 echo "Installing project dependencies..."
 npm install
-npm install @capacitor/camera@latest @capacitor/filesystem@latest @capacitor/preferences@latest
 
 echo "Syncing Capacitor platforms..."
 npm run cap:sync
