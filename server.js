@@ -410,8 +410,8 @@ app.post('/identify', async (req, res) => {
                         ]
                     }
                 ],
-                temperature: OPENAI_TEMPERATURE,
-                max_tokens: 500
+                //temperature: OPENAI_TEMPERATURE,
+                max_completion_tokens: 500
             })
         });
         if (!apiRes.ok) {
