@@ -1,5 +1,6 @@
 const listeners = new Set();
 let state = 'unknown';
+let consecutiveFailures = 0;
 
 function withBase(path){
     if (window.API_BASE){
@@ -18,18 +19,29 @@ function setState(newState){
     notify();
 }
 
-async function pingServer(timeout = 2000){
+async function pingServer(timeout = 3000){
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
     try {
         const res = await fetch(withBase('/ping'), { method: 'GET', cache: 'no-store', signal: controller.signal });
         clearTimeout(id);
-        setState(res.ok ? 'online' : 'offline');
+        if (res.ok){
+            consecutiveFailures = 0;
+            setState('online');
+        } else {
+            consecutiveFailures += 1;
+            if (consecutiveFailures >= 2) setState('offline');
+        }
     } catch (err){
         clearTimeout(id);
-        setState('offline');
+        consecutiveFailures += 1;
+        if (consecutiveFailures >= 2) setState('offline');
     }
     return state;
+}
+
+function startMonitor(){
+    setInterval(() => pingServer(), 10000);
 }
 
 export const connectivity = {
@@ -39,6 +51,7 @@ export const connectivity = {
     setOnline: () => setState('online'),
     onChange: (fn) => { listeners.add(fn); return () => listeners.delete(fn); },
     checkServer: () => pingServer(),
+    startMonitor,
 };
 
 window.addEventListener('online', () => pingServer());
@@ -46,3 +59,4 @@ window.addEventListener('offline', () => setState('offline'));
 
 // Perform an initial ping so UI reflects local server reachability
 pingServer();
+startMonitor();

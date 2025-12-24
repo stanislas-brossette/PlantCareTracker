@@ -135,7 +135,8 @@ export async function getPlantImage(plant){
     if (blob){
         return URL.createObjectURL(blob);
     }
-    if (!connectivity.isOffline()){
+    const reachable = connectivity.isOffline() ? (await connectivity.checkServer()) === 'online' : true;
+    if (reachable){
         try {
             const res = await fetch(withBase('/' + (plant.image || '').replace(/^\/+/, '')));
             if (res.ok){
