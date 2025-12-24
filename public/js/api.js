@@ -14,6 +14,15 @@ export async function api(method, url, body){
       error.status = res.status;
       throw error;
     }
+
+    const contentType = res.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      const text = await res.text();
+      const error = new Error(text?.slice(0, 200) || 'Unexpected response format');
+      error.status = res.status;
+      throw error;
+    }
+
     return await res.json();
   }catch(err){
     if (!navigator.onLine){
