@@ -150,6 +150,8 @@ if (!serverMeta.locationsRev) serverMeta.locationsRev = serverMeta.serverRev;
 if (!serverMeta.lastClickedTimesRev) serverMeta.lastClickedTimesRev = serverMeta.serverRev;
 writeMeta();
 
+app.get('/ping', (req, res) => res.sendStatus(204));
+
 app.use(express.static('public'));
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');

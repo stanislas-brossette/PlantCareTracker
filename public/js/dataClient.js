@@ -14,7 +14,6 @@ async function fetchWithTimeout(url, options = {}, timeout = 5000){
     try {
         const resp = await fetch(withBase(url), { ...options, signal: controller.signal });
         clearTimeout(id);
-        if (!resp.ok) throw new Error('HTTP ' + resp.status);
         return resp;
     } catch (err){
         clearTimeout(id);
@@ -25,14 +24,15 @@ async function fetchWithTimeout(url, options = {}, timeout = 5000){
 async function safeGetJson(path){
     try {
         const res = await fetchWithTimeout(path);
-        connectivity.setOnline();
         if (!res.ok){
+            connectivity.setOnline();
             return { error: true, status: res.status };
         }
+        connectivity.setOnline();
         return await res.json();
     } catch (err){
-        connectivity.setOffline();
-        return { offline: true };
+        await connectivity.checkServer();
+        return { offline: connectivity.isOffline() };
     }
 }
 
