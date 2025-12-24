@@ -1,8 +1,13 @@
 (function(){
-    // Use the current origin by default so the app works when served locally or
-    // via a tunnel. A custom API_BASE can still be injected before this script
-    // loads when needed.
-    window.API_BASE = window.API_BASE || window.location.origin;
+    // Prefer an explicitly provided API_BASE. When not set, default to the
+    // Express backend on port 2000; if the page is already being served from
+    // that port, stick with the current origin. This avoids accidentally
+    // posting to the static web host (which returns HTML) and causing JSON
+    // parse errors when saving plants/locations.
+    const origin = window.location.origin;
+    const localhostApi = `${window.location.protocol}//${window.location.hostname}:2000`;
+    const isBackendOrigin = window.location.port === '2000';
+    window.API_BASE = window.API_BASE || (isBackendOrigin ? origin : localhostApi);
     const origFetch = window.fetch.bind(window);
 
     async function handleOffline(url, init){
