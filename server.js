@@ -377,6 +377,25 @@ app.post('/identify', async (req, res) => {
     if (!image) {
         return res.status(400).send('Image is required');
     }
+
+    const extractText = (content) => {
+        if (content == null) return '';
+        if (typeof content === 'string') return content;
+        if (Array.isArray(content)) {
+            return content
+                .map(part => {
+                    if (typeof part === 'string') return part;
+                    if (typeof part?.text === 'string') return part.text;
+                    if (typeof part === 'object' && typeof part?.content === 'string') return part.content;
+                    return '';
+                })
+                .filter(Boolean)
+                .join('\n\n');
+        }
+        if (typeof content === 'object' && typeof content?.text === 'string') return content.text;
+        return String(content);
+    };
+
     try {
         let base64;
         if (/^data:image\/\w+;base64,/.test(image)) {
@@ -433,7 +452,7 @@ app.post('/identify', async (req, res) => {
             return res.status(500).send('OpenAI request failed');
         }
         const data = await apiRes.json();
-        const full = data.choices?.[0]?.message?.content || '';
+        const full = extractText(data.choices?.[0]?.message?.content);
         if (questionText) {
             console.log('\n[OpenAI Identify] Question:\n', questionText);
         }
