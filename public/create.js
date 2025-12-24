@@ -262,7 +262,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    const setSaving = (saving) => {
+        saveBtn.disabled = saving;
+        saveBtn.textContent = saving ? 'Saving...' : 'Save';
+    };
+
     const save = async () => {
+        if (!locationSelect.value) {
+            showMessage('Please pick a location before saving', 'danger');
+            return;
+        }
+
         const body = {
             name: nameInput.value.trim(),
             description: descElem.value,
@@ -277,36 +287,45 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             body.image = imageElem.getAttribute('src');
         }
-        const res = await api('POST', '/plants', body);
-        if (!res.offline) {
-            const created = res;
-            showMessage('Created', 'success');
-            setTimeout(() => {
-                window.location.href = `plant.html?name=${encodeURIComponent(created.name)}`;
-            }, 1000);
-        } else {
-            body.uuid = (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2));
-            body.updatedAt = Date.now();
-            const list = await readPlants();
-            list.push(body);
-            await cachePlants(list);
-            try {
-                await window.offlineCache.savePlant(body);
-            } catch (e) {}
-            let locs = await readLocations();
-            if (!locs.includes(body.location)) {
-                locs.push(body.location);
-                await cacheLocations(locs);
+
+        setSaving(true);
+        try {
+            const res = await api('POST', '/plants', body);
+            if (!res.offline) {
+                const created = res;
+                showMessage('Created', 'success');
+                setTimeout(() => {
+                    window.location.href = `plant.html?name=${encodeURIComponent(created.name)}`;
+                }, 1000);
+            } else {
+                body.uuid = (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2));
+                body.updatedAt = Date.now();
+                const list = await readPlants();
+                list.push(body);
+                await cachePlants(list);
                 try {
-                    if (window.offlineCache.saveLocations) {
-                        await window.offlineCache.saveLocations(locs);
-                    }
+                    await window.offlineCache.savePlant(body);
                 } catch (e) {}
+                let locs = await readLocations();
+                if (!locs.includes(body.location)) {
+                    locs.push(body.location);
+                    await cacheLocations(locs);
+                    try {
+                        if (window.offlineCache.saveLocations) {
+                            await window.offlineCache.saveLocations(locs);
+                        }
+                    } catch (e) {}
+                }
+                showMessage('Saved locally', 'success');
+                setTimeout(() => {
+                    window.location.href = `plant.html?name=${encodeURIComponent(body.name)}`;
+                }, 1000);
             }
-            showMessage('Saved locally', 'success');
-            setTimeout(() => {
-                window.location.href = `plant.html?name=${encodeURIComponent(body.name)}`;
-            }, 1000);
+        } catch (err) {
+            console.error('Save failed', err);
+            showMessage(err.message || 'Could not save plant', 'danger');
+        } finally {
+            setSaving(false);
         }
     };
 
