@@ -20,6 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Object to store button references
     const buttonRefs = {};
 
+    const LAST_CLICKED_ENDPOINT = '/api/lastClickedTimes';
+
     const loadLocations = async () => {
         // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/locations')`
         const cached = await readLocations();
@@ -37,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
             currentIndex = locations.indexOf(stored);
         };
         render(cached);
-        const list = await api('GET', '/locations');
+        const list = await api('GET', '/api/locations');
         if (!list.offline) {
             await cacheLocations(list);
             render(list);
@@ -47,10 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const resolveImageUrl = (src) => {
         if (!src) return src;
         if (/^https?:\/\//.test(src) || src.startsWith('data:')) return src;
-        if (window.API_BASE) {
-            return window.API_BASE.replace(/\/$/, '') + '/' + src.replace(/^\/+/, '');
-        }
-        return src;
+        return src.startsWith('/') ? src : `/${src}`;
     };
 
     const renderPlants = () => {
@@ -86,6 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
             button.textContent = 'Never'; // Initial text
             button.id = `button-${plant.name}-${type}`;
             button.className = 'btn w-100 btn-success';
+            button.dataset.offlineDisabled = '';
             button.setAttribute('feedingMin', plant.feedingMin)
             button.setAttribute('feedingMax', plant.feedingMax)
             button.setAttribute('wateringMin', plant.wateringMin)
@@ -108,6 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const cached = await readPlants();
         plants = cached;
         renderPlants();
+        window.offlineUI?.refresh();
         await sync(renderPlants);
         setInterval(refreshTimes, 60000);
     };
@@ -201,8 +202,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const getLastClickedTimes = async () => {
-        // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/lastClickedTimes')`
-        const data = await api('GET', '/lastClickedTimes');
+        console.debug('[offline] fetching last clicked times from', LAST_CLICKED_ENDPOINT);
+        const data = await api('GET', LAST_CLICKED_ENDPOINT);
         Object.entries(data).forEach(([buttonId, time]) => {
             if (buttonRefs[buttonId]) {
                 updateButtonState(buttonId, time);
@@ -210,19 +211,27 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    const primeOfflineCaches = async () => {
+        await Promise.all([
+            api('GET', '/api/plants'),
+            api('GET', '/api/locations'),
+            api('GET', LAST_CLICKED_ENDPOINT),
+        ]);
+    };
+
     const buttonClicked = async (buttonId) => {
         const prevTime = buttonRefs[buttonId].dataset.lastClickedTime || null;
         undoStack.push({ buttonId, prevTime });
         updateUndoBtn();
 
-        const data = await api('POST', '/clicked', { buttonId });
+        const data = await api('POST', '/api/clicked', { buttonId });
         updateButtonState(buttonId, data.lastClickedTime);
     };
 
     const undoLast = async () => {
         if (undoStack.length === 0) return;
         const { buttonId, prevTime } = undoStack.pop();
-        const data = await api('POST', '/undo', { buttonId, previousTime: prevTime });
+        const data = await api('POST', '/api/undo', { buttonId, previousTime: prevTime });
         updateButtonState(buttonId, data.lastClickedTime);
         updateUndoBtn();
     };
@@ -242,5 +251,5 @@ document.addEventListener('DOMContentLoaded', () => {
     undoBtn.addEventListener('click', undoLast);
     updateUndoBtn();
     setRenderer(renderPlants);
-    loadLocations().then(loadPlants).then(initSwipe);
+    loadLocations().then(loadPlants).then(primeOfflineCaches).then(initSwipe);
 });

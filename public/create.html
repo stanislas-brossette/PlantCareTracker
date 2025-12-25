@@ -19,16 +19,16 @@
         <div class="col-md-4 text-center position-relative">
             <img id="plant-image" src="images/placeholder.png" alt="Plant image" class="img-fluid mb-2" />
             <div id="image-buttons" class="mt-2">
-                <button id="camera-btn" type="button" class="btn btn-outline-secondary"><i class="bi bi-camera-fill"></i></button>
-                <button id="gallery-btn" type="button" class="btn btn-outline-secondary"><i class="bi bi-image"></i></button>
+                <button id="camera-btn" type="button" class="btn btn-outline-secondary" data-offline-disabled><i class="bi bi-camera-fill"></i></button>
+                <button id="gallery-btn" type="button" class="btn btn-outline-secondary" data-offline-disabled><i class="bi bi-image"></i></button>
             </div>
             <input type="file" id="cameraFile" class="form-control d-none" accept="image/*" capture="environment" />
             <input type="file" id="galleryFile" class="form-control d-none" accept="image/*" />
         </div>
         <div class="col-md-8">
             <div class="d-flex align-items-start mb-3">
-                <button id="save" class="btn btn-primary me-2">Save</button>
-                <button id="identify" class="btn btn-outline-success">Identify Plant</button>
+                <button id="save" class="btn btn-primary me-2" data-offline-disabled>Save</button>
+                <button id="identify" class="btn btn-outline-success" data-offline-disabled>Identify Plant</button>
             </div>
             <div class="mb-3">
                 <h2 class="h5">Description &amp; Care</h2>
@@ -38,7 +38,7 @@
                 <label class="form-label">Location</label>
                 <div class="d-flex">
                     <select id="location-select" class="form-select"></select>
-                    <button id="add-location" class="btn btn-outline-secondary ms-2" type="button">Add</button>
+                    <button id="add-location" class="btn btn-outline-secondary ms-2" type="button" data-offline-disabled>Add</button>
                 </div>
             </div>
             <div class="accordion mb-3" id="scheduleAccordion">

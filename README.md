@@ -50,12 +50,28 @@ The app will be available at:
 ### **Using the app from your phone on the same Wi‑Fi**
 1. Start the server (`npm start` or `./setup.sh`). It listens on **0.0.0.0:2000**, so it’s reachable from your LAN.
 2. Find your computer/Raspberry Pi IP on that network (e.g., `ip addr`, `hostname -I`, or `ipconfig` on Windows). You should get something like `192.168.1.42`.
-3. On your phone (connected to the same Wi‑Fi), open a browser and visit `http://<that-ip>:2000` (for example `http://192.168.1.42:2000`). The page and API calls both use that origin, so the app works end‑to‑end.
+3. On your phone (connected to the same Wi‑Fi), open a browser and visit `http://<that-ip>:2000` (for example `http://192.168.1.42:2000`). The page, images, and API calls all use that same origin so the service worker can cache them for offline use.
 4. If it doesn’t load, check that local firewalls allow inbound connections on port **2000**.
 
-### Changing the API host/port inside the app
-- A floating **Connection** button (bottom-right of each page) opens a small panel where you can enter the backend IP/hostname and port (e.g., `192.168.1.31` and `2000`).
-- Saving the values stores them locally and updates all API calls immediately. Use **Use default** to clear the override and fall back to the current origin or `http://<your-device>:2000`.
+## Offline acceptance test
+1. In Chrome DevTools → Application, **Unregister** any existing service worker for this origin and clear storage for a clean slate.
+2. Start the server with `npm start` and open the app from the device you plan to use (for example `http://192.168.1.31:2000/`).
+3. Browse the plant list and at least one plant detail page so images and data load while online. Confirm watering/feeding buttons show a relative time (not "Never").
+4. In DevTools → Network, select the **/api/locations** request and confirm the **Content-Type** response header is `application/json` (no HTML body). The same origin should serve both the page and the API.
+5. Open DevTools → Application:
+   - The service worker should show **Activated and is running**.
+   - Cache Storage → `api-cache` should contain entries for `/api/plants`, `/api/locations`, and `/api/lastClickedTimes`.
+   - Cache Storage → `img-cache` should contain plant images that were viewed (e.g., `/images/…`).
+6. Stop the server completely.
+7. Hard reload the tab (Ctrl+Shift+R) or reopen it.
+
+Expected results:
+- App shell loads from cache.
+- Plant list, plant details, and images still display.
+- Watering/feeding buttons still show the cached relative time (no "Never").
+- Offline banner is visible.
+- Add/undo/watering/feeding/location management actions are disabled with an offline notice.
+- Console is not flooded with repeated `ERR_CONNECTION_REFUSED` messages.
 
 ## Plant Identification
 To use the optional Identify Plant feature, set your OpenAI API key before starting the server:
@@ -87,19 +103,19 @@ npm test
 
 ## **API Overview**
 
-The server exposes a small REST API consumed by the frontend. Useful endpoints:
+The server exposes a small REST API consumed by the frontend. Useful endpoints (all prefixed with `/api`):
 
-- `GET /plants` – list all non‑archived plants.
-- `GET /plants/:name` – fetch details for a single plant.
-- `POST /plants` – create a plant.
-- `PUT /plants/:name` – update a plant or archive it by sending `{ "archived": true }`.
-- `DELETE /plants/:name` – remove a plant.
-- `GET /locations` – list locations.
-- `POST /locations` – add a location (returns **201** when created, **200** if it already existed).
-- `DELETE /locations/:name` – delete a location and reassign any plants using it.
-- `GET /lastClickedTimes` – retrieve timestamps for watering and feeding actions.
-- `POST /clicked` – record a watering or feeding action.
-- `POST /undo` – revert the most recent action for a button.
+- `GET /api/plants` – list all non‑archived plants.
+- `GET /api/plants/:name` – fetch details for a single plant.
+- `POST /api/plants` – create a plant.
+- `PUT /api/plants/:name` – update a plant or archive it by sending `{ "archived": true }`.
+- `DELETE /api/plants/:name` – remove a plant.
+- `GET /api/locations` – list locations.
+- `POST /api/locations` – add a location (returns **201** when created, **200** if it already existed).
+- `DELETE /api/locations/:name` – delete a location and reassign any plants using it.
+- `GET /api/lastClickedTimes` – retrieve timestamps for watering and feeding actions.
+- `POST /api/clicked` – record a watering or feeding action.
+- `POST /api/undo` – revert the most recent action for a button.
 
 ---
 

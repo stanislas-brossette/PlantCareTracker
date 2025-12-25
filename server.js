@@ -19,6 +19,8 @@ const plantsFile = 'plants.json';
 let locations = [];
 const locationsFile = 'locations.json';
 
+const api = express.Router();
+
 function generateDefaultName() {
     let idx = 1;
     const existing = new Set(plants.map(p => p.name));
@@ -113,7 +115,6 @@ readLastClickedTimes();
 readLocations();
 readPlants();
 
-app.use(express.static('public'));
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', 'Content-Type');
@@ -131,21 +132,21 @@ function isValidFreqArray(arr) {
         arr.every(n => n === null || (typeof n === 'number' && Number.isFinite(n)));
 }
 
-app.post('/clicked', (req, res) => {
+api.post('/clicked', (req, res) => {
     const buttonId = req.body.buttonId;
     if (buttonId) {
         lastClickedTimes[buttonId] = new Date().toISOString();
         writeLastClickedTimes();
-        res.send({ lastClickedTime: lastClickedTimes[buttonId] });
+        res.json({ lastClickedTime: lastClickedTimes[buttonId] });
     } else {
-        res.status(400).send('Button ID is required');
+        res.status(400).json({ error: 'Button ID is required' });
     }
 });
 
-app.post('/undo', (req, res) => {
+api.post('/undo', (req, res) => {
     const { buttonId, previousTime } = req.body;
     if (!buttonId) {
-        return res.status(400).send('Button ID is required');
+        return res.status(400).json({ error: 'Button ID is required' });
     }
 
     if (previousTime) {
@@ -155,21 +156,21 @@ app.post('/undo', (req, res) => {
     }
 
     writeLastClickedTimes();
-    res.send({ lastClickedTime: previousTime || null });
+    res.json({ lastClickedTime: previousTime || null });
 });
 
-app.get('/lastClickedTimes', (req, res) => {
+api.get('/lastClickedTimes', (req, res) => {
     res.send(lastClickedTimes);
 });
 
-app.get('/locations', (req, res) => {
+api.get('/locations', (req, res) => {
     res.send(locations);
 });
 
-app.post('/locations', (req, res) => {
+api.post('/locations', (req, res) => {
     const { name } = req.body;
     if (!name) {
-        return res.status(400).send('Name is required');
+        return res.status(400).json({ error: 'Name is required' });
     }
 
     if (!locations.includes(name)) {
@@ -181,13 +182,13 @@ app.post('/locations', (req, res) => {
     res.status(200).send({ name });
 });
 
-app.delete('/locations/:name', (req, res) => {
+api.delete('/locations/:name', (req, res) => {
     const idx = locations.indexOf(req.params.name);
     if (idx === -1) {
-        return res.status(404).send('Location not found');
+        return res.status(404).json({ error: 'Location not found' });
     }
     if (locations.length === 1) {
-        return res.status(400).send('Cannot delete last location');
+        return res.status(400).json({ error: 'Cannot delete last location' });
     }
     const removed = locations.splice(idx, 1)[0];
     const fallback = locations[0] || 'Default';
@@ -203,37 +204,37 @@ app.delete('/locations/:name', (req, res) => {
     res.send({ name: removed });
 });
 
-app.get('/plants', (req, res) => {
+api.get('/plants', (req, res) => {
     // Only return non archived plants
     const visiblePlants = plants.filter(p => !p.archived);
     res.send(visiblePlants);
 });
 
-app.get('/plants/changes', (req, res) => {
+api.get('/plants/changes', (req, res) => {
     const since = parseInt(req.query.since || '0', 10);
     const changed = plants.filter(p => p.updatedAt > since);
     res.send({ plants: changed });
 });
 
-app.get('/plants/:name', (req, res) => {
+api.get('/plants/:name', (req, res) => {
     const plant = plants.find(p => p.name === req.params.name);
     if (plant) {
         res.send(plant);
     } else {
-        res.status(404).send('Plant not found');
+        res.status(404).json({ error: 'Plant not found' });
     }
 });
 
-app.put('/plants/:name', (req, res) => {
+api.put('/plants/:name', (req, res) => {
     const index = plants.findIndex(p => p.name === req.params.name);
     if (index === -1) {
-        return res.status(404).send('Plant not found');
+        return res.status(404).json({ error: 'Plant not found' });
     }
     const oldName = plants[index].name;
     const newName = req.body.name && req.body.name !== oldName ? req.body.name : null;
     if (newName) {
         if (plants.find(p => p.name === newName)) {
-            return res.status(400).send('Plant already exists');
+            return res.status(400).json({ error: 'Plant already exists' });
         }
         plants[index].name = newName;
         Object.keys(lastClickedTimes).forEach(key => {
@@ -253,16 +254,16 @@ app.put('/plants/:name', (req, res) => {
         delete req.body.imageData;
     }
     if (req.body.wateringMin && !isValidFreqArray(req.body.wateringMin)) {
-        return res.status(400).send('wateringMin must be an array of 12 numbers');
+        return res.status(400).json({ error: 'wateringMin must be an array of 12 numbers' });
     }
     if (req.body.wateringMax && !isValidFreqArray(req.body.wateringMax)) {
-        return res.status(400).send('wateringMax must be an array of 12 numbers');
+        return res.status(400).json({ error: 'wateringMax must be an array of 12 numbers' });
     }
     if (req.body.feedingMin && !isValidFreqArray(req.body.feedingMin)) {
-        return res.status(400).send('feedingMin must be an array of 12 numbers');
+        return res.status(400).json({ error: 'feedingMin must be an array of 12 numbers' });
     }
     if (req.body.feedingMax && !isValidFreqArray(req.body.feedingMax)) {
-        return res.status(400).send('feedingMax must be an array of 12 numbers');
+        return res.status(400).json({ error: 'feedingMax must be an array of 12 numbers' });
     }
 
     if (req.body.location && !locations.includes(req.body.location)) {
@@ -285,13 +286,13 @@ app.put('/plants/:name', (req, res) => {
     res.send(plants[index]);
 });
 
-app.post('/plants', (req, res) => {
+api.post('/plants', (req, res) => {
     const newPlant = req.body;
     if (!newPlant.name || !newPlant.name.trim()) {
         newPlant.name = generateDefaultName();
     }
     if (plants.find(p => p.name === newPlant.name)) {
-        return res.status(400).send('Plant already exists');
+        return res.status(400).json({ error: 'Plant already exists' });
     }
     if (newPlant.imageData) {
         const saved = saveBase64Image(newPlant.imageData);
@@ -301,19 +302,19 @@ app.post('/plants', (req, res) => {
         delete newPlant.imageData;
     }
     if (!newPlant.location) {
-        return res.status(400).send('Location is required');
+        return res.status(400).json({ error: 'Location is required' });
     }
     if (newPlant.wateringMin && !isValidFreqArray(newPlant.wateringMin)) {
-        return res.status(400).send('wateringMin must be an array of 12 numbers');
+        return res.status(400).json({ error: 'wateringMin must be an array of 12 numbers' });
     }
     if (newPlant.wateringMax && !isValidFreqArray(newPlant.wateringMax)) {
-        return res.status(400).send('wateringMax must be an array of 12 numbers');
+        return res.status(400).json({ error: 'wateringMax must be an array of 12 numbers' });
     }
     if (newPlant.feedingMin && !isValidFreqArray(newPlant.feedingMin)) {
-        return res.status(400).send('feedingMin must be an array of 12 numbers');
+        return res.status(400).json({ error: 'feedingMin must be an array of 12 numbers' });
     }
     if (newPlant.feedingMax && !isValidFreqArray(newPlant.feedingMax)) {
-        return res.status(400).send('feedingMax must be an array of 12 numbers');
+        return res.status(400).json({ error: 'feedingMax must be an array of 12 numbers' });
     }
     const plantToAdd = {
         name: newPlant.name,
@@ -336,10 +337,10 @@ app.post('/plants', (req, res) => {
     res.status(201).send(plantToAdd);
 });
 
-app.delete('/plants/:name', (req, res) => {
+api.delete('/plants/:name', (req, res) => {
     const index = plants.findIndex(p => p.name === req.params.name);
     if (index === -1) {
-        return res.status(404).send('Plant not found');
+        return res.status(404).json({ error: 'Plant not found' });
     }
     const removed = plants.splice(index, 1)[0];
 
@@ -354,12 +355,13 @@ app.delete('/plants/:name', (req, res) => {
     res.send(removed);
 });
 
-app.post('/bulk', async (req, res) => {
+api.post('/bulk', async (req, res) => {
     const ops = Array.isArray(req.body) ? req.body : [];
     const results = [];
     for (const op of ops){
         try {
-            const r = await fetch(`http://localhost:${port}${op.url}`, {
+            const targetPath = op.url.startsWith('/api') ? op.url : `/api${op.url.startsWith('/') ? '' : '/'}${op.url.replace(/^\//, '')}`;
+            const r = await fetch(`http://localhost:${port}${targetPath}`, {
                 method: op.method,
                 headers:{'Content-Type':'application/json'},
                 body: op.body ? JSON.stringify(op.body) : undefined
@@ -372,10 +374,10 @@ app.post('/bulk', async (req, res) => {
     res.send({ results });
 });
 
-app.post('/identify', async (req, res) => {
+api.post('/identify', async (req, res) => {
     const { image } = req.body;
     if (!image) {
-        return res.status(400).send('Image is required');
+        return res.status(400).json({ error: 'Image is required' });
     }
 
     const extractText = (content) => {
@@ -452,7 +454,7 @@ app.post('/identify', async (req, res) => {
         });
         if (!apiRes.ok) {
             console.error('OpenAI error', await apiRes.text());
-            return res.status(500).send('OpenAI request failed');
+            return res.status(500).json({ error: 'OpenAI request failed' });
         }
         const data = await apiRes.json();
         const message = data.choices?.[0]?.message || {};
@@ -471,8 +473,19 @@ app.post('/identify', async (req, res) => {
         res.send({ description, schedule, commonName });
     } catch (err) {
         console.error('Identify error', err);
-        res.status(500).send('Error identifying plant');
+        res.status(500).json({ error: 'Error identifying plant' });
     }
+});
+
+app.use('/api', api);
+app.use('/api', (req, res) => res.status(404).json({ error: 'Not found' }));
+
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api/')) return res.status(404).json({ error: 'Not found' });
+    if (req.method !== 'GET') return next();
+    return res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 if (require.main === module) {

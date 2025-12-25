@@ -2,26 +2,26 @@ const request = require('supertest');
 const app = require('../server');
 
 describe('Server endpoints', () => {
-  test('GET /locations returns status 200 and array', async () => {
-    const res = await request(app).get('/locations');
+  test('GET /api/locations returns status 200 and array', async () => {
+    const res = await request(app).get('/api/locations');
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
   });
 
-  test('POST /locations creates a location', async () => {
+  test('POST /api/locations creates a location', async () => {
     const name = 'TestArea-' + Date.now();
     const res = await request(app)
-      .post('/locations')
+      .post('/api/locations')
       .send({ name });
     expect([200, 201]).toContain(res.statusCode);
-    const list = await request(app).get('/locations');
+    const list = await request(app).get('/api/locations');
     expect(list.body).toContain(name);
   });
 
-  test('DELETE /locations removes location and updates plants', async () => {
-    await request(app).post('/locations').send({ name: 'TempLoc' });
+  test('DELETE /api/locations removes location and updates plants', async () => {
+    await request(app).post('/api/locations').send({ name: 'TempLoc' });
     await request(app)
-      .post('/plants')
+      .post('/api/plants')
       .send({
         name: 'TempPlant',
         wateringMin: Array(12).fill(1),
@@ -31,100 +31,100 @@ describe('Server endpoints', () => {
         image: 'images/placeholder.png',
         location: 'TempLoc'
       });
-    const delRes = await request(app).delete('/locations/TempLoc');
+    const delRes = await request(app).delete('/api/locations/TempLoc');
     expect(delRes.statusCode).toBe(200);
-    const list = await request(app).get('/locations');
+    const list = await request(app).get('/api/locations');
     expect(list.body).not.toContain('TempLoc');
-    const plant = await request(app).get('/plants/TempPlant');
+    const plant = await request(app).get('/api/plants/TempPlant');
     expect(plant.body.location).not.toBe('TempLoc');
-    await request(app).delete('/plants/TempPlant');
+    await request(app).delete('/api/plants/TempPlant');
   });
-  test('GET /lastClickedTimes returns status 200 and JSON', async () => {
-    const res = await request(app).get('/lastClickedTimes');
+  test('GET /api/lastClickedTimes returns status 200 and JSON', async () => {
+    const res = await request(app).get('/api/lastClickedTimes');
     expect(res.statusCode).toBe(200);
     expect(res.headers['content-type']).toMatch(/json/);
     expect(typeof res.body).toBe('object');
   });
 
-  test('POST /clicked responds with updated timestamp', async () => {
+  test('POST /api/clicked responds with updated timestamp', async () => {
     const res = await request(app)
-      .post('/clicked')
+      .post('/api/clicked')
       .send({ buttonId: 'sample-button' });
     expect(res.statusCode).toBe(200);
     expect(res.body).toHaveProperty('lastClickedTime');
   });
 
-  test('POST /undo restores previous timestamp', async () => {
+  test('POST /api/undo restores previous timestamp', async () => {
     const buttonId = 'sample-button-undo';
-    await request(app).post('/clicked').send({ buttonId });
+    await request(app).post('/api/clicked').send({ buttonId });
 
     const ts = new Date('2000-01-01T00:00:00.000Z').toISOString();
     const res = await request(app)
-      .post('/undo')
+      .post('/api/undo')
       .send({ buttonId, previousTime: ts });
     expect(res.statusCode).toBe(200);
     expect(res.body.lastClickedTime).toBe(ts);
 
-    const times = await request(app).get('/lastClickedTimes');
+    const times = await request(app).get('/api/lastClickedTimes');
     expect(times.body[buttonId]).toBe(ts);
 
-    await request(app).post('/undo').send({ buttonId, previousTime: null });
+    await request(app).post('/api/undo').send({ buttonId, previousTime: null });
   });
 
-  test('GET /plants returns array of plants', async () => {
-    const res = await request(app).get('/plants');
+  test('GET /api/plants returns array of plants', async () => {
+    const res = await request(app).get('/api/plants');
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
   });
 
-  test('PUT /plants/:name updates a plant', async () => {
+  test('PUT /api/plants/:name updates a plant', async () => {
     const res = await request(app)
-      .put('/plants/ZZ')
+      .put('/api/plants/ZZ')
       .send({ description: 'test-desc' });
     expect(res.statusCode).toBe(200);
     expect(res.body.description).toBe('test-desc');
 
     await request(app)
-      .put('/plants/ZZ')
+      .put('/api/plants/ZZ')
       .send({ description: '' });
   });
 
 
-  test('PUT /plants/:name archives a plant', async () => {
+  test('PUT /api/plants/:name archives a plant', async () => {
     const res = await request(app)
-      .put('/plants/ZZ')
+      .put('/api/plants/ZZ')
       .send({ archived: true });
     expect(res.statusCode).toBe(200);
     expect(res.body.archived).toBe(true);
 
     await request(app)
-      .put('/plants/ZZ')
+      .put('/api/plants/ZZ')
       .send({ archived: false });
   });
 
   test('Archiving a plant removes its lastClickedTimes entries', async () => {
     const name = 'Fougère';
 
-    await request(app).post('/clicked').send({ buttonId: `button-${name}-Arrosage` });
-    await request(app).post('/clicked').send({ buttonId: `button-${name}-Engrais` });
+    await request(app).post('/api/clicked').send({ buttonId: `button-${name}-Arrosage` });
+    await request(app).post('/api/clicked').send({ buttonId: `button-${name}-Engrais` });
 
     const archiveRes = await request(app)
-      .put('/plants/' + encodeURIComponent(name))
+      .put('/api/plants/' + encodeURIComponent(name))
       .send({ archived: true });
     expect(archiveRes.statusCode).toBe(200);
 
-    const times = await request(app).get('/lastClickedTimes');
+    const times = await request(app).get('/api/lastClickedTimes');
     const hasEntry = Object.keys(times.body).some(k => k.includes(name));
     expect(hasEntry).toBe(false);
 
     await request(app)
-      .put('/plants/' + encodeURIComponent(name))
+      .put('/api/plants/' + encodeURIComponent(name))
       .send({ archived: false });
-    await request(app).post('/clicked').send({ buttonId: `button-${name}-Arrosage` });
-    await request(app).post('/clicked').send({ buttonId: `button-${name}-Engrais` });
+    await request(app).post('/api/clicked').send({ buttonId: `button-${name}-Arrosage` });
+    await request(app).post('/api/clicked').send({ buttonId: `button-${name}-Engrais` });
   });
 
-  test('POST /plants creates and DELETE removes a plant', async () => {
+  test('POST /api/plants creates and DELETE removes a plant', async () => {
     const newPlant = {
       name: 'TestPlant',
       description: 'temp',
@@ -137,19 +137,19 @@ describe('Server endpoints', () => {
     };
 
     const createRes = await request(app)
-      .post('/plants')
+      .post('/api/plants')
       .send(newPlant);
     expect(createRes.statusCode).toBe(201);
     expect(createRes.body.name).toBe(newPlant.name);
 
     const delRes = await request(app)
-      .delete('/plants/' + encodeURIComponent(newPlant.name));
+      .delete('/api/plants/' + encodeURIComponent(newPlant.name));
     expect(delRes.statusCode).toBe(200);
   });
 
-  test('POST /plants assigns default name when missing', async () => {
+  test('POST /api/plants assigns default name when missing', async () => {
     const res = await request(app)
-      .post('/plants')
+      .post('/api/plants')
       .send({
         description: 'temp',
         wateringMin: Array(12).fill(1),
@@ -161,12 +161,12 @@ describe('Server endpoints', () => {
       });
     expect(res.statusCode).toBe(201);
     expect(res.body.name).toBeTruthy();
-    await request(app).delete('/plants/' + encodeURIComponent(res.body.name));
+    await request(app).delete('/api/plants/' + encodeURIComponent(res.body.name));
   });
 
   test('Reject invalid frequency arrays on creation', async () => {
     const res = await request(app)
-      .post('/plants')
+      .post('/api/plants')
       .send({
         name: 'InvalidPlant',
         wateringMin: [1],
@@ -180,7 +180,7 @@ describe('Server endpoints', () => {
 
   test('Reject invalid frequency arrays on update', async () => {
     const res = await request(app)
-      .put('/plants/ZZ')
+      .put('/api/plants/ZZ')
       .send({ wateringMin: [1] });
     expect(res.statusCode).toBe(400);
   });
@@ -188,7 +188,7 @@ describe('Server endpoints', () => {
   test('Reject non-finite frequency values', async () => {
     const invalid = Array(12).fill('x');
     const res = await request(app)
-      .post('/plants')
+      .post('/api/plants')
       .send({ name: 'BadNum', wateringMin: invalid, wateringMax: invalid, feedingMin: invalid, feedingMax: invalid, location: 'TestArea' });
     expect(res.statusCode).toBe(400);
   });
@@ -196,10 +196,10 @@ describe('Server endpoints', () => {
   test('Allow null frequency values on update', async () => {
     const arr = Array(12).fill(null);
     const res = await request(app)
-      .put('/plants/ZZ')
+      .put('/api/plants/ZZ')
       .send({ wateringMin: arr, wateringMax: arr });
     expect(res.statusCode).toBe(200);
-    const plant = await request(app).get('/plants/ZZ');
+    const plant = await request(app).get('/api/plants/ZZ');
     expect(plant.body.wateringMin.every(v => v === null)).toBe(true);
   });
 
@@ -207,28 +207,28 @@ describe('Server endpoints', () => {
     const oldName = 'ZZ';
     const newName = `New${Date.now()}`;
 
-    await request(app).post('/clicked').send({ buttonId: `button-${oldName}-Arrosage` });
-    await request(app).post('/clicked').send({ buttonId: `button-${oldName}-Engrais` });
+    await request(app).post('/api/clicked').send({ buttonId: `button-${oldName}-Arrosage` });
+    await request(app).post('/api/clicked').send({ buttonId: `button-${oldName}-Engrais` });
 
     const archiveRes = await request(app)
-      .put('/plants/' + encodeURIComponent(oldName))
+      .put('/api/plants/' + encodeURIComponent(oldName))
       .send({ name: newName, archived: true });
     expect(archiveRes.statusCode).toBe(200);
 
-    const times = await request(app).get('/lastClickedTimes');
+    const times = await request(app).get('/api/lastClickedTimes');
     const has = Object.keys(times.body).some(k => k.includes(newName));
     expect(has).toBe(false);
 
     await request(app)
-      .put('/plants/' + encodeURIComponent(newName))
+      .put('/api/plants/' + encodeURIComponent(newName))
       .send({ name: oldName, archived: false });
-    await request(app).post('/clicked').send({ buttonId: `button-${oldName}-Arrosage` });
-    await request(app).post('/clicked').send({ buttonId: `button-${oldName}-Engrais` });
+    await request(app).post('/api/clicked').send({ buttonId: `button-${oldName}-Arrosage` });
+    await request(app).post('/api/clicked').send({ buttonId: `button-${oldName}-Engrais` });
   });
 
-  test('GET /plants/changes returns recent updates', async () => {
+  test('GET /api/plants/changes returns recent updates', async () => {
     const before = Date.now() - 1;
-    await request(app).post('/plants').send({
+    await request(app).post('/api/plants').send({
       name: 'ChangePlant',
       wateringMin: Array(12).fill(1),
       wateringMax: Array(12).fill(1),
@@ -237,17 +237,17 @@ describe('Server endpoints', () => {
       image: 'images/placeholder.png',
       location: 'TestArea'
     });
-    const res = await request(app).get('/plants/changes?since=' + before);
+    const res = await request(app).get('/api/plants/changes?since=' + before);
     expect(res.statusCode).toBe(200);
-    await request(app).delete('/plants/ChangePlant');
+    await request(app).delete('/api/plants/ChangePlant');
   });
 
-  test('POST /bulk processes multiple ops', async () => {
+  test('POST /api/bulk processes multiple ops', async () => {
     const ops = [
-      { method: 'POST', url: '/plants', body: { name: 'BulkPlant', wateringMin: Array(12).fill(1), wateringMax: Array(12).fill(1), feedingMin: Array(12).fill(1), feedingMax: Array(12).fill(1), image: 'images/placeholder.png', location: 'TestArea' } },
-      { method: 'DELETE', url: '/plants/BulkPlant' }
+      { method: 'POST', url: '/api/plants', body: { name: 'BulkPlant', wateringMin: Array(12).fill(1), wateringMax: Array(12).fill(1), feedingMin: Array(12).fill(1), feedingMax: Array(12).fill(1), image: 'images/placeholder.png', location: 'TestArea' } },
+      { method: 'DELETE', url: '/api/plants/BulkPlant' }
     ];
-    const res = await request(app).post('/bulk').send(ops);
+    const res = await request(app).post('/api/bulk').send(ops);
     expect(res.statusCode).toBe(200);
   });
 });

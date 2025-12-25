@@ -41,10 +41,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const resolveImageUrl = (src) => {
         if (!src) return src;
         if (/^https?:\/\//.test(src) || src.startsWith('data:')) return src;
-        if (window.API_BASE) {
-            return window.API_BASE.replace(/\/$/, '') + '/' + src.replace(/^\/+/, '');
-        }
-        return src;
+        return src.startsWith('/') ? src : `/${src}`;
     };
 
     const autoResize = () => {
@@ -86,7 +83,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const cached = await readLocations();
         render(cached);
         try {
-            const list = await api('GET', '/locations');
+            const list = await api('GET', '/api/locations');
             if (!list.offline) {
                 await cacheLocations(list);
                 render(list);
@@ -100,7 +97,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const name = prompt('New location name')?.trim();
         if (!name) return;
         try {
-            await api('POST', '/locations', { name });
+            await api('POST', '/api/locations', { name });
             const opts = Array.from(locationSelect.options).map(o => o.value);
             if (!opts.includes(name)) {
                 const opt = document.createElement('option');
@@ -138,7 +135,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const fetchPlant = async (plantName) => {
         if (plantCache[plantName]) return plantCache[plantName];
-        const plant = await api('GET', `/plants/${encodeURIComponent(plantName)}`);
+        const plant = await api('GET', `/api/plants/${encodeURIComponent(plantName)}`);
         if (!plant.offline) {
             plantCache[plantName] = plant;
             return plant;
@@ -343,7 +340,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const loadPlantNames = async () => {
         // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/plants')`
-        const list = await api('GET', '/plants');
+        const list = await api('GET', '/api/plants');
         if (!list.offline) {
             const filtered = list.filter(p => !p.archived && (currentLocation === 'All' || p.location === currentLocation));
             plantNames = filtered.map(p => p.name);
@@ -427,13 +424,22 @@ document.addEventListener('DOMContentLoaded', async () => {
             location: locationSelect.value
         };
         if (imageData) { body.imageData = imageData; }
-        await api('PUT', `/plants/${encodeURIComponent(name)}`, body);
+        const res = await api('PUT', `/api/plants/${encodeURIComponent(name)}`, body);
+        if (res?.offline) {
+            window.offlineUI?.notifyIfOffline();
+            showMessage('Saving is unavailable while offline', 'danger');
+            return;
+        }
         showMessage('Saved', 'success');
         setTimeout(() => { window.location.href = 'index.html'; }, 1000);
     };
 
     const updateDescription = async (text) => {
-        await api('PUT', `/plants/${encodeURIComponent(name)}`, { description: text });
+        const res = await api('PUT', `/api/plants/${encodeURIComponent(name)}`, { description: text });
+        if (res?.offline) {
+            window.offlineUI?.notifyIfOffline();
+            return;
+        }
         if (plantCache[name]) {
             plantCache[name].description = text;
         }
@@ -441,12 +447,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const updateSchedule = async (sched) => {
-        await api('PUT', `/plants/${encodeURIComponent(name)}`, {
+        const res = await api('PUT', `/api/plants/${encodeURIComponent(name)}`, {
             wateringMin: sched.wateringMin,
             wateringMax: sched.wateringMax,
             feedingMin: sched.feedingMin,
             feedingMax: sched.feedingMax
         });
+        if (res?.offline) {
+            window.offlineUI?.notifyIfOffline();
+            return;
+        }
         if (plantCache[name]) {
             plantCache[name].wateringMin = sched.wateringMin;
             plantCache[name].wateringMax = sched.wateringMax;
@@ -457,7 +467,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const archive = async () => {
-        await api('PUT', `/plants/${encodeURIComponent(name)}`, { archived: true });
+        const res = await api('PUT', `/api/plants/${encodeURIComponent(name)}`, { archived: true });
+        if (res?.offline) {
+            window.offlineUI?.notifyIfOffline();
+            showMessage('Archive unavailable offline', 'danger');
+            return;
+        }
         showMessage('Archived', 'success');
         setTimeout(() => { window.location.href = 'index.html'; }, 1000);
     };
@@ -469,8 +484,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const renamePlant = async (newName) => {
         if (!newName || newName === name) return;
-        const res = await api('PUT', `/plants/${encodeURIComponent(name)}`, { name: newName });
-        if (res.offline) return;
+        const res = await api('PUT', `/api/plants/${encodeURIComponent(name)}`, { name: newName });
+        if (res.offline) {
+            window.offlineUI?.notifyIfOffline();
+            return;
+        }
         if (plantCache[name]) {
             plantCache[newName] = { ...plantCache[name], name: newName };
             delete plantCache[name];
@@ -492,7 +510,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const imgParam = imageData || imageElem.dataset.path || imageElem.getAttribute('src');
 
         try {
-            const res = await api('POST', '/identify', { image: imgParam });
+            const res = await api('POST', '/api/identify', { image: imgParam });
             if (!res || res.offline) {
                 throw new Error('Error identifying plant');
             }
@@ -554,6 +572,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 10000);
     });
 
+    window.offlineUI?.refresh();
     await loadLocations();
     await loadPlantNames();
     initSwipe();

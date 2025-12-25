@@ -1,40 +1,44 @@
-import { queue } from './storage.js';
+const API_PREFIX = '/api';
+
+const normalizeUrl = (url) => {
+  if (typeof url !== 'string') return url;
+  if (/^https?:\/\//i.test(url)) return url;
+  const path = url.startsWith('/api/') ? url : `${API_PREFIX}${url.startsWith('/') ? '' : '/'}${url.replace(/^\//, '')}`;
+  return path;
+};
 
 export async function api(method, url, body){
+  const options = {
+    method,
+    headers: {'Content-Type':'application/json'},
+    body: body ? JSON.stringify(body) : undefined
+  };
   try{
-    const res = await fetch(url, { method,
-                                   headers:{'Content-Type':'application/json'},
-                                   body: body?JSON.stringify(body):undefined });
-    if (!res.ok) {
-      let detail = '';
-      try {
-        detail = await res.text();
-      } catch (e) {}
-      const error = new Error(detail || `HTTP ${res.status}`);
+    const res = await fetch(normalizeUrl(url), options);
+    const text = await res.text();
+    const contentType = res.headers.get('content-type') || '';
+    if (contentType.includes('text/html')) {
+      const preview = text.slice(0, 200);
+      const error = new Error(`Expected JSON from ${res.url} but got HTML (status ${res.status}). Likely route collision. Preview: ${preview}`);
       error.status = res.status;
       throw error;
     }
-
-    const text = await res.text();
-    const contentType = res.headers.get('content-type') || '';
+    if (!res.ok) {
+      const error = new Error(text || `HTTP ${res.status}`);
+      error.status = res.status;
+      throw error;
+    }
     if (!contentType.includes('application/json')) {
       const error = new Error(text?.slice(0, 200) || 'Unexpected response format');
       error.status = res.status;
       throw error;
     }
-
-    try {
-      return JSON.parse(text || '{}');
-    } catch (e) {
-      const error = new Error('Unexpected response from server. Please ensure the API server is running.');
-      error.status = res.status;
-      error.detail = text?.slice(0, 200);
-      throw error;
-    }
+    return JSON.parse(text || '{}');
   }catch(err){
-    if (!navigator.onLine){
-      await queue({method,url,body,ts:Date.now()});
-      return { offline:true };
+    const isNetworkError = err?.name === 'AbortError' || err instanceof TypeError;
+    if (isNetworkError) {
+      window.offlineUI?.setOffline('request-failed');
+      return { offline: true };
     }
     throw err;
   }
