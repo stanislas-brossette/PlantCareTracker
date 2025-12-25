@@ -16,10 +16,7 @@
         }
     }
 
-    const origin = window.location.origin;
-    const localhostApi = `${window.location.protocol}//${window.location.hostname}:2000`;
-    const isBackendOrigin = window.location.port === '2000';
-    const defaultBase = isBackendOrigin ? origin : localhostApi;
+    const defaultBase = window.location.origin;
     const storedBase = normalizeBase(localStorage.getItem(STORAGE_KEY) || '');
 
     function setBase(input){

@@ -34,14 +34,34 @@ precacheAndRoute([
 
 registerRoute(new NavigationRoute(precaching.createHandlerBoundToURL('/index.html')));
 
+const apiStrategy = new StaleWhileRevalidate({ cacheName: 'api-cache' });
+const isSameOrigin = (url) => url.origin === self.location.origin;
+
 registerRoute(
-  ({ url, request }) => request.method === 'GET' && (
+  ({ url, request }) => request.method === 'GET' && isSameOrigin(url) && (
     url.pathname === '/plants' ||
     url.pathname.startsWith('/plants/') ||
     url.pathname === '/locations' ||
-    url.pathname === '/lastClickedTimes'
+    url.pathname === '/lastClickedTimes' ||
+    url.pathname === '/api/lastClickedTimes'
   ),
-  new StaleWhileRevalidate({ cacheName: 'api-cache' })
+  async ({ event }) => {
+    const { request } = event;
+    const matchPath = new URL(request.url).pathname;
+    const isLastClicked = matchPath === '/lastClickedTimes' || matchPath === '/api/lastClickedTimes';
+    const cached = await caches.match(request);
+    if (isLastClicked) {
+      console.log('[sw] lastClickedTimes cache', cached ? 'hit' : 'miss', request.url);
+    }
+    const response = await apiStrategy.handle({ event });
+    if (isLastClicked && !cached) {
+      const nowCached = await caches.match(request);
+      if (nowCached) {
+        console.log('[sw] lastClickedTimes cached after fetch', request.url);
+      }
+    }
+    return response;
+  }
 );
 
 registerRoute(

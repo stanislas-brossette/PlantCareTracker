@@ -20,6 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Object to store button references
     const buttonRefs = {};
 
+    const LAST_CLICKED_ENDPOINT = '/lastClickedTimes';
+
     const loadLocations = async () => {
         // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/locations')`
         const cached = await readLocations();
@@ -203,13 +205,21 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const getLastClickedTimes = async () => {
-        // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/lastClickedTimes')`
-        const data = await api('GET', '/lastClickedTimes');
+        console.debug('[offline] fetching last clicked times from', LAST_CLICKED_ENDPOINT);
+        const data = await api('GET', LAST_CLICKED_ENDPOINT);
         Object.entries(data).forEach(([buttonId, time]) => {
             if (buttonRefs[buttonId]) {
                 updateButtonState(buttonId, time);
             }
         });
+    };
+
+    const primeOfflineCaches = async () => {
+        await Promise.all([
+            api('GET', '/plants'),
+            api('GET', '/locations'),
+            api('GET', LAST_CLICKED_ENDPOINT),
+        ]);
     };
 
     const buttonClicked = async (buttonId) => {
@@ -244,5 +254,5 @@ document.addEventListener('DOMContentLoaded', () => {
     undoBtn.addEventListener('click', undoLast);
     updateUndoBtn();
     setRenderer(renderPlants);
-    loadLocations().then(loadPlants).then(initSwipe);
+    loadLocations().then(loadPlants).then(primeOfflineCaches).then(initSwipe);
 });
