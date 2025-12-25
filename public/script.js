@@ -13,6 +13,9 @@ document.addEventListener('DOMContentLoaded', () => {
         undoBtn.disabled = undoStack.length === 0;
     };
 
+    undoBtn.dataset.offlineDisabled = 'true';
+    document.getElementById('create-plant').dataset.offlineDisabled = 'true';
+
     let plants = [];
     let locations = [];
     let currentIndex = 0;
@@ -47,10 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const resolveImageUrl = (src) => {
         if (!src) return src;
         if (/^https?:\/\//.test(src) || src.startsWith('data:')) return src;
-        if (window.API_BASE) {
-            return window.API_BASE.replace(/\/$/, '') + '/' + src.replace(/^\/+/, '');
-        }
-        return src;
+        return '/' + src.replace(/^\/+/, '');
     };
 
     const renderPlants = () => {
@@ -90,6 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
             button.setAttribute('feedingMax', plant.feedingMax)
             button.setAttribute('wateringMin', plant.wateringMin)
             button.setAttribute('wateringMax', plant.wateringMax)
+            button.dataset.offlineDisabled = 'true';
             button.onclick = () => buttonClicked(button.id);
             row.insertCell().appendChild(button);
             buttonRefs[button.id] = button; // Store button reference

@@ -316,3 +316,18 @@ img {
 #api-settings-panel .form-control-sm {
     font-size: 0.9rem;
 }
+
+.offline-banner {
+    background: #ffc107;
+    color: #2c2c2c;
+    padding: 10px;
+    text-align: center;
+    font-weight: 600;
+    border-radius: 4px;
+    margin-bottom: 12px;
+}
+
+.offline-disabled {
+    opacity: 0.6;
+    pointer-events: none;
+}
