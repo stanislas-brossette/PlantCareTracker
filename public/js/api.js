@@ -1,38 +1,54 @@
-const API_BASE = '/api';
-
 function buildUrl(path){
-  return path.startsWith('http') ? path : `${API_BASE}${path}`;
+  if (path.startsWith('http')) return path;
+  const base = window.API_BASE || '';
+  const normalizedBase = base.endsWith('/') ? base.slice(0, -1) : base;
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  return `${normalizedBase}${normalizedPath}`;
 }
 
-export async function api(method, url, body){
-  if (!navigator.onLine && method !== 'GET'){
+function offlineResponse(method){
+  if (method !== 'GET'){
     const err = new Error('Offline');
     err.offline = true;
     throw err;
   }
+  return { offline: true };
+}
+
+export async function api(method, url, body){
   if (!navigator.onLine){
-    return { offline: true };
+    return offlineResponse(method);
   }
 
-  const res = await fetch(buildUrl(url), {
-    method,
-    headers:{'Content-Type':'application/json'},
-    body: body ? JSON.stringify(body) : undefined
-  });
+  try {
+    const res = await fetch(buildUrl(url), {
+      method,
+      headers:{'Content-Type':'application/json'},
+      body: body ? JSON.stringify(body) : undefined
+    });
 
-  if (!res.ok){
-    const text = await res.text().catch(()=> '');
-    const error = new Error(text || `HTTP ${res.status}`);
-    error.status = res.status;
-    throw error;
-  }
+    if (!res.ok){
+      const text = await res.text().catch(()=> '');
+      const error = new Error(text || `HTTP ${res.status}`);
+      error.status = res.status;
+      throw error;
+    }
 
-  const contentType = res.headers.get('content-type') || '';
-  const text = await res.text();
-  if (!contentType.includes('application/json')){
-    const error = new Error(text?.slice(0,200) || 'Unexpected response format');
-    error.status = res.status;
-    throw error;
+    const contentType = res.headers.get('content-type') || '';
+    const text = await res.text();
+    if (!contentType.includes('application/json')){
+      return offlineResponse(method);
+    }
+    try {
+      return JSON.parse(text || '{}');
+    } catch (err){
+      err.status = res.status;
+      throw err;
+    }
+  } catch (err){
+    if (err.offline){
+      throw err;
+    }
+    return offlineResponse(method);
   }
-  return JSON.parse(text || '{}');
 }
