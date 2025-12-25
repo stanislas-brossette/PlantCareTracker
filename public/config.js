@@ -1,75 +1,42 @@
 (function(){
+    const TIMEOUT_MS = 5000;
+    const originalFetch = window.fetch.bind(window);
     const STORAGE_KEY = 'plantcare_api_base';
 
-    function normalizeBase(input){
-        if (!input) return '';
-        let base = input.trim();
-        if (!base) return '';
-        if (!/^https?:\/\//i.test(base)) {
-            base = `${window.location.protocol}//${base}`;
-        }
-        try {
-            const url = new URL(base);
-            return `${url.protocol}//${url.hostname}${url.port ? ':' + url.port : ''}`;
-        } catch (e){
-            return '';
-        }
-    }
-
-    const defaultBase = window.location.origin;
-    const storedBase = normalizeBase(localStorage.getItem(STORAGE_KEY) || '');
-
-    function setBase(input){
-        const normalized = normalizeBase(input);
-        if (input && !normalized) {
-            return null;
-        }
-        if (normalized) {
-            localStorage.setItem(STORAGE_KEY, normalized);
-            window.API_BASE = normalized;
-            return normalized;
-        }
+    try {
         localStorage.removeItem(STORAGE_KEY);
-        window.API_BASE = defaultBase;
-        return window.API_BASE;
+    } catch (e) {
+        // ignore cleanup failures
     }
 
-    window.API_BASE = window.API_BASE || storedBase || defaultBase;
-    window.apiConfig = {
-        getBase: () => window.API_BASE,
-        getDefaultBase: () => defaultBase,
-        getStoredBase: () => localStorage.getItem(STORAGE_KEY) || '',
-        setBase,
-    };
-
-    function withTimeout(promiseFactory, ms){
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), ms);
-
-        return promiseFactory(controller)
-            .finally(() => clearTimeout(timer));
-    }
-
-    const originalFetch = window.fetch.bind(window);
     window.fetch = async function(input, init){
-        let requestUrl = input;
-        if (typeof input === 'string' && input.startsWith('/')) {
-            requestUrl = window.API_BASE + input;
-        } else if (input instanceof Request && input.url.startsWith('/')) {
-            const url = new URL(input.url, window.location.origin);
-            requestUrl = new Request(window.API_BASE + url.pathname + url.search, input);
+        const controller = new AbortController();
+        const mergedInit = { ...(init || {}) };
+        if (init?.signal) {
+            if (init.signal.aborted) controller.abort();
+            init.signal.addEventListener('abort', () => controller.abort(), { once: true });
         }
+        mergedInit.signal = controller.signal;
+
+        const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
         try {
-            const result = await withTimeout(
-                (controller) => originalFetch(requestUrl, { ...(init || {}), signal: controller.signal }),
-                5000
-            );
+            const response = await originalFetch(input, mergedInit);
             window.offlineUI?.setOnline();
-            return result;
+            return response;
         } catch (err) {
             window.offlineUI?.setOffline('unreachable');
             throw err;
+        } finally {
+            clearTimeout(timer);
         }
+    };
+
+    window.API_BASE = window.location.origin;
+    window.apiConfig = {
+        getBase: () => window.location.origin,
+        getDefaultBase: () => window.location.origin,
+        getStoredBase: () => '',
+        setBase: () => window.location.origin,
     };
 })();

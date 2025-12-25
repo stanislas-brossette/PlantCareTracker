@@ -41,10 +41,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const resolveImageUrl = (src) => {
         if (!src) return src;
         if (/^https?:\/\//.test(src) || src.startsWith('data:')) return src;
-        if (window.API_BASE) {
-            return window.API_BASE.replace(/\/$/, '') + '/' + src.replace(/^\/+/, '');
-        }
-        return src;
+        return src.startsWith('/') ? src : `/${src}`;
     };
 
     const autoResize = () => {
