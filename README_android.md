@@ -43,10 +43,7 @@ This project uses [Capacitor](https://capacitorjs.com/) to package the existing 
    ```
 4. From Android Studio you can build and run the application on a device or emulator.
 
-The backend API must be hosted separately and reachable from the device running the app.
-
-## Configure API URL
-Edit `public/config.js` to point to your server's IP address and port. By default it uses `http://192.168.1.72:2000`.
+The backend API is served by the same Express app that hosts the frontend on port **2000**. Make sure your device can reach `http://<your-lan-ip>:2000/` on the same Wi‑Fi network when testing.
 
 ## Offline Mode
 The Android build caches plant data, images and button state using Capacitor's
