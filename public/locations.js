@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
             del.textContent = 'Delete';
             del.onclick = async () => {
                 try {
-                    const res = await api('DELETE', `/locations/${encodeURIComponent(loc)}`);
+                    const res = await api('DELETE', `/api/locations/${encodeURIComponent(loc)}`);
                     if (res.offline) {
                         window.offlineUI?.notifyIfOffline();
                         return;
@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const cached = await readLocations();
         render(cached);
         try {
-            const data = await api('GET', '/locations');
+            const data = await api('GET', '/api/locations');
             if (!data.offline) {
                 await cacheLocations(data);
                 render(data);
@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const name = newInput.value.trim();
         if (!name) return;
         try {
-            const res = await api('POST', '/locations', { name });
+            const res = await api('POST', '/api/locations', { name });
             if (res.offline) {
                 window.offlineUI?.notifyIfOffline();
                 return;

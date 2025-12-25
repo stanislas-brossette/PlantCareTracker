@@ -14,7 +14,7 @@ export async function sync(renderFn = renderer){
   const map   = new Map(local.map(p => [p.uuid, p]));
 
   // 2️⃣  pull deltas
-  const changed = await api('GET', `/plants/changes?since=${localStorage.lastSynced || 0}`);
+  const changed = await api('GET', `/api/plants/changes?since=${localStorage.lastSynced || 0}`);
   if (changed.offline){
     if (renderFn) renderFn(local);
     return;

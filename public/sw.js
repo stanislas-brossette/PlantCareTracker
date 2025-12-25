@@ -38,11 +38,7 @@ precacheAndRoute(precacheManifest);
 
 const navigationHandler = createHandlerBoundToURL('/index.html');
 registerRoute(new NavigationRoute(navigationHandler, {
-  denylist: [
-    /\/plants(\/.*)?$/i,
-    /\/locations(\/.*)?$/i,
-    /\/lastClickedTimes(\/.*)?$/i,
-  ],
+  denylist: [/^\/api\//i],
 }));
 
 const isLastClickedPath = (urlInput) => {
@@ -54,16 +50,16 @@ const isLastClickedPath = (urlInput) => {
 
   if (!href) return false;
   const { pathname } = new URL(href, self.location.href);
-  return pathname === '/lastClickedTimes' || pathname === '/api/lastClickedTimes';
+  return pathname === '/api/lastClickedTimes';
 };
 
 const apiMatch = ({ request, url }) => (
   request.method === 'GET' &&
   url.origin === self.location.origin &&
   (
-    url.pathname === '/plants' ||
-    url.pathname.startsWith('/plants/') ||
-    url.pathname === '/locations' ||
+    url.pathname === '/api/plants' ||
+    url.pathname.startsWith('/api/plants/') ||
+    url.pathname === '/api/locations' ||
     isLastClickedPath(url)
   )
 );

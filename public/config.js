@@ -32,11 +32,11 @@
         }
     };
 
-    window.API_BASE = window.location.origin;
+    window.API_BASE = '/api';
     window.apiConfig = {
-        getBase: () => window.location.origin,
-        getDefaultBase: () => window.location.origin,
+        getBase: () => `${window.location.origin}${window.API_BASE}`,
+        getDefaultBase: () => `${window.location.origin}${window.API_BASE}`,
         getStoredBase: () => '',
-        setBase: () => window.location.origin,
+        setBase: () => `${window.location.origin}${window.API_BASE}`,
     };
 })();

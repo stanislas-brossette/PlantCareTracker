@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Object to store button references
     const buttonRefs = {};
 
-    const LAST_CLICKED_ENDPOINT = '/lastClickedTimes';
+    const LAST_CLICKED_ENDPOINT = '/api/lastClickedTimes';
 
     const loadLocations = async () => {
         // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/locations')`
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
             currentIndex = locations.indexOf(stored);
         };
         render(cached);
-        const list = await api('GET', '/locations');
+        const list = await api('GET', '/api/locations');
         if (!list.offline) {
             await cacheLocations(list);
             render(list);
@@ -213,8 +213,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const primeOfflineCaches = async () => {
         await Promise.all([
-            api('GET', '/plants'),
-            api('GET', '/locations'),
+            api('GET', '/api/plants'),
+            api('GET', '/api/locations'),
             api('GET', LAST_CLICKED_ENDPOINT),
         ]);
     };
@@ -224,14 +224,14 @@ document.addEventListener('DOMContentLoaded', () => {
         undoStack.push({ buttonId, prevTime });
         updateUndoBtn();
 
-        const data = await api('POST', '/clicked', { buttonId });
+        const data = await api('POST', '/api/clicked', { buttonId });
         updateButtonState(buttonId, data.lastClickedTime);
     };
 
     const undoLast = async () => {
         if (undoStack.length === 0) return;
         const { buttonId, prevTime } = undoStack.pop();
-        const data = await api('POST', '/undo', { buttonId, previousTime: prevTime });
+        const data = await api('POST', '/api/undo', { buttonId, previousTime: prevTime });
         updateButtonState(buttonId, data.lastClickedTime);
         updateUndoBtn();
     };

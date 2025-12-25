@@ -57,10 +57,10 @@ The app will be available at:
 1. In Chrome DevTools → Application, **Unregister** any existing service worker for this origin and clear storage for a clean slate.
 2. Start the server with `npm start` and open the app from the device you plan to use (for example `http://192.168.1.31:2000/`).
 3. Browse the plant list and at least one plant detail page so images and data load while online. Confirm watering/feeding buttons show a relative time (not "Never").
-4. In DevTools → Network, select the **/locations** request and confirm the **Content-Type** response header is `application/json` (no HTML body).
+4. In DevTools → Network, select the **/api/locations** request and confirm the **Content-Type** response header is `application/json` (no HTML body). The same origin should serve both the page and the API.
 5. Open DevTools → Application:
    - The service worker should show **Activated and is running**.
-   - Cache Storage → `api-cache` should contain exact entries for `/plants`, `/locations`, and `/lastClickedTimes`.
+   - Cache Storage → `api-cache` should contain entries for `/api/plants`, `/api/locations`, and `/api/lastClickedTimes`.
    - Cache Storage → `img-cache` should contain plant images that were viewed (e.g., `/images/…`).
 6. Stop the server completely.
 7. Hard reload the tab (Ctrl+Shift+R) or reopen it.
@@ -103,19 +103,19 @@ npm test
 
 ## **API Overview**
 
-The server exposes a small REST API consumed by the frontend. Useful endpoints:
+The server exposes a small REST API consumed by the frontend. Useful endpoints (all prefixed with `/api`):
 
-- `GET /plants` – list all non‑archived plants.
-- `GET /plants/:name` – fetch details for a single plant.
-- `POST /plants` – create a plant.
-- `PUT /plants/:name` – update a plant or archive it by sending `{ "archived": true }`.
-- `DELETE /plants/:name` – remove a plant.
-- `GET /locations` – list locations.
-- `POST /locations` – add a location (returns **201** when created, **200** if it already existed).
-- `DELETE /locations/:name` – delete a location and reassign any plants using it.
-- `GET /lastClickedTimes` – retrieve timestamps for watering and feeding actions.
-- `POST /clicked` – record a watering or feeding action.
-- `POST /undo` – revert the most recent action for a button.
+- `GET /api/plants` – list all non‑archived plants.
+- `GET /api/plants/:name` – fetch details for a single plant.
+- `POST /api/plants` – create a plant.
+- `PUT /api/plants/:name` – update a plant or archive it by sending `{ "archived": true }`.
+- `DELETE /api/plants/:name` – remove a plant.
+- `GET /api/locations` – list locations.
+- `POST /api/locations` – add a location (returns **201** when created, **200** if it already existed).
+- `DELETE /api/locations/:name` – delete a location and reassign any plants using it.
+- `GET /api/lastClickedTimes` – retrieve timestamps for watering and feeding actions.
+- `POST /api/clicked` – record a watering or feeding action.
+- `POST /api/undo` – revert the most recent action for a button.
 
 ---
 

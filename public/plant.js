@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const cached = await readLocations();
         render(cached);
         try {
-            const list = await api('GET', '/locations');
+            const list = await api('GET', '/api/locations');
             if (!list.offline) {
                 await cacheLocations(list);
                 render(list);
@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const name = prompt('New location name')?.trim();
         if (!name) return;
         try {
-            await api('POST', '/locations', { name });
+            await api('POST', '/api/locations', { name });
             const opts = Array.from(locationSelect.options).map(o => o.value);
             if (!opts.includes(name)) {
                 const opt = document.createElement('option');
@@ -135,7 +135,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const fetchPlant = async (plantName) => {
         if (plantCache[plantName]) return plantCache[plantName];
-        const plant = await api('GET', `/plants/${encodeURIComponent(plantName)}`);
+        const plant = await api('GET', `/api/plants/${encodeURIComponent(plantName)}`);
         if (!plant.offline) {
             plantCache[plantName] = plant;
             return plant;
@@ -340,7 +340,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const loadPlantNames = async () => {
         // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/plants')`
-        const list = await api('GET', '/plants');
+        const list = await api('GET', '/api/plants');
         if (!list.offline) {
             const filtered = list.filter(p => !p.archived && (currentLocation === 'All' || p.location === currentLocation));
             plantNames = filtered.map(p => p.name);
@@ -424,7 +424,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             location: locationSelect.value
         };
         if (imageData) { body.imageData = imageData; }
-        const res = await api('PUT', `/plants/${encodeURIComponent(name)}`, body);
+        const res = await api('PUT', `/api/plants/${encodeURIComponent(name)}`, body);
         if (res?.offline) {
             window.offlineUI?.notifyIfOffline();
             showMessage('Saving is unavailable while offline', 'danger');
@@ -435,7 +435,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const updateDescription = async (text) => {
-        const res = await api('PUT', `/plants/${encodeURIComponent(name)}`, { description: text });
+        const res = await api('PUT', `/api/plants/${encodeURIComponent(name)}`, { description: text });
         if (res?.offline) {
             window.offlineUI?.notifyIfOffline();
             return;
@@ -447,7 +447,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const updateSchedule = async (sched) => {
-        const res = await api('PUT', `/plants/${encodeURIComponent(name)}`, {
+        const res = await api('PUT', `/api/plants/${encodeURIComponent(name)}`, {
             wateringMin: sched.wateringMin,
             wateringMax: sched.wateringMax,
             feedingMin: sched.feedingMin,
@@ -467,7 +467,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const archive = async () => {
-        const res = await api('PUT', `/plants/${encodeURIComponent(name)}`, { archived: true });
+        const res = await api('PUT', `/api/plants/${encodeURIComponent(name)}`, { archived: true });
         if (res?.offline) {
             window.offlineUI?.notifyIfOffline();
             showMessage('Archive unavailable offline', 'danger');
@@ -484,7 +484,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const renamePlant = async (newName) => {
         if (!newName || newName === name) return;
-        const res = await api('PUT', `/plants/${encodeURIComponent(name)}`, { name: newName });
+        const res = await api('PUT', `/api/plants/${encodeURIComponent(name)}`, { name: newName });
         if (res.offline) {
             window.offlineUI?.notifyIfOffline();
             return;
@@ -510,7 +510,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const imgParam = imageData || imageElem.dataset.path || imageElem.getAttribute('src');
 
         try {
-            const res = await api('POST', '/identify', { image: imgParam });
+            const res = await api('POST', '/api/identify', { image: imgParam });
             if (!res || res.offline) {
                 throw new Error('Error identifying plant');
             }

@@ -190,7 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
         render(cached);
 
         try {
-            const list = await api('GET', '/locations');
+            const list = await api('GET', '/api/locations');
             if (!list.offline) {
                 await cacheLocations(list);
                 render(list);
@@ -205,7 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const name = prompt('New location name')?.trim();
         if (!name) return;
         try {
-            await api('POST', '/locations', { name });
+            await api('POST', '/api/locations', { name });
             const opts = Array.from(locationSelect.options).map(o => o.value);
             if (!opts.includes(name)) {
                 const opt = document.createElement('option');
@@ -246,7 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
         identifyBtn.disabled = true;
 
         try {
-            const res = await api('POST', '/identify', { image: img });
+            const res = await api('POST', '/api/identify', { image: img });
             if (!res || res.offline) {
                 throw new Error('Error identifying plant');
             }
@@ -318,7 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         setSaving(true);
         try {
-            const res = await api('POST', '/plants', body);
+            const res = await api('POST', '/api/plants', body);
             if (res.offline) {
                 window.offlineUI?.notifyIfOffline();
                 showMessage('Saving is unavailable while offline', 'danger');
