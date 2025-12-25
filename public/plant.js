@@ -36,6 +36,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const loadingElem = document.getElementById('loading');
     const loadingLeaf = document.getElementById('loading-leaf');
     let identifying = false;
+    let offline = !navigator.onLine;
     const { startLeafAnimation, stopLeafAnimation } = createLeafAnimator(loadingElem, loadingLeaf, { tinyLeafDuration: 2000 });
 
     const resolveImageUrl = (src) => {
@@ -97,6 +98,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const addLocation = async () => {
+        if (offline) {
+            showMessage('Offline – read only', 'warning');
+            return;
+        }
         const name = prompt('New location name')?.trim();
         if (!name) return;
         try {
@@ -299,6 +304,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     attachPairListeners(feedingMinInputs, feedingMaxInputs);
 
     const setEditing = (state) => {
+        if (offline && state) state = false;
         editing = state;
         descElem.readOnly = !state;
         descElem.classList.toggle('d-none', !state);
@@ -314,6 +320,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.querySelectorAll('#schedule-table input').forEach(i => i.readOnly = !state);
         document.querySelectorAll('.adjust-btn').forEach(btn => btn.classList.toggle('d-none', !state));
         toggleBtn.checked = state;
+        toggleBtn.disabled = offline;
         if (!state) updateDescDisplay();
         autoResize();
     };
@@ -324,6 +331,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         messageElem.classList.remove('d-none');
         setTimeout(() => messageElem.classList.add('d-none'), 3000);
     };
+
+    const applyOfflineState = () => {
+        const controls = [toggleBtn, saveBtn, archiveBtn, addLocationBtn, identifyBtn, cameraBtn, galleryBtn, cameraFileElem, galleryFileElem];
+        controls.forEach(ctrl => { if (ctrl) ctrl.disabled = offline; });
+        if (offline) setEditing(false);
+    };
+
+    document.addEventListener('offline-state-changed', (e) => {
+        offline = e.detail.offline;
+        applyOfflineState();
+    });
 
     const displayPlant = (plant) => {
         plantNameElem.textContent = plant.name;
@@ -337,7 +355,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         (plant.wateringMax || []).forEach((val, i) => { if (wateringMaxInputs[i]) wateringMaxInputs[i].value = val; });
         (plant.feedingMin || []).forEach((val, i) => { if (feedingMinInputs[i]) feedingMinInputs[i].value = val; });
         (plant.feedingMax || []).forEach((val, i) => { if (feedingMaxInputs[i]) feedingMaxInputs[i].value = val; });
-        archiveBtn.disabled = !!plant.archived;
+        archiveBtn.disabled = offline || !!plant.archived;
         locationSelect.value = plant.location;
     };
 
@@ -417,6 +435,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const save = async () => {
+        if (offline) {
+            showMessage('Offline – read only', 'warning');
+            return;
+        }
         const body = {
             name: plantNameInput.value.trim(),
             description: descElem.value,
@@ -433,6 +455,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const updateDescription = async (text) => {
+        if (offline) return;
         await api('PUT', `/plants/${encodeURIComponent(name)}`, { description: text });
         if (plantCache[name]) {
             plantCache[name].description = text;
@@ -441,6 +464,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const updateSchedule = async (sched) => {
+        if (offline) return;
         await api('PUT', `/plants/${encodeURIComponent(name)}`, {
             wateringMin: sched.wateringMin,
             wateringMax: sched.wateringMax,
@@ -457,6 +481,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const archive = async () => {
+        if (offline) {
+            showMessage('Offline – read only', 'warning');
+            return;
+        }
         await api('PUT', `/plants/${encodeURIComponent(name)}`, { archived: true });
         showMessage('Archived', 'success');
         setTimeout(() => { window.location.href = 'index.html'; }, 1000);
@@ -484,6 +512,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const identify = async () => {
+        if (offline) {
+            showMessage('Offline – read only', 'warning');
+            return;
+        }
         identifying = true;
         loadingElem.classList.remove('d-none');
         loadingElem.classList.add('blocking');
@@ -554,6 +586,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 10000);
     });
 
+    applyOfflineState();
     await loadLocations();
     await loadPlantNames();
     initSwipe();
