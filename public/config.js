@@ -42,13 +42,12 @@
         setBase,
     };
 
-    function withTimeout(promise, ms){
+    function withTimeout(promiseFactory, ms){
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), ms);
-        return Promise.race([
-            promise(controller),
-            Promise.reject(Object.assign(new Error('timeout'), { name: 'AbortError' }))
-        ]).finally(() => clearTimeout(timer));
+
+        return promiseFactory(controller)
+            .finally(() => clearTimeout(timer));
     }
 
     const originalFetch = window.fetch.bind(window);
@@ -57,7 +56,8 @@
         if (typeof input === 'string' && input.startsWith('/')) {
             requestUrl = window.API_BASE + input;
         } else if (input instanceof Request && input.url.startsWith('/')) {
-            requestUrl = new Request(window.API_BASE + new URL(input.url, window.location.origin).pathname, input);
+            const url = new URL(input.url, window.location.origin);
+            requestUrl = new Request(window.API_BASE + url.pathname + url.search, input);
         }
 
         try {
