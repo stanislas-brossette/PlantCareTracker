@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const del = document.createElement('button');
             del.className = 'btn btn-sm btn-danger';
             del.textContent = 'Delete';
+            del.dataset.offlineDisabled = 'true';
             del.onclick = async () => {
                 try {
                     const res = await api('DELETE', `/locations/${encodeURIComponent(loc)}`);
@@ -58,6 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    addBtn.dataset.offlineDisabled = 'true';
     addBtn.addEventListener('click', add);
     load().then(sync);
 });

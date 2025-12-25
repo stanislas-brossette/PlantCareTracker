@@ -43,19 +43,11 @@ Run the app:
 ```bash
 npm start
 ```
-The app will be available at:
-- **Local**: `http://localhost:2000`
-- **Network**: `http://<your-pi-ip>:2000` (e.g., `http://192.168.1.72:2000`)
+The Express server listens on **0.0.0.0:2000** and serves the frontend, API, and images from the same origin. Open it directly:
+- **Desktop**: `http://localhost:2000/`
+- **Phone on the same Wi‑Fi**: `http://<your-lan-ip>:2000/` (for example `http://192.168.1.42:2000/`)
 
-### **Using the app from your phone on the same Wi‑Fi**
-1. Start the server (`npm start` or `./setup.sh`). It listens on **0.0.0.0:2000**, so it’s reachable from your LAN.
-2. Find your computer/Raspberry Pi IP on that network (e.g., `ip addr`, `hostname -I`, or `ipconfig` on Windows). You should get something like `192.168.1.42`.
-3. On your phone (connected to the same Wi‑Fi), open a browser and visit `http://<that-ip>:2000` (for example `http://192.168.1.42:2000`). The page and API calls both use that origin, so the app works end‑to‑end.
-4. If it doesn’t load, check that local firewalls allow inbound connections on port **2000**.
-
-### Changing the API host/port inside the app
-- A floating **Connection** button (bottom-right of each page) opens a small panel where you can enter the backend IP/hostname and port (e.g., `192.168.1.31` and `2000`).
-- Saving the values stores them locally and updates all API calls immediately. Use **Use default** to clear the override and fall back to the current origin or `http://<your-device>:2000`.
+If it doesn’t load, check that local firewalls allow inbound connections on port **2000**. Everything runs from this single Express instance—there are no alternate dev servers or cross-origin hosts to configure.
 
 ## Plant Identification
 To use the optional Identify Plant feature, set your OpenAI API key before starting the server:

@@ -1,25 +1,63 @@
-/* sw-src.js — service-worker template */
+importScripts('https://storage.googleapis.com/workbox-cdn/releases/6.5.4/workbox-sw.js');
 
-import {precacheAndRoute} from 'workbox-precaching';
-import {registerRoute} from 'workbox-routing';
-import {CacheFirst, StaleWhileRevalidate} from 'workbox-strategies';
-import {ExpirationPlugin} from 'workbox-expiration';
+const PRECACHE_VERSION = 'v1';
+const PRECACHE_MANIFEST = [
+  '/',
+  '/index.html',
+  '/locations.html',
+  '/create.html',
+  '/plant.html',
+  '/styles.css',
+  '/script.js',
+  '/locations.js',
+  '/create.js',
+  '/plant.js',
+  '/offline.js',
+  '/config.js',
+  '/js/api.js',
+  '/js/storage.js',
+  '/js/sync.js',
+  '/leafAnimations.js',
+  '/images/placeholder.png'
+].map(url => ({ url, revision: PRECACHE_VERSION }));
 
-// ⬇️ Workbox CLI replaces this with an array of URLs at build time
-precacheAndRoute(self.__WB_MANIFEST);
+workbox.precaching.precacheAndRoute(self.__WB_MANIFEST || PRECACHE_MANIFEST);
 
-/* ⚙️  API: keep stale UI, revalidate in BG */
-registerRoute(
-  ({url}) => url.pathname.startsWith('/plants') || url.pathname.startsWith('/locations'),
-  new StaleWhileRevalidate({cacheName: 'api-cache'})
+const offlineNotifier = {
+  async fetchDidFail(){
+    const clients = await self.clients.matchAll({type:'window'});
+    clients.forEach(client => client.postMessage({ type: 'offline-mode' }));
+  },
+  async fetchDidSucceed({response}){
+    const clients = await self.clients.matchAll({type:'window'});
+    clients.forEach(client => client.postMessage({ type: 'online-mode' }));
+    return response;
+  }
+};
+
+workbox.routing.registerRoute(
+  ({request, url}) => request.method === 'GET' && url.pathname.startsWith('/api/'),
+  new workbox.strategies.StaleWhileRevalidate({ cacheName: 'api-cache', plugins: [offlineNotifier] })
 );
 
-/* 🖼️ Images: cache-first so they never disappear */
-registerRoute(
+workbox.routing.registerRoute(
   ({request}) => request.destination === 'image',
-  new CacheFirst({
+  new workbox.strategies.CacheFirst({
     cacheName: 'img-cache',
-    plugins: [ new ExpirationPlugin({maxEntries: 120, maxAgeSeconds: 7*24*3600}) ]
+    plugins: [new workbox.expiration.ExpirationPlugin({ maxEntries: 120, maxAgeSeconds: 7*24*3600 }), offlineNotifier]
   })
 );
 
+workbox.routing.registerRoute(
+  ({request, url}) => request.mode === 'navigate' && !url.pathname.startsWith('/api/'),
+  new workbox.strategies.NetworkFirst({ cacheName: 'page-cache', plugins: [offlineNotifier] })
+);
+
+workbox.routing.setCatchHandler(async ({request}) => {
+  if (request.destination === 'document') {
+    const cache = await caches.open('page-cache');
+    const cached = await cache.match('/index.html');
+    if (cached) return cached;
+  }
+  return Response.error();
+});

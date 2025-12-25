@@ -38,13 +38,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     let identifying = false;
     const { startLeafAnimation, stopLeafAnimation } = createLeafAnimator(loadingElem, loadingLeaf, { tinyLeafDuration: 2000 });
 
+    addLocationBtn.dataset.offlineDisabled = 'true';
+    saveBtn.dataset.offlineDisabled = 'true';
+    archiveBtn.dataset.offlineDisabled = 'true';
+    identifyBtn.dataset.offlineDisabled = 'true';
+
     const resolveImageUrl = (src) => {
         if (!src) return src;
         if (/^https?:\/\//.test(src) || src.startsWith('data:')) return src;
-        if (window.API_BASE) {
-            return window.API_BASE.replace(/\/$/, '') + '/' + src.replace(/^\/+/, '');
-        }
-        return src;
+        return '/' + src.replace(/^\/+/, '');
     };
 
     const autoResize = () => {
