@@ -57,12 +57,13 @@ The app will be available at:
 1. In Chrome DevTools → Application, **Unregister** any existing service worker for this origin and clear storage for a clean slate.
 2. Start the server with `npm start` and open the app from the device you plan to use (for example `http://192.168.1.31:2000/`).
 3. Browse the plant list and at least one plant detail page so images and data load while online. Confirm watering/feeding buttons show a relative time (not "Never").
-4. Open DevTools → Application:
+4. In DevTools → Network, select the **/locations** request and confirm the **Content-Type** response header is `application/json` (no HTML body).
+5. Open DevTools → Application:
    - The service worker should show **Activated and is running**.
    - Cache Storage → `api-cache` should contain exact entries for `/plants`, `/locations`, and `/lastClickedTimes`.
    - Cache Storage → `img-cache` should contain plant images that were viewed (e.g., `/images/…`).
-5. Stop the server completely.
-6. Hard reload the tab (Ctrl+Shift+R) or reopen it.
+6. Stop the server completely.
+7. Hard reload the tab (Ctrl+Shift+R) or reopen it.
 
 Expected results:
 - App shell loads from cache.

@@ -37,7 +37,13 @@ const precacheManifest = self.__WB_MANIFEST || [
 precacheAndRoute(precacheManifest);
 
 const navigationHandler = createHandlerBoundToURL('/index.html');
-registerRoute(new NavigationRoute(navigationHandler));
+registerRoute(new NavigationRoute(navigationHandler, {
+  denylist: [
+    /\/plants(\/.*)?$/i,
+    /\/locations(\/.*)?$/i,
+    /\/lastClickedTimes(\/.*)?$/i,
+  ],
+}));
 
 const isLastClickedPath = (urlInput) => {
   const href = urlInput instanceof Request
