@@ -53,9 +53,11 @@ The app will be available at:
 3. On your phone (connected to the same Wi‑Fi), open a browser and visit `http://<that-ip>:2000` (for example `http://192.168.1.42:2000`). The page and API calls both use that origin, so the app works end‑to‑end.
 4. If it doesn’t load, check that local firewalls allow inbound connections on port **2000**.
 
-### Changing the API host/port inside the app
-- A floating **Connection** button (bottom-right of each page) opens a small panel where you can enter the backend IP/hostname and port (e.g., `192.168.1.31` and `2000`).
-- Saving the values stores them locally and updates all API calls immediately. Use **Use default** to clear the override and fall back to the current origin or `http://<your-device>:2000`.
+### Android physical device (Capacitor)
+- Make sure your phone is on the same Wi‑Fi network as your laptop/Raspberry Pi.
+- Start the backend with `./setup.sh` (it serves the page, API, and images from `http://192.168.1.31:2000`).
+- Run the Android app from Android Studio; the bundled WebView loads `http://192.168.1.31:2000` directly.
+- `localhost` on a physical phone points to the phone itself, so the LAN IP must be used for both the shell and API calls.
 
 ## Plant Identification
 To use the optional Identify Plant feature, set your OpenAI API key before starting the server:
@@ -83,23 +85,29 @@ Then execute:
 npm test
 ```
 
+### Offline read-only checks
+- With the server running at `http://192.168.1.31:2000`, open the app in a desktop browser on that origin and verify the plant list, “days ago” values, and photos render.
+- Open DevTools > Application > Service Workers and Cache Storage: confirm the service worker is active and caches contain `api-cache` entries for `/api/plants`, `/api/locations`, and `/api/lastClickedTimes`, plus `img-cache` entries for images.
+- Stop the server, perform a hard reload, and confirm the list still shows with cached dates/images. An “Offline (read-only)” banner should appear and all mutating buttons remain disabled.
+- On an Android physical device launched from Android Studio, the app should load from `http://192.168.1.31:2000` (not localhost) and behave the same online/offline.
+
 ---
 
 ## **API Overview**
 
-The server exposes a small REST API consumed by the frontend. Useful endpoints:
+The server exposes a small REST API under `/api` on the same origin as the static files. Useful endpoints:
 
-- `GET /plants` – list all non‑archived plants.
-- `GET /plants/:name` – fetch details for a single plant.
-- `POST /plants` – create a plant.
-- `PUT /plants/:name` – update a plant or archive it by sending `{ "archived": true }`.
-- `DELETE /plants/:name` – remove a plant.
-- `GET /locations` – list locations.
-- `POST /locations` – add a location (returns **201** when created, **200** if it already existed).
-- `DELETE /locations/:name` – delete a location and reassign any plants using it.
-- `GET /lastClickedTimes` – retrieve timestamps for watering and feeding actions.
-- `POST /clicked` – record a watering or feeding action.
-- `POST /undo` – revert the most recent action for a button.
+- `GET /api/plants` – list all non‑archived plants.
+- `GET /api/plants/:name` – fetch details for a single plant.
+- `POST /api/plants` – create a plant.
+- `PUT /api/plants/:name` – update a plant or archive it by sending `{ "archived": true }`.
+- `DELETE /api/plants/:name` – remove a plant.
+- `GET /api/locations` – list locations.
+- `POST /api/locations` – add a location (returns **201** when created, **200** if it already existed).
+- `DELETE /api/locations/:name` – delete a location and reassign any plants using it.
+- `GET /api/lastClickedTimes` – retrieve timestamps for watering and feeding actions.
+- `POST /api/clicked` – record a watering or feeding action.
+- `POST /api/undo` – revert the most recent action for a button.
 
 ---
 

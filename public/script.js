@@ -5,23 +5,33 @@ import { sync, setRenderer } from './js/sync.js';
 document.addEventListener('DOMContentLoaded', () => {
     const plantsTable = document.getElementById('plantsTable');
     const undoBtn = document.getElementById('undo');
+    const createBtn = document.getElementById('create-plant');
     const locationSelect = document.getElementById('location-select');
 
     const undoStack = [];
 
     const updateUndoBtn = () => {
-        undoBtn.disabled = undoStack.length === 0;
+        undoBtn.disabled = undoStack.length === 0 || (window.offlineUI?.isOffline() ?? false);
     };
 
     let plants = [];
     let locations = [];
     let currentIndex = 0;
 
+    const isReadOnly = () => window.offlineUI?.isOffline() ?? false;
+
+    const guardMutation = () => {
+        if (isReadOnly()) {
+            window.offlineUI?.showReadOnlyMessage();
+            return true;
+        }
+        return false;
+    };
+
     // Object to store button references
     const buttonRefs = {};
 
     const loadLocations = async () => {
-        // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/locations')`
         const cached = await readLocations();
         const render = (list) => {
             locations = ['All', ...list];
@@ -37,21 +47,40 @@ document.addEventListener('DOMContentLoaded', () => {
             currentIndex = locations.indexOf(stored);
         };
         render(cached);
-        const list = await api('GET', '/locations');
-        if (!list.offline) {
+        try {
+            const list = await api('GET', '/api/locations');
             await cacheLocations(list);
             render(list);
+        } catch (err) {
+            console.error('Failed to load locations', err);
         }
     };
 
     const resolveImageUrl = (src) => {
         if (!src) return src;
         if (/^https?:\/\//.test(src) || src.startsWith('data:')) return src;
-        if (window.API_BASE) {
-            return window.API_BASE.replace(/\/$/, '') + '/' + src.replace(/^\/+/, '');
-        }
-        return src;
+        return '/' + src.replace(/^\/+/, '');
     };
+
+    const applyOfflineState = (state) => {
+        const disable = !!state;
+        if (createBtn) {
+            createBtn.disabled = disable;
+            createBtn.classList.toggle('offline-disabled', disable);
+        }
+        if (undoBtn) {
+            undoBtn.disabled = disable || undoStack.length === 0;
+            undoBtn.classList.toggle('offline-disabled', disable);
+        }
+        Object.values(buttonRefs).forEach(btn => {
+            btn.disabled = disable;
+            btn.classList.toggle('offline-disabled', disable);
+        });
+    };
+
+    if (window.offlineUI) {
+        window.offlineUI.onStatusChange(applyOfflineState);
+    }
 
     const renderPlants = () => {
         while (plantsTable.rows.length > 1) {
@@ -81,27 +110,33 @@ document.addEventListener('DOMContentLoaded', () => {
             nameCell.appendChild(container);
 
         // Function to create a button
-        const createButton = (type) => {
-            const button = document.createElement('button');
-            button.textContent = 'Never'; // Initial text
-            button.id = `button-${plant.name}-${type}`;
-            button.className = 'btn w-100 btn-success';
-            button.setAttribute('feedingMin', plant.feedingMin)
-            button.setAttribute('feedingMax', plant.feedingMax)
-            button.setAttribute('wateringMin', plant.wateringMin)
-            button.setAttribute('wateringMax', plant.wateringMax)
-            button.onclick = () => buttonClicked(button.id);
-            row.insertCell().appendChild(button);
-            buttonRefs[button.id] = button; // Store button reference
+            const createButton = (type) => {
+                const button = document.createElement('button');
+                button.textContent = 'Never'; // Initial text
+                button.id = `button-${plant.name}-${type}`;
+                button.className = 'btn w-100 btn-success';
+                button.setAttribute('feedingMin', plant.feedingMin)
+                button.setAttribute('feedingMax', plant.feedingMax)
+                button.setAttribute('wateringMin', plant.wateringMin)
+                button.setAttribute('wateringMax', plant.wateringMax)
+                button.onclick = () => buttonClicked(button.id);
+                row.insertCell().appendChild(button);
+                buttonRefs[button.id] = button; // Store button reference
 
-            return button;
-        };
+                if (isReadOnly()) {
+                    button.disabled = true;
+                    button.classList.add('offline-disabled');
+                }
+
+                return button;
+            };
 
         // Create Arrosage and Engrais buttons for each plant
         createButton('Arrosage');
         createButton('Engrais');
         });
         getLastClickedTimes();
+        applyOfflineState(isReadOnly());
     };
 
     const loadPlants = async () => {
@@ -201,28 +236,33 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const getLastClickedTimes = async () => {
-        // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/lastClickedTimes')`
-        const data = await api('GET', '/lastClickedTimes');
-        Object.entries(data).forEach(([buttonId, time]) => {
-            if (buttonRefs[buttonId]) {
-                updateButtonState(buttonId, time);
-            }
-        });
+        try {
+            const data = await api('GET', '/api/lastClickedTimes');
+            Object.entries(data).forEach(([buttonId, time]) => {
+                if (buttonRefs[buttonId]) {
+                    updateButtonState(buttonId, time);
+                }
+            });
+        } catch (err) {
+            console.error('Failed to refresh times', err);
+        }
     };
 
     const buttonClicked = async (buttonId) => {
+        if (guardMutation()) return;
         const prevTime = buttonRefs[buttonId].dataset.lastClickedTime || null;
         undoStack.push({ buttonId, prevTime });
         updateUndoBtn();
 
-        const data = await api('POST', '/clicked', { buttonId });
+        const data = await api('POST', '/api/clicked', { buttonId });
         updateButtonState(buttonId, data.lastClickedTime);
     };
 
     const undoLast = async () => {
         if (undoStack.length === 0) return;
+        if (guardMutation()) return;
         const { buttonId, prevTime } = undoStack.pop();
-        const data = await api('POST', '/undo', { buttonId, previousTime: prevTime });
+        const data = await api('POST', '/api/undo', { buttonId, previousTime: prevTime });
         updateButtonState(buttonId, data.lastClickedTime);
         updateUndoBtn();
     };

@@ -1,10 +1,11 @@
 const express = require('express');
 const fs = require('fs');
 const { randomUUID } = require('crypto');
-const app = express();
-const port = 2000;
 const path = require('path');
 const parseIdentifyResponse = require('./parseIdentifyResponse');
+
+const app = express();
+const port = 2000;
 
 const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-5-mini";
 const rawTemp = process.env.OPENAI_TEMPERATURE;
@@ -29,6 +30,8 @@ function generateDefaultName() {
     }
     return name;
 }
+
+const jsonError = (res, status, message) => res.status(status).json({ error: message });
 
 // Function to read the last clicked times from a file
 function readLastClickedTimes() {
@@ -113,17 +116,15 @@ readLastClickedTimes();
 readLocations();
 readPlants();
 
-app.use(express.static('public'));
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Headers', 'Content-Type');
-    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-    if (req.method === 'OPTIONS') return res.sendStatus(204);
-    next();
-});
 // Increase JSON body size limit to handle base64 images
 app.use(express.json({ limit: '10mb' }));
 app.use((req,res,next)=>{ if(['POST','PUT','DELETE'].includes(req.method)) req.updatedAt = Date.now(); next(); });
+
+const api = express.Router();
+api.use((req, res, next) => {
+    res.type('application/json');
+    next();
+});
 
 function isValidFreqArray(arr) {
     return Array.isArray(arr) &&
@@ -131,21 +132,21 @@ function isValidFreqArray(arr) {
         arr.every(n => n === null || (typeof n === 'number' && Number.isFinite(n)));
 }
 
-app.post('/clicked', (req, res) => {
+api.post('/clicked', (req, res) => {
     const buttonId = req.body.buttonId;
     if (buttonId) {
         lastClickedTimes[buttonId] = new Date().toISOString();
         writeLastClickedTimes();
-        res.send({ lastClickedTime: lastClickedTimes[buttonId] });
+        res.json({ lastClickedTime: lastClickedTimes[buttonId] });
     } else {
-        res.status(400).send('Button ID is required');
+        jsonError(res, 400, 'Button ID is required');
     }
 });
 
-app.post('/undo', (req, res) => {
+api.post('/undo', (req, res) => {
     const { buttonId, previousTime } = req.body;
     if (!buttonId) {
-        return res.status(400).send('Button ID is required');
+        return jsonError(res, 400, 'Button ID is required');
     }
 
     if (previousTime) {
@@ -155,39 +156,39 @@ app.post('/undo', (req, res) => {
     }
 
     writeLastClickedTimes();
-    res.send({ lastClickedTime: previousTime || null });
+    res.json({ lastClickedTime: previousTime || null });
 });
 
-app.get('/lastClickedTimes', (req, res) => {
-    res.send(lastClickedTimes);
+api.get('/lastClickedTimes', (req, res) => {
+    res.json(lastClickedTimes);
 });
 
-app.get('/locations', (req, res) => {
-    res.send(locations);
+api.get('/locations', (req, res) => {
+    res.json(locations);
 });
 
-app.post('/locations', (req, res) => {
+api.post('/locations', (req, res) => {
     const { name } = req.body;
     if (!name) {
-        return res.status(400).send('Name is required');
+        return jsonError(res, 400, 'Name is required');
     }
 
     if (!locations.includes(name)) {
         locations.push(name);
         writeLocations();
-        return res.status(201).send({ name });
+        return res.status(201).json({ name });
     }
 
-    res.status(200).send({ name });
+    res.status(200).json({ name });
 });
 
-app.delete('/locations/:name', (req, res) => {
+api.delete('/locations/:name', (req, res) => {
     const idx = locations.indexOf(req.params.name);
     if (idx === -1) {
-        return res.status(404).send('Location not found');
+        return jsonError(res, 404, 'Location not found');
     }
     if (locations.length === 1) {
-        return res.status(400).send('Cannot delete last location');
+        return jsonError(res, 400, 'Cannot delete last location');
     }
     const removed = locations.splice(idx, 1)[0];
     const fallback = locations[0] || 'Default';
@@ -200,40 +201,40 @@ app.delete('/locations/:name', (req, res) => {
     });
     writeLocations();
     if (changed) writePlants();
-    res.send({ name: removed });
+    res.json({ name: removed });
 });
 
-app.get('/plants', (req, res) => {
+api.get('/plants', (req, res) => {
     // Only return non archived plants
     const visiblePlants = plants.filter(p => !p.archived);
-    res.send(visiblePlants);
+    res.json(visiblePlants);
 });
 
-app.get('/plants/changes', (req, res) => {
+api.get('/plants/changes', (req, res) => {
     const since = parseInt(req.query.since || '0', 10);
     const changed = plants.filter(p => p.updatedAt > since);
-    res.send({ plants: changed });
+    res.json({ plants: changed });
 });
 
-app.get('/plants/:name', (req, res) => {
+api.get('/plants/:name', (req, res) => {
     const plant = plants.find(p => p.name === req.params.name);
     if (plant) {
-        res.send(plant);
+        res.json(plant);
     } else {
-        res.status(404).send('Plant not found');
+        jsonError(res, 404, 'Plant not found');
     }
 });
 
-app.put('/plants/:name', (req, res) => {
+api.put('/plants/:name', (req, res) => {
     const index = plants.findIndex(p => p.name === req.params.name);
     if (index === -1) {
-        return res.status(404).send('Plant not found');
+        return jsonError(res, 404, 'Plant not found');
     }
     const oldName = plants[index].name;
     const newName = req.body.name && req.body.name !== oldName ? req.body.name : null;
     if (newName) {
         if (plants.find(p => p.name === newName)) {
-            return res.status(400).send('Plant already exists');
+            return jsonError(res, 400, 'Plant already exists');
         }
         plants[index].name = newName;
         Object.keys(lastClickedTimes).forEach(key => {
@@ -253,16 +254,16 @@ app.put('/plants/:name', (req, res) => {
         delete req.body.imageData;
     }
     if (req.body.wateringMin && !isValidFreqArray(req.body.wateringMin)) {
-        return res.status(400).send('wateringMin must be an array of 12 numbers');
+        return jsonError(res, 400, 'wateringMin must be an array of 12 numbers');
     }
     if (req.body.wateringMax && !isValidFreqArray(req.body.wateringMax)) {
-        return res.status(400).send('wateringMax must be an array of 12 numbers');
+        return jsonError(res, 400, 'wateringMax must be an array of 12 numbers');
     }
     if (req.body.feedingMin && !isValidFreqArray(req.body.feedingMin)) {
-        return res.status(400).send('feedingMin must be an array of 12 numbers');
+        return jsonError(res, 400, 'feedingMin must be an array of 12 numbers');
     }
     if (req.body.feedingMax && !isValidFreqArray(req.body.feedingMax)) {
-        return res.status(400).send('feedingMax must be an array of 12 numbers');
+        return jsonError(res, 400, 'feedingMax must be an array of 12 numbers');
     }
 
     if (req.body.location && !locations.includes(req.body.location)) {
@@ -282,16 +283,16 @@ app.put('/plants/:name', (req, res) => {
     }
 
     writePlants();
-    res.send(plants[index]);
+    res.json(plants[index]);
 });
 
-app.post('/plants', (req, res) => {
+api.post('/plants', (req, res) => {
     const newPlant = req.body;
     if (!newPlant.name || !newPlant.name.trim()) {
         newPlant.name = generateDefaultName();
     }
     if (plants.find(p => p.name === newPlant.name)) {
-        return res.status(400).send('Plant already exists');
+        return jsonError(res, 400, 'Plant already exists');
     }
     if (newPlant.imageData) {
         const saved = saveBase64Image(newPlant.imageData);
@@ -301,19 +302,19 @@ app.post('/plants', (req, res) => {
         delete newPlant.imageData;
     }
     if (!newPlant.location) {
-        return res.status(400).send('Location is required');
+        return jsonError(res, 400, 'Location is required');
     }
     if (newPlant.wateringMin && !isValidFreqArray(newPlant.wateringMin)) {
-        return res.status(400).send('wateringMin must be an array of 12 numbers');
+        return jsonError(res, 400, 'wateringMin must be an array of 12 numbers');
     }
     if (newPlant.wateringMax && !isValidFreqArray(newPlant.wateringMax)) {
-        return res.status(400).send('wateringMax must be an array of 12 numbers');
+        return jsonError(res, 400, 'wateringMax must be an array of 12 numbers');
     }
     if (newPlant.feedingMin && !isValidFreqArray(newPlant.feedingMin)) {
-        return res.status(400).send('feedingMin must be an array of 12 numbers');
+        return jsonError(res, 400, 'feedingMin must be an array of 12 numbers');
     }
     if (newPlant.feedingMax && !isValidFreqArray(newPlant.feedingMax)) {
-        return res.status(400).send('feedingMax must be an array of 12 numbers');
+        return jsonError(res, 400, 'feedingMax must be an array of 12 numbers');
     }
     const plantToAdd = {
         name: newPlant.name,
@@ -333,13 +334,13 @@ app.post('/plants', (req, res) => {
     }
     plants.push(plantToAdd);
     writePlants();
-    res.status(201).send(plantToAdd);
+    res.status(201).json(plantToAdd);
 });
 
-app.delete('/plants/:name', (req, res) => {
+api.delete('/plants/:name', (req, res) => {
     const index = plants.findIndex(p => p.name === req.params.name);
     if (index === -1) {
-        return res.status(404).send('Plant not found');
+        return jsonError(res, 404, 'Plant not found');
     }
     const removed = plants.splice(index, 1)[0];
 
@@ -351,15 +352,16 @@ app.delete('/plants/:name', (req, res) => {
     writeLastClickedTimes();
 
     writePlants();
-    res.send(removed);
+    res.json(removed);
 });
 
-app.post('/bulk', async (req, res) => {
+api.post('/bulk', async (req, res) => {
     const ops = Array.isArray(req.body) ? req.body : [];
     const results = [];
     for (const op of ops){
         try {
-            const r = await fetch(`http://localhost:${port}${op.url}`, {
+            const targetUrl = op.url.startsWith('http') ? op.url : `http://localhost:${port}${op.url.startsWith('/') ? op.url : '/' + op.url}`;
+            const r = await fetch(targetUrl, {
                 method: op.method,
                 headers:{'Content-Type':'application/json'},
                 body: op.body ? JSON.stringify(op.body) : undefined
@@ -369,13 +371,13 @@ app.post('/bulk', async (req, res) => {
             results.push({ status: 500 });
         }
     }
-    res.send({ results });
+    res.json({ results });
 });
 
-app.post('/identify', async (req, res) => {
+api.post('/identify', async (req, res) => {
     const { image } = req.body;
     if (!image) {
-        return res.status(400).send('Image is required');
+        return jsonError(res, 400, 'Image is required');
     }
 
     const extractText = (content) => {
@@ -452,7 +454,7 @@ app.post('/identify', async (req, res) => {
         });
         if (!apiRes.ok) {
             console.error('OpenAI error', await apiRes.text());
-            return res.status(500).send('OpenAI request failed');
+            return jsonError(res, 500, 'OpenAI request failed');
         }
         const data = await apiRes.json();
         const message = data.choices?.[0]?.message || {};
@@ -468,11 +470,20 @@ app.post('/identify', async (req, res) => {
             console.log('[OpenAI Identify] Full API response:', JSON.stringify(data, null, 2));
         }
         const { description, schedule, commonName } = parseIdentifyResponse(full);
-        res.send({ description, schedule, commonName });
+        res.json({ description, schedule, commonName });
     } catch (err) {
         console.error('Identify error', err);
-        res.status(500).send('Error identifying plant');
+        jsonError(res, 500, 'Error identifying plant');
     }
+});
+
+app.use('/api', api);
+
+const publicDir = path.join(__dirname, 'public');
+app.use(express.static(publicDir));
+
+app.get('*', (req, res) => {
+    res.sendFile(path.join(publicDir, 'index.html'));
 });
 
 if (require.main === module) {

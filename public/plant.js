@@ -38,13 +38,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     let identifying = false;
     const { startLeafAnimation, stopLeafAnimation } = createLeafAnimator(loadingElem, loadingLeaf, { tinyLeafDuration: 2000 });
 
+    const isReadOnly = () => window.offlineUI?.isOffline() ?? false;
+    const guardMutation = () => {
+        if (isReadOnly()) {
+            window.offlineUI?.showReadOnlyMessage();
+            return true;
+        }
+        return false;
+    };
+
     const resolveImageUrl = (src) => {
         if (!src) return src;
         if (/^https?:\/\//.test(src) || src.startsWith('data:')) return src;
-        if (window.API_BASE) {
-            return window.API_BASE.replace(/\/$/, '') + '/' + src.replace(/^\/+/, '');
-        }
-        return src;
+        return '/' + src.replace(/^\/+/, '');
     };
 
     const autoResize = () => {
@@ -82,15 +88,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 locationSelect.appendChild(opt);
             });
         };
-        // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/locations')`
         const cached = await readLocations();
         render(cached);
         try {
-            const list = await api('GET', '/locations');
-            if (!list.offline) {
-                await cacheLocations(list);
-                render(list);
-            }
+            const list = await api('GET', '/api/locations');
+            await cacheLocations(list);
+            render(list);
         } catch (err) {
             console.error('Failed to load locations', err);
         }
@@ -99,8 +102,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const addLocation = async () => {
         const name = prompt('New location name')?.trim();
         if (!name) return;
+        if (guardMutation()) return;
         try {
-            await api('POST', '/locations', { name });
+            await api('POST', '/api/locations', { name });
             const opts = Array.from(locationSelect.options).map(o => o.value);
             if (!opts.includes(name)) {
                 const opt = document.createElement('option');
@@ -138,12 +142,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const fetchPlant = async (plantName) => {
         if (plantCache[plantName]) return plantCache[plantName];
-        const plant = await api('GET', `/plants/${encodeURIComponent(plantName)}`);
-        if (!plant.offline) {
-            plantCache[plantName] = plant;
-            return plant;
-        }
-        return plantCache[plantName] || null;
+        const plant = await api('GET', `/api/plants/${encodeURIComponent(plantName)}`);
+        plantCache[plantName] = plant;
+        return plant;
     };
 
     const transitionToPlant = async (targetName, dir) => {
@@ -318,6 +319,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         autoResize();
     };
 
+    const applyOfflineState = (state) => {
+        const disabled = !!state;
+        [toggleBtn, saveBtn, archiveBtn, addLocationBtn, identifyBtn, cameraBtn, galleryBtn].forEach(btn => {
+            if (btn) {
+                btn.disabled = disabled;
+                btn.classList.toggle('offline-disabled', disabled);
+            }
+        });
+        if (disabled) {
+            toggleBtn.checked = false;
+            setEditing(false);
+        }
+        document.querySelectorAll('#schedule-table input').forEach(i => i.readOnly = disabled || !editing);
+        document.querySelectorAll('.adjust-btn').forEach(btn => btn.classList.toggle('offline-disabled', disabled));
+    };
+    window.offlineUI?.onStatusChange(applyOfflineState);
+
     const showMessage = (msg, type = 'success') => {
         messageElem.textContent = msg;
         messageElem.className = `alert alert-${type}`;
@@ -342,13 +360,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const loadPlantNames = async () => {
-        // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/plants')`
-        const list = await api('GET', '/plants');
-        if (!list.offline) {
+        try {
+            const list = await api('GET', '/api/plants');
             const filtered = list.filter(p => !p.archived && (currentLocation === 'All' || p.location === currentLocation));
             plantNames = filtered.map(p => p.name);
             await cachePlants(list);
-        } else {
+        } catch (err) {
+            console.error('Failed to load plant list', err);
             const cached = await readPlants();
             const filtered = cached.filter(p => !p.archived && (currentLocation === 'All' || p.location === currentLocation));
             plantNames = filtered.map(p => p.name);
@@ -417,6 +435,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const save = async () => {
+        if (guardMutation()) return;
         const body = {
             name: plantNameInput.value.trim(),
             description: descElem.value,
@@ -427,13 +446,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             location: locationSelect.value
         };
         if (imageData) { body.imageData = imageData; }
-        await api('PUT', `/plants/${encodeURIComponent(name)}`, body);
+        await api('PUT', `/api/plants/${encodeURIComponent(name)}`, body);
         showMessage('Saved', 'success');
         setTimeout(() => { window.location.href = 'index.html'; }, 1000);
     };
 
     const updateDescription = async (text) => {
-        await api('PUT', `/plants/${encodeURIComponent(name)}`, { description: text });
+        if (guardMutation()) return;
+        await api('PUT', `/api/plants/${encodeURIComponent(name)}`, { description: text });
         if (plantCache[name]) {
             plantCache[name].description = text;
         }
@@ -441,7 +461,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const updateSchedule = async (sched) => {
-        await api('PUT', `/plants/${encodeURIComponent(name)}`, {
+        if (guardMutation()) return;
+        await api('PUT', `/api/plants/${encodeURIComponent(name)}`, {
             wateringMin: sched.wateringMin,
             wateringMax: sched.wateringMax,
             feedingMin: sched.feedingMin,
@@ -457,7 +478,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const archive = async () => {
-        await api('PUT', `/plants/${encodeURIComponent(name)}`, { archived: true });
+        if (guardMutation()) return;
+        await api('PUT', `/api/plants/${encodeURIComponent(name)}`, { archived: true });
         showMessage('Archived', 'success');
         setTimeout(() => { window.location.href = 'index.html'; }, 1000);
     };
@@ -469,8 +491,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const renamePlant = async (newName) => {
         if (!newName || newName === name) return;
-        const res = await api('PUT', `/plants/${encodeURIComponent(name)}`, { name: newName });
-        if (res.offline) return;
+        if (guardMutation()) return;
+        await api('PUT', `/api/plants/${encodeURIComponent(name)}`, { name: newName });
         if (plantCache[name]) {
             plantCache[newName] = { ...plantCache[name], name: newName };
             delete plantCache[name];
@@ -484,6 +506,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const identify = async () => {
+        if (guardMutation()) return;
         identifying = true;
         loadingElem.classList.remove('d-none');
         loadingElem.classList.add('blocking');
@@ -492,10 +515,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const imgParam = imageData || imageElem.dataset.path || imageElem.getAttribute('src');
 
         try {
-            const res = await api('POST', '/identify', { image: imgParam });
-            if (!res || res.offline) {
-                throw new Error('Error identifying plant');
-            }
+            const res = await api('POST', '/api/identify', { image: imgParam });
 
             const data = res;
             try { await navigator.clipboard.writeText(data.description); } catch(e) {}
