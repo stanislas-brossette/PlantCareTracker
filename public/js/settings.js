@@ -1,42 +1,4 @@
 (function(){
-    function createPanel(){
-        const wrapper = document.createElement('div');
-        wrapper.className = 'api-settings-wrapper';
-        wrapper.innerHTML = `
-            <button id="api-settings-toggle" class="btn btn-outline-secondary btn-sm" type="button" aria-expanded="false">
-                Connection
-            </button>
-            <div id="api-settings-panel" class="card shadow-sm d-none">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h2 class="h6 mb-0">Backend connection</h2>
-                        <button type="button" class="btn-close" aria-label="Close"></button>
-                    </div>
-                    <p class="small text-muted mb-3">Enter the IP (or hostname) and port of the server running on your Wi‑Fi. Leave blank to use the default.</p>
-                    <form id="api-settings-form" class="row g-2">
-                        <div class="col-8">
-                            <label class="form-label small" for="api-host">IP / Host</label>
-                            <input id="api-host" class="form-control form-control-sm" placeholder="192.168.1.31" />
-                        </div>
-                        <div class="col-4">
-                            <label class="form-label small" for="api-port">Port</label>
-                            <input id="api-port" class="form-control form-control-sm" placeholder="2000" />
-                        </div>
-                        <div class="col-12 d-flex justify-content-end gap-2 mt-1">
-                            <button id="api-reset" type="button" class="btn btn-link btn-sm">Use default</button>
-                            <button id="api-save" class="btn btn-primary btn-sm" type="submit">Save</button>
-                        </div>
-                        <div class="col-12">
-                            <div id="api-settings-status" class="small text-muted"></div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(wrapper);
-        return wrapper;
-    }
-
     function parseBase(base){
         try {
             const url = new URL(base);
@@ -46,22 +8,28 @@
         }
     }
 
-    function updateStatus(statusEl, base, isCustom){
-        statusEl.textContent = base ? `Currently using ${base}${isCustom ? ' (saved locally)' : ''}` : '';
+    function updateStatus(statusEl, base, isCustom, defaultBase){
+        if (!statusEl) return;
+        if (!base){
+            statusEl.textContent = defaultBase ? `Using default (${defaultBase}).` : '';
+            statusEl.classList.remove('text-danger');
+            return;
+        }
+        const sourceLabel = isCustom ? 'custom' : 'default';
+        statusEl.textContent = `Currently using ${base} (${sourceLabel}).`;
+        statusEl.classList.remove('text-danger');
     }
 
-    function init(){
-        if (!window.apiConfig?.setBase) return;
+    function initConnectionForm(){
+        const form = document.getElementById('api-settings-form');
+        const hostInput = document.getElementById('api-host');
+        const portInput = document.getElementById('api-port');
+        const resetBtn = document.getElementById('api-reset');
+        const statusEl = document.getElementById('api-settings-status');
 
-        const panel = createPanel();
-        const toggle = panel.querySelector('#api-settings-toggle');
-        const container = panel.querySelector('#api-settings-panel');
-        const closeBtn = container.querySelector('.btn-close');
-        const form = panel.querySelector('#api-settings-form');
-        const hostInput = panel.querySelector('#api-host');
-        const portInput = panel.querySelector('#api-port');
-        const resetBtn = panel.querySelector('#api-reset');
-        const statusEl = panel.querySelector('#api-settings-status');
+        if (!form || !hostInput || !portInput || !window.apiConfig?.setBase) return;
+
+        const defaultBase = window.apiConfig.getDefaultBase?.() || '';
 
         function fillInputs(){
             statusEl.classList.remove('text-danger');
@@ -69,42 +37,26 @@
             const parsed = parseBase(base);
             hostInput.value = parsed.host;
             portInput.value = parsed.port || '2000';
-            updateStatus(statusEl, base, Boolean(window.apiConfig.getStoredBase()));
+            updateStatus(statusEl, base, Boolean(window.apiConfig.getStoredBase?.()), defaultBase);
         }
 
-        function hide(){
-            container.classList.add('d-none');
-            toggle.setAttribute('aria-expanded', 'false');
-        }
-
-        toggle.addEventListener('click', () => {
-            const isHidden = container.classList.contains('d-none');
-            if (isHidden) {
-                fillInputs();
-                container.classList.remove('d-none');
-                toggle.setAttribute('aria-expanded', 'true');
-            } else {
-                hide();
-            }
-        });
-        closeBtn.addEventListener('click', hide);
-
-        resetBtn.addEventListener('click', () => {
+        resetBtn?.addEventListener('click', (e) => {
+            e.preventDefault();
             window.apiConfig.setBase('');
             fillInputs();
-            updateStatus(statusEl, window.apiConfig.getBase(), false);
+            updateStatus(statusEl, window.apiConfig.getBase(), false, defaultBase);
         });
 
         form.addEventListener('submit', (e) => {
             e.preventDefault();
             const host = hostInput.value.trim();
             const port = portInput.value.trim();
-            if (!host) {
+            if (!host){
                 statusEl.textContent = 'Please enter an IP/hostname or click "Use default".';
                 statusEl.classList.add('text-danger');
                 return;
             }
-            if (port && !/^\d+$/.test(port)) {
+            if (port && !/^\d+$/.test(port)){
                 statusEl.textContent = 'Port must be numeric.';
                 statusEl.classList.add('text-danger');
                 return;
@@ -112,17 +64,16 @@
 
             const base = `${window.location.protocol}//${host}${port ? ':' + port : ''}`;
             const result = window.apiConfig.setBase(base);
-            if (!result) {
+            if (!result){
                 statusEl.textContent = 'Invalid address. Please double-check the IP and port.';
                 statusEl.classList.add('text-danger');
                 return;
             }
-            statusEl.classList.remove('text-danger');
-            updateStatus(statusEl, result, true);
+            updateStatus(statusEl, result, true, defaultBase);
         });
 
         fillInputs();
     }
 
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', initConnectionForm);
 })();
