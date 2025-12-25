@@ -58,14 +58,15 @@ The app will be available at:
 - Saving the values stores them locally and updates all API calls immediately. Use **Use default** to clear the override and fall back to the current origin.
 
 ## Offline acceptance test
-1. Start the server with `npm start` and open the app in Chrome.
-2. Browse the plant list and at least one plant detail page so images and data load while online. Confirm watering/feeding buttons show a relative time (not "Never").
-3. Open DevTools → Application:
-   - The service worker should show **Activated** (not redundant).
+1. In Chrome DevTools → Application, **Unregister** any existing service worker for this origin and clear storage for a clean slate.
+2. Start the server with `npm start` and open the app in Chrome.
+3. Browse the plant list and at least one plant detail page so images and data load while online. Confirm watering/feeding buttons show a relative time (not "Never").
+4. Open DevTools → Application:
+   - The service worker should show **Activated and is running**.
    - Cache Storage → `api-cache` should contain exact entries for `/plants`, `/locations`, and `/lastClickedTimes`.
    - Cache Storage → `img-cache` should contain plant images that were viewed.
-4. Stop the server completely.
-5. Hard reload the tab (Ctrl+Shift+R) or reopen it.
+5. Stop the server completely.
+6. Hard reload the tab (Ctrl+Shift+R) or reopen it.
 
 Expected results:
 - App shell loads from cache.

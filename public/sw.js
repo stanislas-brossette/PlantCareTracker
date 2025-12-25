@@ -1,17 +1,19 @@
 /* PlantCareTracker Service Worker */
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/6.5.4/workbox-sw.js');
 
-workbox.core.setCacheNameDetails({ prefix: 'pct' });
-workbox.core.clientsClaim();
-self.skipWaiting();
+workbox.setConfig({ debug: true });
 
-const { precaching, routing, strategies, expiration } = workbox;
-const { precacheAndRoute } = precaching;
+const { core, precaching, routing, strategies, expiration } = workbox;
+const { precacheAndRoute, createHandlerBoundToURL } = precaching;
 const { registerRoute, NavigationRoute } = routing;
 const { StaleWhileRevalidate, CacheFirst } = strategies;
 const { ExpirationPlugin } = expiration;
 
-precacheAndRoute([
+core.setCacheNameDetails({ prefix: 'pct' });
+core.clientsClaim();
+self.skipWaiting();
+
+const precacheManifest = self.__WB_MANIFEST || [
   { url: '/', revision: '1' },
   { url: '/index.html', revision: '1' },
   { url: '/create.html', revision: '1' },
@@ -30,38 +32,56 @@ precacheAndRoute([
   { url: '/js/storage.js', revision: '1' },
   { url: '/js/sync.js', revision: '1' },
   { url: '/images/placeholder.png', revision: '1' },
-]);
+];
 
-registerRoute(new NavigationRoute(precaching.createHandlerBoundToURL('/index.html')));
+precacheAndRoute(precacheManifest);
 
-const apiStrategy = new StaleWhileRevalidate({ cacheName: 'api-cache' });
-const isSameOrigin = (url) => url.origin === self.location.origin;
+const navigationHandler = createHandlerBoundToURL('/index.html');
+registerRoute(new NavigationRoute(navigationHandler));
 
-registerRoute(
-  ({ url, request }) => request.method === 'GET' && isSameOrigin(url) && (
+const isLastClickedPath = (urlInput) => {
+  const href = urlInput instanceof Request
+    ? urlInput.url
+    : typeof urlInput === 'string'
+      ? urlInput
+      : urlInput && urlInput.href;
+
+  if (!href) return false;
+  const { pathname } = new URL(href, self.location.href);
+  return pathname === '/lastClickedTimes' || pathname === '/api/lastClickedTimes';
+};
+
+const apiMatch = ({ request, url }) => (
+  request.method === 'GET' &&
+  url.origin === self.location.origin &&
+  (
     url.pathname === '/plants' ||
     url.pathname.startsWith('/plants/') ||
     url.pathname === '/locations' ||
-    url.pathname === '/lastClickedTimes' ||
-    url.pathname === '/api/lastClickedTimes'
-  ),
-  async ({ event }) => {
-    const { request } = event;
-    const matchPath = new URL(request.url).pathname;
-    const isLastClicked = matchPath === '/lastClickedTimes' || matchPath === '/api/lastClickedTimes';
-    const cached = await caches.match(request);
-    if (isLastClicked) {
-      console.log('[sw] lastClickedTimes cache', cached ? 'hit' : 'miss', request.url);
+    isLastClickedPath(url)
+  )
+);
+
+const lastClickedLoggingPlugin = {
+  cachedResponseWillBeUsed: async ({ request, cachedResponse }) => {
+    if (isLastClickedPath(request.url)) {
+      console.log('[sw] lastClickedTimes cache', cachedResponse ? 'hit' : 'miss', request.url);
     }
-    const response = await apiStrategy.handle({ event });
-    if (isLastClicked && !cached) {
-      const nowCached = await caches.match(request);
-      if (nowCached) {
-        console.log('[sw] lastClickedTimes cached after fetch', request.url);
-      }
+    return cachedResponse;
+  },
+  cacheDidUpdate: async ({ request }) => {
+    if (isLastClickedPath(request.url)) {
+      console.log('[sw] lastClickedTimes cached/updated', request.url);
     }
-    return response;
   }
+};
+
+registerRoute(
+  apiMatch,
+  new StaleWhileRevalidate({
+    cacheName: 'api-cache',
+    plugins: [lastClickedLoggingPlugin],
+  })
 );
 
 registerRoute(
@@ -73,4 +93,3 @@ registerRoute(
     ]
   })
 );
-
