@@ -57,6 +57,21 @@ The app will be available at:
 - A floating **Connection** button (bottom-right of each page) opens a small panel where you can enter the backend IP/hostname and port (e.g., `192.168.1.31` and `2000`).
 - Saving the values stores them locally and updates all API calls immediately. Use **Use default** to clear the override and fall back to the current origin or `http://<your-device>:2000`.
 
+## Offline acceptance test
+1. Start the server with `npm start` and open the app in Chrome.
+2. Browse the plant list and at least one plant detail page so images and data load while online.
+3. Open DevTools → Application:
+   - The service worker should show **Activated** (not redundant).
+   - Cache Storage should contain `api-cache` entries for `/plants`, `/locations`, `/lastClickedTimes` and `img-cache` entries for plant images.
+4. Stop the server completely.
+5. Hard reload the tab (Ctrl+Shift+R) or reopen it.
+
+Expected results:
+- App shell loads from cache.
+- Plant list, plant details, and images still display.
+- Offline banner is visible.
+- Add/undo/watering/feeding/location management actions are disabled with an offline notice.
+
 ## Plant Identification
 To use the optional Identify Plant feature, set your OpenAI API key before starting the server:
 ```bash

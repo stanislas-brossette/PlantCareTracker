@@ -86,6 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
             button.textContent = 'Never'; // Initial text
             button.id = `button-${plant.name}-${type}`;
             button.className = 'btn w-100 btn-success';
+            button.dataset.offlineDisabled = '';
             button.setAttribute('feedingMin', plant.feedingMin)
             button.setAttribute('feedingMax', plant.feedingMax)
             button.setAttribute('wateringMin', plant.wateringMin)
@@ -108,6 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const cached = await readPlants();
         plants = cached;
         renderPlants();
+        window.offlineUI?.refresh();
         await sync(renderPlants);
         setInterval(refreshTimes, 60000);
     };

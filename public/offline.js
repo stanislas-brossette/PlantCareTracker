@@ -1,167 +1,86 @@
 (function(){
-    const plugins = window.Capacitor ? window.Capacitor.Plugins || {} : {};
-    const Storage = plugins.Storage;
-    const Filesystem = plugins.Filesystem;
-    const Directory = plugins.Directory || plugins.FilesystemDirectory || (window.Capacitor && window.Capacitor.FilesystemDirectory) || 'DATA';
+    const OFFLINE_MESSAGE = 'Unavailable offline (read-only)';
+    const banner = document.createElement('div');
+    banner.id = 'offline-banner';
+    banner.className = 'offline-banner d-none';
+    banner.textContent = 'Offline (read-only)';
+    document.body.prepend(banner);
 
-    const KEYS = {
-        plants: 'offline_plants',
-        locations: 'offline_locations',
-        times: 'offline_times',
-        queue: 'offline_queue'
-    };
+    const toast = document.createElement('div');
+    toast.id = 'offline-toast';
+    toast.className = 'offline-toast d-none';
+    toast.textContent = OFFLINE_MESSAGE;
+    document.body.appendChild(toast);
 
-    const storageBackend = (typeof localforage !== 'undefined') ?
-        localforage : {
-            async getItem(key){
-                try {
-                    const v = localStorage.getItem(key);
-                    return v ? JSON.parse(v) : null;
-                } catch(e){ return null; }
-            },
-            async setItem(key,val){
-                try { localStorage.setItem(key, JSON.stringify(val)); } catch(e){}
-            },
-            async removeItem(key){
-                try { localStorage.removeItem(key); } catch(e){}
+    let isOffline = !navigator.onLine;
+    const offlineTargets = new Set();
+
+    function showToast(){
+        toast.classList.remove('d-none');
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.add('d-none'), 2000);
+    }
+
+    function collectTargets(){
+        document.querySelectorAll('[data-offline-disabled]').forEach(el => offlineTargets.add(el));
+    }
+
+    function applyState(){
+        collectTargets();
+        banner.classList.toggle('d-none', !isOffline);
+        offlineTargets.forEach(el => {
+            const tag = el.tagName.toLowerCase();
+            if (isOffline){
+                el.classList.add('offline-disabled');
+                el.setAttribute('aria-disabled', 'true');
+                if (tag === 'button' || tag === 'input' || tag === 'select') {
+                    if (!el.dataset._offlineLocked){
+                        el.dataset._offlineLocked = el.disabled ? 'persist' : 'temp';
+                    }
+                    el.disabled = true;
+                }
+            } else {
+                el.classList.remove('offline-disabled');
+                el.removeAttribute('aria-disabled');
+                if (el.dataset._offlineLocked === 'temp') {
+                    el.disabled = false;
+                }
+                delete el.dataset._offlineLocked;
             }
-        };
-
-    const Local = {
-        async get(key){ return storageBackend.getItem(key); },
-        async set(key,val){ return storageBackend.setItem(key,val); },
-        async remove(key){ return storageBackend.removeItem(key); }
-    };
-
-    async function toBase64(blob){
-        return await new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = reject;
-            reader.readAsDataURL(blob);
         });
     }
 
-    async function embedImages(plants){
-        return await Promise.all(plants.map(async p => {
-            if (p.image && !/^data:/.test(p.image) && !/^https?:/.test(p.image)) {
-                try {
-                    const url = (window.API_BASE || '').replace(/\/$/, '') + '/' + p.image.replace(/^\//,'');
-                    const blob = await fetch(url).then(r => r.blob());
-                    const dataUrl = await toBase64(blob);
-                    if (Filesystem) {
-                        const extMatch = /^data:image\/([^;]+);/.exec(dataUrl);
-                        const ext = extMatch ? extMatch[1] : 'jpg';
-                        const fileName = `plant_${encodeURIComponent(p.name)}.${ext}`;
-                        await Filesystem.writeFile({ path: fileName, data: dataUrl.split(',')[1], directory: Directory });
-                        const { uri } = await Filesystem.getUri({ path: fileName, directory: Directory });
-                        p.image = uri;
-                    } else {
-                        p.image = dataUrl;
-                    }
-                } catch(err){ console.error('cache image', err); }
-            }
-            return p;
-        }));
+    function setOffline(reason){
+        isOffline = true;
+        banner.dataset.reason = reason || 'offline';
+        applyState();
     }
 
-    async function cacheInitial(){
-        try {
-            const [pRes, lRes, tRes] = await Promise.all([
-                fetch('/plants'),
-                fetch('/locations'),
-                fetch('/lastClickedTimes')
-            ]);
-            let plants = await pRes.json();
-            const locs = await lRes.json();
-            const times = await tRes.json();
+    function setOnline(){
+        isOffline = false;
+        applyState();
+    }
 
-            plants = await embedImages(plants);
-
-            await set(KEYS.plants, plants);
-            await set(KEYS.locations, locs);
-            await set(KEYS.times, times);
-        } catch(e){
-            console.error('offline cache init failed', e);
+    document.addEventListener('click', (evt) => {
+        if (!isOffline) return;
+        const target = evt.target.closest('[data-offline-disabled]');
+        if (target){
+            evt.preventDefault();
+            evt.stopPropagation();
+            showToast();
         }
-    }
+    }, true);
 
-    async function get(key){
-        if (Storage) {
-            try {
-                const { value } = await Storage.get({ key });
-                if (value) return JSON.parse(value);
-            } catch(e){}
-        }
-        return Local.get(key);
-    }
-    async function set(key,val){
-        if (Storage) {
-            try { await Storage.set({ key, value: JSON.stringify(val) }); } catch(e){}
-        }
-        await Local.set(key, val);
-    }
+    window.addEventListener('offline', () => setOffline('navigator'));
+    window.addEventListener('online', () => setOnline());
 
-    async function queueRequest(url, options){
-        const q = await get(KEYS.queue) || [];
-        q.push({ url, options });
-        await set(KEYS.queue, q);
-    }
-
-    async function flushQueue(){
-        const q = await get(KEYS.queue);
-        if (!q || q.length === 0) return;
-        const remaining = [];
-        for (const item of q){
-            try {
-                await fetch(item.url, item.options);
-            } catch(e){
-                remaining.push(item);
-            }
-        }
-        if (remaining.length === 0) {
-            if (Storage) {
-                try { await Storage.remove({ key: KEYS.queue }); } catch(e){}
-            }
-            await Local.remove(KEYS.queue);
-        } else {
-            await set(KEYS.queue, remaining);
-        }
-    }
-
-    async function updateTime(buttonId, time){
-        const times = await get(KEYS.times) || {};
-        if (time) times[buttonId] = time; else delete times[buttonId];
-        await set(KEYS.times, times);
-    }
-
-    async function savePlants(plants){
-        plants = await embedImages(plants);
-        await set(KEYS.plants, plants);
-    }
-
-    async function savePlant(plant){
-        const list = await get(KEYS.plants) || [];
-        const [processed] = await embedImages([plant]);
-        const idx = list.findIndex(p => p.name === processed.name);
-        if (idx !== -1) list[idx] = processed; else list.push(processed);
-        await set(KEYS.plants, list);
-    }
-
-    window.offlineCache = {
-        init: cacheInitial,
-        getPlants: () => get(KEYS.plants),
-        getLocations: () => get(KEYS.locations),
-        getTimes: () => get(KEYS.times),
-        savePlants,
-        savePlant,
-        saveLocations: val => set(KEYS.locations, val),
-        saveTimes: val => set(KEYS.times, val),
-        queueRequest,
-        flushQueue,
-        updateTime
+    window.offlineUI = {
+        setOffline,
+        setOnline,
+        refresh: applyState,
+        isOffline: () => isOffline,
+        notifyIfOffline: () => { if (isOffline) showToast(); }
     };
 
-    if (navigator.onLine) cacheInitial();
-    window.addEventListener('online', flushQueue);
+    applyState();
 })();

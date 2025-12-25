@@ -17,11 +17,16 @@ document.addEventListener('DOMContentLoaded', () => {
             li.textContent = loc;
             const del = document.createElement('button');
             del.className = 'btn btn-sm btn-danger';
+            del.dataset.offlineDisabled = '';
             del.textContent = 'Delete';
             del.onclick = async () => {
                 try {
                     const res = await api('DELETE', `/locations/${encodeURIComponent(loc)}`);
-                    if (!res.offline) load();
+                    if (res.offline) {
+                        window.offlineUI?.notifyIfOffline();
+                        return;
+                    }
+                    load();
                 } catch (err) {
                     console.error('Failed to delete location', err);
                 }
@@ -29,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
             li.appendChild(del);
             listElem.appendChild(li);
         });
+        window.offlineUI?.refresh();
     };
 
     const load = async () => {
@@ -50,7 +56,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const name = newInput.value.trim();
         if (!name) return;
         try {
-            await api('POST', '/locations', { name });
+            const res = await api('POST', '/locations', { name });
+            if (res.offline) {
+                window.offlineUI?.notifyIfOffline();
+                return;
+            }
             newInput.value = '';
             load();
         } catch (err) {
@@ -59,5 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     addBtn.addEventListener('click', add);
+    window.offlineUI?.refresh();
     load().then(sync);
 });

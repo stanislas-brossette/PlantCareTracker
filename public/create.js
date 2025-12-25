@@ -319,36 +319,17 @@ document.addEventListener('DOMContentLoaded', () => {
         setSaving(true);
         try {
             const res = await api('POST', '/plants', body);
-            if (!res.offline) {
-                const created = res;
-                showMessage('Created', 'success');
-                setTimeout(() => {
-                    window.location.href = `plant.html?name=${encodeURIComponent(created.name)}`;
-                }, 1000);
-            } else {
-                body.uuid = (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2));
-                body.updatedAt = Date.now();
-                const list = await readPlants();
-                list.push(body);
-                await cachePlants(list);
-                try {
-                    await window.offlineCache.savePlant(body);
-                } catch (e) {}
-                let locs = await readLocations();
-                if (!locs.includes(body.location)) {
-                    locs.push(body.location);
-                    await cacheLocations(locs);
-                    try {
-                        if (window.offlineCache.saveLocations) {
-                            await window.offlineCache.saveLocations(locs);
-                        }
-                    } catch (e) {}
-                }
-                showMessage('Saved locally', 'success');
-                setTimeout(() => {
-                    window.location.href = `plant.html?name=${encodeURIComponent(body.name)}`;
-                }, 1000);
+            if (res.offline) {
+                window.offlineUI?.notifyIfOffline();
+                showMessage('Saving is unavailable while offline', 'danger');
+                return;
             }
+
+            const created = res;
+            showMessage('Created', 'success');
+            setTimeout(() => {
+                window.location.href = `plant.html?name=${encodeURIComponent(created.name)}`;
+            }, 1000);
         } catch (err) {
             console.error('Save failed', err);
             showMessage(err.message || 'Could not save plant', 'danger');
@@ -363,5 +344,6 @@ document.addEventListener('DOMContentLoaded', () => {
     descElem.addEventListener('input', autoResize);
     autoResize();
 
+    window.offlineUI?.refresh();
     loadLocations().then(sync);
 });

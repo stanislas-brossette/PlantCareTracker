@@ -22,8 +22,8 @@
             <img id="plant-image" src="" alt="Plant image" class="img-fluid mb-2" />
             <button id="next-plant" class="nav-arrow right" type="button">&raquo;</button>
             <div id="image-buttons" class="mt-2">
-                <button id="camera-btn" type="button" class="btn btn-outline-secondary"><i class="bi bi-camera-fill"></i></button>
-                <button id="gallery-btn" type="button" class="btn btn-outline-secondary"><i class="bi bi-image"></i></button>
+                <button id="camera-btn" type="button" class="btn btn-outline-secondary" data-offline-disabled><i class="bi bi-camera-fill"></i></button>
+                <button id="gallery-btn" type="button" class="btn btn-outline-secondary" data-offline-disabled><i class="bi bi-image"></i></button>
             </div>
             <input type="file" id="cameraFile" class="form-control d-none" accept="image/*" capture="environment" />
             <input type="file" id="galleryFile" class="form-control d-none" accept="image/*" />
@@ -31,11 +31,11 @@
         <div class="col-md-8">
             <div class="d-flex align-items-start mb-3">
                 <div class="form-check form-switch me-3">
-                    <input class="form-check-input" type="checkbox" id="toggle-edit">
+                    <input class="form-check-input" type="checkbox" id="toggle-edit" data-offline-disabled>
                     <label class="form-check-label" for="toggle-edit">Edit mode</label>
                 </div>
-                <button id="save" class="btn btn-primary d-none me-2">Save</button>
-                <button id="identify" class="btn btn-outline-success me-2">Identify Plant</button>
+                <button id="save" class="btn btn-primary d-none me-2" data-offline-disabled>Save</button>
+                <button id="identify" class="btn btn-outline-success me-2" data-offline-disabled>Identify Plant</button>
                 <button id="test-animation" class="btn btn-outline-primary">Test Anim</button>
             </div>
             <div id="description-section" class="mb-3">
@@ -47,7 +47,7 @@
                 <label class="form-label">Location</label>
                 <div class="d-flex">
                     <select id="location-select" class="form-select" disabled></select>
-                    <button id="add-location" class="btn btn-outline-secondary ms-2 d-none" type="button">Add</button>
+                    <button id="add-location" class="btn btn-outline-secondary ms-2 d-none" type="button" data-offline-disabled>Add</button>
                 </div>
             </div>
             <div class="accordion mb-3" id="scheduleAccordion">
@@ -75,7 +75,7 @@
                     </div>
                 </div>
             </div>
-            <button id="archive" class="btn btn-secondary d-none">Archive</button>
+            <button id="archive" class="btn btn-secondary d-none" data-offline-disabled>Archive</button>
         </div>
     </div>
 

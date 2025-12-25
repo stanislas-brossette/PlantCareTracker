@@ -316,3 +316,31 @@ img {
 #api-settings-panel .form-control-sm {
     font-size: 0.9rem;
 }
+
+#offline-banner {
+  position: sticky;
+  top: 0;
+  z-index: 1050;
+  background: #ffc107;
+  color: #111;
+  text-align: center;
+  padding: 8px;
+  font-weight: bold;
+}
+
+.offline-disabled { opacity: 0.6; }
+
+#offline-toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(33,37,41,0.9);
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 6px;
+  z-index: 2000;
+}
+
+#offline-toast.show { display: block; }
+#offline-toast.d-none { display: none !important; }
