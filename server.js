@@ -487,6 +487,14 @@ app.use('/api', (req, res) => {
     res.status(404).json({ error: 'Not found' });
 });
 
+app.use('/api', (err, req, res, next) => {
+    console.error('API error', err);
+    if (res.headersSent) {
+        return next(err);
+    }
+    res.status(500).json({ error: 'Internal server error' });
+});
+
 app.get('*', (req, res) => {
     res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
 });

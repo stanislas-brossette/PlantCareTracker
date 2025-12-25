@@ -1,6 +1,7 @@
 import { queue } from './storage.js';
 
 function buildUrl(url){
+  if (/^https?:\/\//i.test(url)) return url;
   if (url.startsWith('/api')) return url;
   if (url.startsWith('/')) return `/api${url}`;
   return `/api/${url}`;
