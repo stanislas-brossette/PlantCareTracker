@@ -7,6 +7,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const newInput = document.getElementById('new-location');
     const addBtn = document.getElementById('add-location');
 
+    const isReadOnly = () => window.offlineUI?.isOffline() ?? false;
+    const guardMutation = () => {
+        if (isReadOnly()) {
+            window.offlineUI?.showReadOnlyMessage();
+            return true;
+        }
+        return false;
+    };
+
+    const applyOfflineState = (state) => {
+        const disabled = !!state;
+        if (addBtn) {
+            addBtn.disabled = disabled;
+            addBtn.classList.toggle('offline-disabled', disabled);
+        }
+        document.querySelectorAll('#locations-list button').forEach(btn => {
+            btn.disabled = disabled;
+            btn.classList.toggle('offline-disabled', disabled);
+        });
+    };
+    window.offlineUI?.onStatusChange(applyOfflineState);
+
     const render = (locs) => {
         const unique = Array.from(new Set(locs)).filter(Boolean);
         if (unique.length === 0) unique.push('Default');
@@ -19,9 +41,10 @@ document.addEventListener('DOMContentLoaded', () => {
             del.className = 'btn btn-sm btn-danger';
             del.textContent = 'Delete';
             del.onclick = async () => {
+                if (guardMutation()) return;
                 try {
-                    const res = await api('DELETE', `/locations/${encodeURIComponent(loc)}`);
-                    if (!res.offline) load();
+                    await api('DELETE', `/api/locations/${encodeURIComponent(loc)}`);
+                    load();
                 } catch (err) {
                     console.error('Failed to delete location', err);
                 }
@@ -29,18 +52,16 @@ document.addEventListener('DOMContentLoaded', () => {
             li.appendChild(del);
             listElem.appendChild(li);
         });
+        applyOfflineState(isReadOnly());
     };
 
     const load = async () => {
-        // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/locations')`
         const cached = await readLocations();
         render(cached);
         try {
-            const data = await api('GET', '/locations');
-            if (!data.offline) {
-                await cacheLocations(data);
-                render(data);
-            }
+            const data = await api('GET', '/api/locations');
+            await cacheLocations(data);
+            render(data);
         } catch (err) {
             console.error('Failed to load locations', err);
         }
@@ -49,8 +70,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const add = async () => {
         const name = newInput.value.trim();
         if (!name) return;
+        if (guardMutation()) return;
         try {
-            await api('POST', '/locations', { name });
+            await api('POST', '/api/locations', { name });
             newInput.value = '';
             load();
         } catch (err) {

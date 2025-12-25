@@ -4,6 +4,22 @@ body {
     padding: 20px;
 }
 
+.offline-banner {
+    background: #ffc107;
+    color: #3b2f00;
+    padding: 10px;
+    border: 1px solid #e0a800;
+    border-radius: 6px;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 12px;
+}
+
+.offline-disabled {
+    pointer-events: none;
+    opacity: 0.65;
+}
+
 #plantsTable {
     width: 100%;
 }

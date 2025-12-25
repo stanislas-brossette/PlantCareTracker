@@ -5,6 +5,8 @@ const config: CapacitorConfig = {
   appName: 'PlantCareTracker',
   webDir: 'public',
   server: {
+    url: 'http://192.168.1.31:2000',
+    cleartext: true,
     androidScheme: 'http'
   }
 };
