@@ -23,7 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const buttonRefs = {};
 
     const loadLocations = async () => {
-        // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/locations')`
         const cached = await readLocations();
         const render = (list) => {
             locations = ['All', ...list];
@@ -39,10 +38,14 @@ document.addEventListener('DOMContentLoaded', () => {
             currentIndex = locations.indexOf(stored);
         };
         render(cached);
-        const list = await api('GET', '/locations');
-        if (!list.offline) {
-            await cacheLocations(list);
-            render(list);
+        try {
+            const list = await api('GET', '/locations');
+            if (!list.offline) {
+                await cacheLocations(list);
+                render(list);
+            }
+        } catch (err) {
+            console.error('Failed to load locations from API:', err);
         }
     };
 
@@ -55,7 +58,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return src;
     };
 
-    const renderPlants = () => {
+    const renderPlants = (list) => {
+        if (list) plants = list;
         while (plantsTable.rows.length > 1) {
             plantsTable.deleteRow(1);
         }
@@ -113,6 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         await sync((updatedPlants) => {
             renderPlants(updatedPlants);
+            cachePlants(updatedPlants);
             // Opportunistically cache images for offline use
             cachePlantImages(updatedPlants);
         });

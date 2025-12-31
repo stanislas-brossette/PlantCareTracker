@@ -113,7 +113,6 @@ readLastClickedTimes();
 readLocations();
 readPlants();
 
-app.use(express.static('public'));
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', 'Content-Type');
@@ -480,6 +479,8 @@ app.post('/identify', async (req, res) => {
         res.status(500).send('Error identifying plant');
     }
 });
+
+app.use(express.static('public'));
 
 if (require.main === module) {
     app.listen(port, '0.0.0.0', () => {

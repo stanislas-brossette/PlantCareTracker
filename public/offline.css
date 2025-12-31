@@ -34,7 +34,10 @@ body.offline-mode #save,
 body.offline-mode #archive,
 body.offline-mode #identify,
 body.offline-mode #add-location,
-body.offline-mode #toggle-edit-container /* Wrap the toggle if needed */
+body.offline-mode #toggle-edit-container, /* Wrap the toggle if needed */
+body.offline-mode .form-switch, /* Target the switch directly */
+body.offline-mode #schedule-table input,
+body.offline-mode #location-select
 {
     pointer-events: none;
     opacity: 0.6;

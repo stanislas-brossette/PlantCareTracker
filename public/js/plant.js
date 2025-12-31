@@ -84,17 +84,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                 locationSelect.appendChild(opt);
             });
         };
-        // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/locations')`
+
+        // Load from cache first
         const cached = await readLocations();
-        render(cached);
+        if (cached && cached.length) render(cached);
+
         try {
             const list = await api('GET', '/locations');
-            if (!list.offline) {
+            if (list && !list.offline) {
                 await cacheLocations(list);
                 render(list);
             }
         } catch (err) {
-            console.error('Failed to load locations', err);
+            console.error('Failed to load locations from API', err);
         }
     };
 
@@ -142,7 +144,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (plantCache[plantName]) return plantCache[plantName];
         try {
             const plant = await api('GET', `/plants/${encodeURIComponent(plantName)}`);
-            if (!plant.offline) {
+            if (plant && !plant.offline) {
                 plantCache[plantName] = plant;
                 return plant;
             }
@@ -151,11 +153,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         // Fallback to full list cache if specific fetch failed or is offline
-        const allPlants = await readPlants();
-        const found = allPlants.find(p => p.name === plantName);
-        if (found) {
-            plantCache[plantName] = found;
-            return found;
+        try {
+            const allPlants = await readPlants();
+            const found = allPlants.find(p => p.name === plantName);
+            if (found) {
+                plantCache[plantName] = found;
+                return found;
+            }
+        } catch (e) {
+            console.error('Cache read failed', e);
         }
 
         return plantCache[plantName] || null;
@@ -357,9 +363,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const loadPlantNames = async () => {
-        // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/plants')`
-        const list = await api('GET', '/plants');
-        if (!list.offline) {
+        let list = null;
+        try {
+            list = await api('GET', '/plants');
+        } catch (e) {
+            console.log('API load failed, using cache');
+        }
+
+        if (list && !list.offline) {
             const filtered = list.filter(p => !p.archived && (currentLocation === 'All' || p.location === currentLocation));
             plantNames = filtered.map(p => p.name);
             await cachePlants(list);
