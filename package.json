@@ -12,7 +12,7 @@
     "cap:sync": "npx cap sync",
     "cap:copy": "npx cap copy",
     "cap:open": "npx cap open android",
-    "build-sw": "workbox injectManifest workbox-config.js"
+    "build-sw": "workbox generateSW workbox-config.js"
   },
   "author": "",
   "license": "ISC",
@@ -33,7 +33,7 @@
     "puppeteer": "^24.9.0",
     "supertest": "^6.3.3",
     "typescript": "^5.3.2",
-    "workbox-cli": "^2.1.3"
+    "workbox-cli": "^7.4.0"
   },
   "engines": {
     "node": ">=18"

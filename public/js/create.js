@@ -1,6 +1,6 @@
-import { api } from './js/api.js';
-import { readPlants, cachePlants, readLocations, cacheLocations } from './js/storage.js';
-import { sync } from './js/sync.js';
+import { api } from './api.js';
+import { readPlants, cachePlants, readLocations, cacheLocations } from './storage.js';
+import { sync } from './sync.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const nameInput = document.getElementById('plant-name-input');

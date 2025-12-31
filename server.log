@@ -1,0 +1,5 @@
+
+> plantcaretracker@1.0.0 start
+> node server.js
+
+Server listening at http://localhost:2000

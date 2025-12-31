@@ -1,6 +1,6 @@
-import { api } from './js/api.js';
-import { readLocations, cacheLocations } from './js/storage.js';
-import { sync } from './js/sync.js';
+import { api } from './api.js';
+import { readLocations, cacheLocations } from './storage.js';
+import { sync } from './sync.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const listElem = document.getElementById('locations-list');

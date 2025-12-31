@@ -1,6 +1,6 @@
-import { api } from './js/api.js';
-import { readPlants, cachePlants, readLocations, cacheLocations } from './js/storage.js';
-import { sync, setRenderer } from './js/sync.js';
+import { api } from './api.js';
+import { readPlants, cachePlants, readLocations, cacheLocations } from './storage.js';
+import { sync, setRenderer } from './sync.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const plantsTable = document.getElementById('plantsTable');
