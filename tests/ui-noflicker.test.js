@@ -21,7 +21,7 @@ test('images stay populated when going online', async () => {
 
   await page.setOfflineMode(true);
   await page.setOfflineMode(false);
-  await page.waitForTimeout(500); // allow online sync
+  await new Promise(r => setTimeout(r, 500)); // allow online sync
 
   const afterEmpty = await page.evaluate(() => Array.from(document.querySelectorAll('img')).some(img => !img.getAttribute('src')));
   expect(afterEmpty).toBe(false);

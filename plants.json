@@ -2635,5 +2635,69 @@
         "location": "Balcon",
         "uuid": "8f88f082-8580-4a0e-9184-efa025de77b5",
         "updatedAt": 1753004806558
+    },
+    {
+        "name": "TestPlant-1767178224",
+        "description": "Test Description",
+        "wateringMin": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        ],
+        "wateringMax": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        ],
+        "feedingMin": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        ],
+        "feedingMax": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        ],
+        "image": "images/placeholder.png",
+        "location": "Apartment",
+        "uuid": "0e1a8a96-1442-4361-8ac3-e8cf73cc2a1c",
+        "updatedAt": 1767178224844
     }
 ]

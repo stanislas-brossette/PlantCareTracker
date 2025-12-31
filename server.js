@@ -238,9 +238,15 @@ app.put('/plants/:name', (req, res) => {
         plants[index].name = newName;
         Object.keys(lastClickedTimes).forEach(key => {
             if (key.startsWith(`button-${oldName}-`)) {
-                const suffix = key.substring(`button-${oldName}-`.length);
-                lastClickedTimes[`button-${newName}-${suffix}`] = lastClickedTimes[key];
-                delete lastClickedTimes[key];
+                // Determine if this key belongs to a longer plant name
+                const matchedLonger = plants.some(p => {
+                    return p.name !== oldName && p.name.length > oldName.length && key.startsWith(`button-${p.name}-`);
+                });
+                if (!matchedLonger) {
+                    const suffix = key.substring(`button-${oldName}-`.length);
+                    lastClickedTimes[`button-${newName}-${suffix}`] = lastClickedTimes[key];
+                    delete lastClickedTimes[key];
+                }
             }
         });
         writeLastClickedTimes();
