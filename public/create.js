@@ -1,6 +1,5 @@
 import { api } from './js/api.js';
 import { readPlants, cachePlants, readLocations, cacheLocations } from './js/storage.js';
-import { sync } from './js/sync.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const nameInput = document.getElementById('plant-name-input');
@@ -26,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const feedingMaxInputs = [];
     let imageData = null;
     let identifying = false;
+    let offline = !navigator.onLine;
     const { startLeafAnimation, stopLeafAnimation } = createLeafAnimator(loadingElem, loadingLeaf);
 
     const autoResize = () => {
@@ -111,6 +111,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     attachPairListeners(wateringMinInputs, wateringMaxInputs);
     attachPairListeners(feedingMinInputs, feedingMaxInputs);
+
+    const mutatingControls = () => [
+        saveBtn,
+        addLocationBtn,
+        identifyBtn,
+        cameraBtn,
+        galleryBtn,
+        ...wateringMinInputs,
+        ...wateringMaxInputs,
+        ...feedingMinInputs,
+        ...feedingMaxInputs,
+        nameInput,
+        descElem,
+        locationSelect
+    ];
+
+    const applyOfflineState = () => {
+        mutatingControls().forEach(ctrl => { if (ctrl) ctrl.disabled = offline; });
+    };
+
+    document.addEventListener('offline-state-changed', (e) => {
+        offline = e.detail.offline;
+        applyOfflineState();
+    });
 
     const resizeImage = (file) => {
         return new Promise((resolve, reject) => {
@@ -202,6 +226,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const addLocation = async () => {
+        if (offline) {
+            showMessage('Offline – read only', 'warning');
+            return;
+        }
         const name = prompt('New location name')?.trim();
         if (!name) return;
         try {
@@ -234,6 +262,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const identify = async () => {
+        if (offline) {
+            showMessage('Offline – read only', 'warning');
+            return;
+        }
         const img = imageData || imageElem.getAttribute('src');
         if (!img || img === 'images/placeholder.png') {
             alert('Please add a photo first');
@@ -296,6 +328,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const save = async () => {
+        if (offline) {
+            showMessage('Offline – read only', 'danger');
+            return;
+        }
         if (!locationSelect.value) {
             showMessage('Please pick a location before saving', 'danger');
             return;
@@ -362,6 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (identifyBtn) identifyBtn.addEventListener('click', identify);
     descElem.addEventListener('input', autoResize);
     autoResize();
+    applyOfflineState();
 
-    loadLocations().then(sync);
+    loadLocations();
 });

@@ -1,11 +1,11 @@
 import { api } from './js/api.js';
 import { readLocations, cacheLocations } from './js/storage.js';
-import { sync } from './js/sync.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const listElem = document.getElementById('locations-list');
     const newInput = document.getElementById('new-location');
     const addBtn = document.getElementById('add-location');
+    let offline = !navigator.onLine;
 
     const render = (locs) => {
         const unique = Array.from(new Set(locs)).filter(Boolean);
@@ -18,7 +18,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const del = document.createElement('button');
             del.className = 'btn btn-sm btn-danger';
             del.textContent = 'Delete';
+            del.disabled = offline;
             del.onclick = async () => {
+                if (offline) return;
                 try {
                     const res = await api('DELETE', `/locations/${encodeURIComponent(loc)}`);
                     if (!res.offline) load();
@@ -29,6 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
             li.appendChild(del);
             listElem.appendChild(li);
         });
+        applyOfflineState();
     };
 
     const load = async () => {
@@ -47,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const add = async () => {
+        if (offline) return;
         const name = newInput.value.trim();
         if (!name) return;
         try {
@@ -58,6 +62,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    const applyOfflineState = () => {
+        addBtn.disabled = offline;
+        newInput.disabled = offline;
+        document.querySelectorAll('#locations-list button').forEach(btn => btn.disabled = offline);
+    };
+
+    document.addEventListener('offline-state-changed', (e) => {
+        offline = e.detail.offline;
+        applyOfflineState();
+    });
+
     addBtn.addEventListener('click', add);
-    load().then(sync);
+    applyOfflineState();
+    load();
 });

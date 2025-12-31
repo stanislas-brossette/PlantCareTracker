@@ -4,6 +4,16 @@ body {
     padding: 20px;
 }
 
+#offline-banner {
+    background: #ffc107;
+    color: #000;
+    text-align: center;
+    padding: 8px 12px;
+    font-weight: 700;
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+
 #plantsTable {
     width: 100%;
 }

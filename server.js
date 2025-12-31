@@ -2,6 +2,7 @@ const express = require('express');
 const fs = require('fs');
 const { randomUUID } = require('crypto');
 const app = express();
+const api = express.Router();
 const port = 2000;
 const path = require('path');
 const parseIdentifyResponse = require('./parseIdentifyResponse');
@@ -131,7 +132,7 @@ function isValidFreqArray(arr) {
         arr.every(n => n === null || (typeof n === 'number' && Number.isFinite(n)));
 }
 
-app.post('/clicked', (req, res) => {
+api.post('/clicked', (req, res) => {
     const buttonId = req.body.buttonId;
     if (buttonId) {
         lastClickedTimes[buttonId] = new Date().toISOString();
@@ -142,7 +143,7 @@ app.post('/clicked', (req, res) => {
     }
 });
 
-app.post('/undo', (req, res) => {
+api.post('/undo', (req, res) => {
     const { buttonId, previousTime } = req.body;
     if (!buttonId) {
         return res.status(400).send('Button ID is required');
@@ -158,15 +159,15 @@ app.post('/undo', (req, res) => {
     res.send({ lastClickedTime: previousTime || null });
 });
 
-app.get('/lastClickedTimes', (req, res) => {
+api.get('/lastClickedTimes', (req, res) => {
     res.send(lastClickedTimes);
 });
 
-app.get('/locations', (req, res) => {
+api.get('/locations', (req, res) => {
     res.send(locations);
 });
 
-app.post('/locations', (req, res) => {
+api.post('/locations', (req, res) => {
     const { name } = req.body;
     if (!name) {
         return res.status(400).send('Name is required');
@@ -181,7 +182,7 @@ app.post('/locations', (req, res) => {
     res.status(200).send({ name });
 });
 
-app.delete('/locations/:name', (req, res) => {
+api.delete('/locations/:name', (req, res) => {
     const idx = locations.indexOf(req.params.name);
     if (idx === -1) {
         return res.status(404).send('Location not found');
@@ -203,19 +204,19 @@ app.delete('/locations/:name', (req, res) => {
     res.send({ name: removed });
 });
 
-app.get('/plants', (req, res) => {
+api.get('/plants', (req, res) => {
     // Only return non archived plants
     const visiblePlants = plants.filter(p => !p.archived);
     res.send(visiblePlants);
 });
 
-app.get('/plants/changes', (req, res) => {
+api.get('/plants/changes', (req, res) => {
     const since = parseInt(req.query.since || '0', 10);
     const changed = plants.filter(p => p.updatedAt > since);
     res.send({ plants: changed });
 });
 
-app.get('/plants/:name', (req, res) => {
+api.get('/plants/:name', (req, res) => {
     const plant = plants.find(p => p.name === req.params.name);
     if (plant) {
         res.send(plant);
@@ -224,7 +225,7 @@ app.get('/plants/:name', (req, res) => {
     }
 });
 
-app.put('/plants/:name', (req, res) => {
+api.put('/plants/:name', (req, res) => {
     const index = plants.findIndex(p => p.name === req.params.name);
     if (index === -1) {
         return res.status(404).send('Plant not found');
@@ -285,7 +286,7 @@ app.put('/plants/:name', (req, res) => {
     res.send(plants[index]);
 });
 
-app.post('/plants', (req, res) => {
+api.post('/plants', (req, res) => {
     const newPlant = req.body;
     if (!newPlant.name || !newPlant.name.trim()) {
         newPlant.name = generateDefaultName();
@@ -336,7 +337,7 @@ app.post('/plants', (req, res) => {
     res.status(201).send(plantToAdd);
 });
 
-app.delete('/plants/:name', (req, res) => {
+api.delete('/plants/:name', (req, res) => {
     const index = plants.findIndex(p => p.name === req.params.name);
     if (index === -1) {
         return res.status(404).send('Plant not found');
@@ -354,7 +355,7 @@ app.delete('/plants/:name', (req, res) => {
     res.send(removed);
 });
 
-app.post('/bulk', async (req, res) => {
+api.post('/bulk', async (req, res) => {
     const ops = Array.isArray(req.body) ? req.body : [];
     const results = [];
     for (const op of ops){
@@ -372,7 +373,7 @@ app.post('/bulk', async (req, res) => {
     res.send({ results });
 });
 
-app.post('/identify', async (req, res) => {
+api.post('/identify', async (req, res) => {
     const { image } = req.body;
     if (!image) {
         return res.status(400).send('Image is required');
@@ -474,6 +475,9 @@ app.post('/identify', async (req, res) => {
         res.status(500).send('Error identifying plant');
     }
 });
+
+app.use('/api', api);
+app.use(api);
 
 if (require.main === module) {
     app.listen(port, '0.0.0.0', () => {

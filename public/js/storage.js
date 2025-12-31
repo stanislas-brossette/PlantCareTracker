@@ -1,6 +1,4 @@
-// Use global localforage if available (loaded via CDN).
-// Fall back to a very small in-memory/localStorage based store so tests run
-// without the actual library.
+// IndexedDB helpers built on localforage
 const lf = (typeof localforage !== 'undefined') ? localforage : (() => {
   const memory = {};
   const make = storeName => {
@@ -8,15 +6,14 @@ const lf = (typeof localforage !== 'undefined') ? localforage : (() => {
     return {
       async getItem(key){
         const k = prefix + key;
-        const val = typeof localStorage !== 'undefined' ?
-          localStorage.getItem(k) : memory[k];
+        const val = typeof localStorage !== 'undefined' ? localStorage.getItem(k) : memory[k];
         return val ? JSON.parse(val) : null;
       },
       async setItem(key,val){
         const k = prefix + key;
-        if (typeof localStorage !== 'undefined')
-          localStorage.setItem(k, JSON.stringify(val));
-        memory[k] = JSON.stringify(val);
+        const str = JSON.stringify(val);
+        if (typeof localStorage !== 'undefined') localStorage.setItem(k, str);
+        memory[k] = str;
       }
     };
   };
@@ -24,20 +21,21 @@ const lf = (typeof localforage !== 'undefined') ? localforage : (() => {
 })();
 
 lf.config({ name: 'PlantCareTracker', storeName: 'pct' });
-export const plantsStore = lf.createInstance({ storeName: 'plants' });
-export const locsStore   = lf.createInstance({ storeName: 'locations' });
-export const outbox      = lf.createInstance({ storeName: 'outbox' });
+const plantsStore = lf.createInstance({ storeName: 'plants' });
+const locsStore   = lf.createInstance({ storeName: 'locations' });
+const timesStore  = lf.createInstance({ storeName: 'times' });
 
-export async function cachePlants(arr){ await plantsStore.setItem('all', arr); }
-export async function readPlants(){ return (await plantsStore.getItem('all')) ?? []; }
-export async function cacheLocations(arr){ await locsStore.setItem('all', arr); }
-export async function readLocations(){ return (await locsStore.getItem('all')) ?? []; }
-export async function queue(op){                // op = {method, url, body, ts}
-  const q = (await outbox.getItem('ops')) ?? [];
-  q.push(op); await outbox.setItem('ops', q);
-}
-export async function flushQueue(syncFn){
-  const q = (await outbox.getItem('ops')) ?? [];
-  for (const op of q){ await syncFn(op); }
-  await outbox.setItem('ops', []);
-}
+export async function getCachedPlants(){ return (await plantsStore.getItem('all')) ?? []; }
+export async function saveCachedPlants(plants){ await plantsStore.setItem('all', plants); }
+
+export async function getCachedLocations(){ return (await locsStore.getItem('all')) ?? []; }
+export async function saveCachedLocations(locations){ await locsStore.setItem('all', locations); }
+
+export async function getCachedTimes(){ return (await timesStore.getItem('all')) ?? {}; }
+export async function saveCachedTimes(times){ await timesStore.setItem('all', times); }
+
+// Backwards compatibility for existing modules
+export const readPlants = getCachedPlants;
+export const cachePlants = saveCachedPlants;
+export const readLocations = getCachedLocations;
+export const cacheLocations = saveCachedLocations;

@@ -1,41 +1,54 @@
-import { queue } from './storage.js';
+function buildUrl(path){
+  if (path.startsWith('http')) return path;
+  const base = window.API_BASE || '';
+  const normalizedBase = base.endsWith('/') ? base.slice(0, -1) : base;
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  return `${normalizedBase}${normalizedPath}`;
+}
+
+function offlineResponse(method){
+  if (method !== 'GET'){
+    const err = new Error('Offline');
+    err.offline = true;
+    throw err;
+  }
+  return { offline: true };
+}
 
 export async function api(method, url, body){
-  try{
-    const res = await fetch(url, { method,
-                                   headers:{'Content-Type':'application/json'},
-                                   body: body?JSON.stringify(body):undefined });
-    if (!res.ok) {
-      let detail = '';
-      try {
-        detail = await res.text();
-      } catch (e) {}
-      const error = new Error(detail || `HTTP ${res.status}`);
+  if (!navigator.onLine){
+    return offlineResponse(method);
+  }
+
+  try {
+    const res = await fetch(buildUrl(url), {
+      method,
+      headers:{'Content-Type':'application/json'},
+      body: body ? JSON.stringify(body) : undefined
+    });
+
+    if (!res.ok){
+      const text = await res.text().catch(()=> '');
+      const error = new Error(text || `HTTP ${res.status}`);
       error.status = res.status;
       throw error;
     }
 
-    const text = await res.text();
     const contentType = res.headers.get('content-type') || '';
-    if (!contentType.includes('application/json')) {
-      const error = new Error(text?.slice(0, 200) || 'Unexpected response format');
-      error.status = res.status;
-      throw error;
+    const text = await res.text();
+    if (!contentType.includes('application/json')){
+      return offlineResponse(method);
     }
-
     try {
       return JSON.parse(text || '{}');
-    } catch (e) {
-      const error = new Error('Unexpected response from server. Please ensure the API server is running.');
-      error.status = res.status;
-      error.detail = text?.slice(0, 200);
-      throw error;
+    } catch (err){
+      err.status = res.status;
+      throw err;
     }
-  }catch(err){
-    if (!navigator.onLine){
-      await queue({method,url,body,ts:Date.now()});
-      return { offline:true };
+  } catch (err){
+    if (err.offline){
+      throw err;
     }
-    throw err;
+    return offlineResponse(method);
   }
 }
