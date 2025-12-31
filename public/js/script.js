@@ -1,8 +1,10 @@
 import { api } from './api.js';
-import { readPlants, cachePlants, readLocations, cacheLocations } from './storage.js';
+import { readPlants, cachePlants, readLocations, cacheLocations, readLastClickedTimes, cacheLastClickedTimes, cachePlantImages } from './storage.js';
 import { sync, setRenderer } from './sync.js';
+import { initOfflineState } from './offlineState.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    initOfflineState();
     const plantsTable = document.getElementById('plantsTable');
     const undoBtn = document.getElementById('undo');
     const locationSelect = document.getElementById('location-select');
@@ -108,7 +110,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const cached = await readPlants();
         plants = cached;
         renderPlants();
-        await sync(renderPlants);
+
+        await sync((updatedPlants) => {
+            renderPlants(updatedPlants);
+            // Opportunistically cache images for offline use
+            cachePlantImages(updatedPlants);
+        });
         setInterval(refreshTimes, 60000);
     };
 
@@ -201,14 +208,28 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const getLastClickedTimes = async () => {
-        // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/lastClickedTimes')`
-        const data = await api('GET', '/lastClickedTimes');
+        // First try to load from cache to show something immediately
+        const cached = await readLastClickedTimes();
+        if (cached) applyTimes(cached);
+
+        try {
+            const data = await api('GET', '/lastClickedTimes');
+            if (data && !data.offline) {
+                await cacheLastClickedTimes(data);
+                applyTimes(data);
+            }
+        } catch (e) {
+            // Already handled by initial cache load
+        }
+    };
+
+    const applyTimes = (data) => {
         Object.entries(data).forEach(([buttonId, time]) => {
             if (buttonRefs[buttonId]) {
                 updateButtonState(buttonId, time);
             }
         });
-    };
+    }
 
     const buttonClicked = async (buttonId) => {
         const prevTime = buttonRefs[buttonId].dataset.lastClickedTime || null;

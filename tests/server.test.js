@@ -2,6 +2,24 @@ const request = require('supertest');
 const app = require('../server');
 
 describe('Server endpoints', () => {
+  beforeAll(async () => {
+    // Create the test plant 'ZZ' if it doesn't exist
+    await request(app).post('/plants').send({
+      name: 'ZZ',
+      description: 'Initial description',
+      location: 'TestArea',
+      wateringMin: Array(12).fill(null),
+      wateringMax: Array(12).fill(null),
+      feedingMin: Array(12).fill(null),
+      feedingMax: Array(12).fill(null)
+    });
+  });
+
+  afterAll(async () => {
+    // Clean up
+    await request(app).delete('/plants/ZZ');
+  });
+
   test('GET /locations returns status 200 and array', async () => {
     const res = await request(app).get('/locations');
     expect(res.statusCode).toBe(200);
@@ -104,6 +122,15 @@ describe('Server endpoints', () => {
 
   test('Archiving a plant removes its lastClickedTimes entries', async () => {
     const name = 'Fougère';
+    // Create the plant first
+    await request(app).post('/plants').send({
+        name: name,
+        location: 'TestArea',
+        wateringMin: Array(12).fill(null),
+        wateringMax: Array(12).fill(null),
+        feedingMin: Array(12).fill(null),
+        feedingMax: Array(12).fill(null)
+    });
 
     await request(app).post('/clicked').send({ buttonId: `button-${name}-Arrosage` });
     await request(app).post('/clicked').send({ buttonId: `button-${name}-Engrais` });
