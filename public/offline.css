@@ -1,0 +1,54 @@
+
+/* Offline Banner */
+#offline-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: #6c757d;
+    color: white;
+    text-align: center;
+    padding: 0.5rem;
+    font-weight: bold;
+    z-index: 1060;
+    display: none; /* Hidden by default */
+}
+
+body.offline-mode #offline-banner {
+    display: block;
+}
+
+body.offline-mode {
+    padding-top: 50px; /* Make space for banner */
+}
+
+/* Offline UI States */
+body.offline-mode .btn-success,
+body.offline-mode .btn-warning,
+body.offline-mode .btn-danger,
+body.offline-mode .btn-primary,
+body.offline-mode .btn-outline-primary,
+body.offline-mode .btn-outline-secondary,
+body.offline-mode #create-plant,
+body.offline-mode #save,
+body.offline-mode #archive,
+body.offline-mode #identify,
+body.offline-mode #add-location,
+body.offline-mode #toggle-edit-container, /* Wrap the toggle if needed */
+body.offline-mode .form-switch, /* Target the switch directly */
+body.offline-mode #schedule-table input,
+body.offline-mode #location-select
+{
+    pointer-events: none;
+    opacity: 0.6;
+    filter: grayscale(100%);
+}
+
+/* Specific overrides if needed */
+body.offline-mode #plantsTable button {
+    cursor: not-allowed;
+}
+
+body.offline-mode #undo {
+    display: none;
+}

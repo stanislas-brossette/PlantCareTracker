@@ -1,8 +1,10 @@
 import { api } from './api.js';
 import { readPlants, cachePlants, readLocations, cacheLocations } from './storage.js';
 import { sync } from './sync.js';
+import { initOfflineState } from './offlineState.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
+    initOfflineState();
     const params = new URLSearchParams(window.location.search);
     let name = params.get('name');
     if (!name) return;
@@ -82,17 +84,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                 locationSelect.appendChild(opt);
             });
         };
-        // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/locations')`
+
+        // Load from cache first
         const cached = await readLocations();
-        render(cached);
+        if (cached && cached.length) render(cached);
+
         try {
             const list = await api('GET', '/locations');
-            if (!list.offline) {
+            if (list && !list.offline) {
                 await cacheLocations(list);
                 render(list);
             }
         } catch (err) {
-            console.error('Failed to load locations', err);
+            console.error('Failed to load locations from API', err);
         }
     };
 
@@ -138,11 +142,28 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const fetchPlant = async (plantName) => {
         if (plantCache[plantName]) return plantCache[plantName];
-        const plant = await api('GET', `/plants/${encodeURIComponent(plantName)}`);
-        if (!plant.offline) {
-            plantCache[plantName] = plant;
-            return plant;
+        try {
+            const plant = await api('GET', `/plants/${encodeURIComponent(plantName)}`);
+            if (plant && !plant.offline) {
+                plantCache[plantName] = plant;
+                return plant;
+            }
+        } catch (e) {
+            console.log('Fetch failed, falling back to cache');
         }
+
+        // Fallback to full list cache if specific fetch failed or is offline
+        try {
+            const allPlants = await readPlants();
+            const found = allPlants.find(p => p.name === plantName);
+            if (found) {
+                plantCache[plantName] = found;
+                return found;
+            }
+        } catch (e) {
+            console.error('Cache read failed', e);
+        }
+
         return plantCache[plantName] || null;
     };
 
@@ -342,9 +363,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const loadPlantNames = async () => {
-        // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/plants')`
-        const list = await api('GET', '/plants');
-        if (!list.offline) {
+        let list = null;
+        try {
+            list = await api('GET', '/plants');
+        } catch (e) {
+            console.log('API load failed, using cache');
+        }
+
+        if (list && !list.offline) {
             const filtered = list.filter(p => !p.archived && (currentLocation === 'All' || p.location === currentLocation));
             plantNames = filtered.map(p => p.name);
             await cachePlants(list);
@@ -417,6 +443,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const save = async () => {
+        if (!navigator.onLine) { showMessage('Offline: Cannot save', 'warning'); return; }
         const body = {
             name: plantNameInput.value.trim(),
             description: descElem.value,
@@ -433,6 +460,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const updateDescription = async (text) => {
+        if (!navigator.onLine) { showMessage('Offline: Cannot update', 'warning'); return; }
         await api('PUT', `/plants/${encodeURIComponent(name)}`, { description: text });
         if (plantCache[name]) {
             plantCache[name].description = text;
@@ -441,6 +469,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const updateSchedule = async (sched) => {
+        if (!navigator.onLine) { showMessage('Offline: Cannot update', 'warning'); return; }
         await api('PUT', `/plants/${encodeURIComponent(name)}`, {
             wateringMin: sched.wateringMin,
             wateringMax: sched.wateringMax,
@@ -457,6 +486,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const archive = async () => {
+        if (!navigator.onLine) { showMessage('Offline: Cannot archive', 'warning'); return; }
         await api('PUT', `/plants/${encodeURIComponent(name)}`, { archived: true });
         showMessage('Archived', 'success');
         setTimeout(() => { window.location.href = 'index.html'; }, 1000);
@@ -484,6 +514,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const identify = async () => {
+        if (!navigator.onLine) { showMessage('Offline: Cannot identify', 'warning'); return; }
         identifying = true;
         loadingElem.classList.remove('d-none');
         loadingElem.classList.add('blocking');

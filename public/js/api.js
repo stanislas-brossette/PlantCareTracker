@@ -33,7 +33,7 @@ export async function api(method, url, body){
     }
   }catch(err){
     if (!navigator.onLine){
-      await queue({method,url,body,ts:Date.now()});
+      // await queue({method,url,body,ts:Date.now()});
       return { offline:true };
     }
     throw err;

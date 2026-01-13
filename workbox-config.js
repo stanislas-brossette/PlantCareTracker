@@ -2,7 +2,7 @@ module.exports = {
   globDirectory: 'public',
   globPatterns: ['**/*.{html,js,css,png,jpeg,svg,json}'],
   swDest: 'public/sw.js',
-  ignoreURLParametersMatching: [/^utm_/, /^fbclid$/],
+  ignoreURLParametersMatching: [/^utm_/, /^fbclid$/, /^name$/],
   runtimeCaching: [
     {
       urlPattern: ({url}) => url.pathname.startsWith('/plants') || url.pathname.startsWith('/locations'),

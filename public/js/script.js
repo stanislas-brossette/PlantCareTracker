@@ -1,8 +1,10 @@
 import { api } from './api.js';
-import { readPlants, cachePlants, readLocations, cacheLocations } from './storage.js';
+import { readPlants, cachePlants, readLocations, cacheLocations, readLastClickedTimes, cacheLastClickedTimes, cachePlantImages } from './storage.js';
 import { sync, setRenderer } from './sync.js';
+import { initOfflineState } from './offlineState.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    initOfflineState();
     const plantsTable = document.getElementById('plantsTable');
     const undoBtn = document.getElementById('undo');
     const locationSelect = document.getElementById('location-select');
@@ -21,7 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const buttonRefs = {};
 
     const loadLocations = async () => {
-        // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/locations')`
         const cached = await readLocations();
         const render = (list) => {
             locations = ['All', ...list];
@@ -37,10 +38,14 @@ document.addEventListener('DOMContentLoaded', () => {
             currentIndex = locations.indexOf(stored);
         };
         render(cached);
-        const list = await api('GET', '/locations');
-        if (!list.offline) {
-            await cacheLocations(list);
-            render(list);
+        try {
+            const list = await api('GET', '/locations');
+            if (!list.offline) {
+                await cacheLocations(list);
+                render(list);
+            }
+        } catch (err) {
+            console.error('Failed to load locations from API:', err);
         }
     };
 
@@ -53,7 +58,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return src;
     };
 
-    const renderPlants = () => {
+    const renderPlants = (list) => {
+        if (list) plants = list;
         while (plantsTable.rows.length > 1) {
             plantsTable.deleteRow(1);
         }
@@ -108,7 +114,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const cached = await readPlants();
         plants = cached;
         renderPlants();
-        await sync(renderPlants);
+
+        await sync((updatedPlants) => {
+            renderPlants(updatedPlants);
+            cachePlants(updatedPlants);
+            // Opportunistically cache images for offline use
+            cachePlantImages(updatedPlants);
+        });
         setInterval(refreshTimes, 60000);
     };
 
@@ -201,14 +213,28 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const getLastClickedTimes = async () => {
-        // TODO-OFFLINE: replace the entire fetch block below with `api('GET', '/lastClickedTimes')`
-        const data = await api('GET', '/lastClickedTimes');
+        // First try to load from cache to show something immediately
+        const cached = await readLastClickedTimes();
+        if (cached) applyTimes(cached);
+
+        try {
+            const data = await api('GET', '/lastClickedTimes');
+            if (data && !data.offline) {
+                await cacheLastClickedTimes(data);
+                applyTimes(data);
+            }
+        } catch (e) {
+            // Already handled by initial cache load
+        }
+    };
+
+    const applyTimes = (data) => {
         Object.entries(data).forEach(([buttonId, time]) => {
             if (buttonRefs[buttonId]) {
                 updateButtonState(buttonId, time);
             }
         });
-    };
+    }
 
     const buttonClicked = async (buttonId) => {
         const prevTime = buttonRefs[buttonId].dataset.lastClickedTime || null;
